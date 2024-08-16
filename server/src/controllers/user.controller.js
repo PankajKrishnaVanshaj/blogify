@@ -1,0 +1,121 @@
+import mongoose from "mongoose";
+import { Posts } from "../models/post.model.js";
+import Users from "../models/user.model.js";
+
+// Fetch user by ID and their posts
+export const getUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Find the user by ID, excluding sensitive fields
+    const user = await Users.findById(userId).select("-password -email");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Fetch posts by the user ID
+    const posts = await Posts.find({ createdBy: userId });
+
+    // Return the user with user details and posts
+    res.status(200).json({ ...user.toObject(), posts });
+  } catch (err) {
+    console.error("Error fetching user by ID:", err);
+    res.status(500).json({ message: "Error fetching user." });
+  }
+};
+
+// Follow or unfollow a user
+export const toggleFollowUnfollow = async (req, res) => {
+  try {
+    const userIdToFollow = new mongoose.Types.ObjectId(req.params.id);
+    const userId = new mongoose.Types.ObjectId(req.user._id); // Assuming user ID is available in the request
+
+    if (userId.equals(userIdToFollow)) {
+      return res
+        .status(400)
+        .json({ message: "You cannot follow/unfollow yourself" });
+    }
+
+    const [user, userToFollow] = await Promise.all([
+      Users.findById(userId),
+      Users.findById(userIdToFollow),
+    ]);
+
+    if (!user || !userToFollow) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isFollowing =
+      Array.isArray(user.following) &&
+      user.following.some((f) => f.user.equals(userIdToFollow));
+
+    if (isFollowing) {
+      // Unfollow the user
+      await Promise.all([
+        Users.updateOne(
+          { _id: userId },
+          { $pull: { following: { user: userIdToFollow } } }
+        ),
+        Users.updateOne(
+          { _id: userIdToFollow },
+          { $pull: { followers: { user: userId } } }
+        ),
+      ]);
+      return res.status(200).json({ message: "User unfollowed" });
+    } else {
+      // Follow the user
+      const now = new Date();
+      await Promise.all([
+        Users.updateOne(
+          { _id: userId },
+          { $push: { following: { user: userIdToFollow, createdAt: now } } }
+        ),
+        Users.updateOne(
+          { _id: userIdToFollow },
+          { $push: { followers: { user: userId, createdAt: now } } }
+        ),
+      ]);
+      return res.status(200).json({ message: "User followed" });
+    }
+  } catch (error) {
+    console.error("Error in follow/unfollow operation:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+export const followersStatus = async (req, res) => {
+  try {
+    const userIdToFollow = new mongoose.Types.ObjectId(req.params.id);
+    const userId = new mongoose.Types.ObjectId(req.user._id); // Assuming user ID is available in the request
+
+    if (userId.equals(userIdToFollow)) {
+      return res
+        .status(400)
+        .json({ message: "You cannot follow/unfollow yourself" });
+    }
+
+    const [user, userToFollow] = await Promise.all([
+      Users.findById(userId),
+      Users.findById(userIdToFollow),
+    ]);
+
+    if (!user || !userToFollow) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isFollowing =
+      Array.isArray(user.following) &&
+      user.following.some((f) => f.user.equals(userIdToFollow));
+
+    res.status(200).json({
+      message: isFollowing ? "User is following" : "User is not following",
+      isFollowing,
+    });
+  } catch (error) {
+    console.error("Error checking follow status:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
