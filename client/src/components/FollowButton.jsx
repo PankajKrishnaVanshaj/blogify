@@ -2,33 +2,23 @@ import axios from "axios";
 import { ImUserCheck } from "react-icons/im";
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { toast } from "sonner"; // Import toast from Sonner Toast
 
-const FollowButton = ({
-  user = {},
-  followers,
-  isFollowing,
-  handleFollowToggle,
-}) => {
-  const [localFollowers, setLocalFollowers] = useState(followers);
-  const [localIsFollowing, setLocalIsFollowing] = useState(isFollowing);
+const FollowButton = ({ user }) => {
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followers, setFollowers] = useState(user?.followers?.length || 0); // Safe access and default value
   const token = Cookies.get("token");
 
   useEffect(() => {
     const fetchFollowStatus = async () => {
-      if (!user._id) {
-        console.error("User ID is not available");
-        return;
-      }
-
-      if (!token) {
-        console.error("No token found");
-        return;
-      }
-
       try {
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
         const response = await axios.get(
-          `http://localhost:55555/api/v1/users/user/${user._id}/followers-status`,
+          `http://localhost:55555/api/v1/users/user/${user._id}/followers-status`, // Use user._id for API call
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -36,30 +26,27 @@ const FollowButton = ({
           }
         );
 
-        setLocalIsFollowing(response.data.isFollowing);
+        setIsFollowing(response.data.isFollowing);
       } catch (error) {
         console.error("Error fetching follow status:", error);
       }
     };
 
-    fetchFollowStatus();
-  }, [token, user._id]);
+    if (user && user._id) {
+      fetchFollowStatus();
+    }
+  }, [token, user]);
 
   const toggleFollowUnfollow = async () => {
-    if (!user._id) {
-      console.error("User ID is not available");
-      return;
-    }
-
-    if (!token) {
-      toast.error("Login First");
-      return;
-    }
-
     try {
+      if (!token) {
+        toast.error("Login first");
+        return;
+      }
+
       const response = await axios.post(
-        `http://localhost:55555/api/v1/users/user/${user._id}/toggle-follow-unfollow`,
-        {},
+        `http://localhost:55555/api/v1/users/user/${user._id}/toggle-follow-unfollow`, // Use user._id for API call
+        {}, // body is empty
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,31 +55,15 @@ const FollowButton = ({
       );
 
       if (response.status === 200) {
-        const newIsFollowing = !localIsFollowing;
-        const newFollowersCount = newIsFollowing
-          ? localFollowers + 1
-          : localFollowers - 1;
+        // Update the following status and follower count
+        setIsFollowing(!isFollowing);
+        setFollowers(isFollowing ? followers - 1 : followers + 1);
 
-        setLocalIsFollowing(newIsFollowing);
-        setLocalFollowers(newFollowersCount);
-
-        // Display success toast message
-        toast(
-          `Successfully ${newIsFollowing ? "followed" : "unfollowed"} ${
-            user.username
-          }`
-        );
-
-        // Call the parent handler if provided
-        if (handleFollowToggle) {
-          handleFollowToggle(newIsFollowing, newFollowersCount);
-        }
+        // Show the correct toast message
+        toast(`You ${isFollowing ? "unfollowed" : "followed"} ${user.name}`);
       }
     } catch (error) {
       console.error("Error toggling follow/unfollow:", error);
-
-      // Display error toast message
-      toast.error("Failed to follow/unfollow. Please try again.");
     }
   };
 
@@ -100,13 +71,13 @@ const FollowButton = ({
     <div className="flex items-center flex-col">
       <div className="flex items-center text-sm font-semibold text-gray-600 font-mono gap-1">
         <ImUserCheck size={14} />
-        {localFollowers}
+        {followers}
       </div>
       <button
         className="px-2 border rounded-full text-sm font-light"
         onClick={toggleFollowUnfollow}
       >
-        {localIsFollowing ? "UnFollow" : "Follow"}
+        {isFollowing ? "UnFollow" : "Follow"}
       </button>
     </div>
   );

@@ -9,8 +9,6 @@ import UserInfo from "@/components/UserInfo";
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
 
   useEffect(() => {
     getPostDetails();
@@ -22,17 +20,10 @@ const ReadPost = ({ params }) => {
         `http://localhost:55555/api/v1/posts/post/${params.post}`
       );
       setPost(response.data);
-      setFollowersCount(response.data.user.followers.length);
-      setIsFollowing(response.data.user.isFollowing); // Assuming this data is available
     } catch (error) {
       console.error("Error fetching post data:", error);
       setError("Failed to fetch post data");
     }
-  };
-
-  const handleFollowToggle = (newIsFollowing, newFollowersCount) => {
-    setIsFollowing(newIsFollowing);
-    setFollowersCount(newFollowersCount);
   };
 
   if (error) {
@@ -54,12 +45,7 @@ const ReadPost = ({ params }) => {
           </h1>
           <div className="flex justify-between gap-3 overflow-x-auto my-4 shadow-lg py-1 px-2 rounded-lg bg-white dark:bg-gray-900 sticky top-0">
             <UserInfo user={post.user} />
-            <FollowButton
-              user={post.user}
-              followers={followersCount}
-              isFollowing={isFollowing}
-              handleFollowToggle={handleFollowToggle}
-            />
+            <FollowButton user={post.user} />
             <PostStats post={post} />
           </div>
         </div>
