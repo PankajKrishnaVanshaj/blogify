@@ -8,6 +8,7 @@ import { MdNotificationsActive } from "react-icons/md";
 import Cookies from "js-cookie";
 import axios from "axios";
 import SearchBar from "./SearchBar";
+import Notifications from "./Notifications"; // Import the Notifications component
 
 const MenuItems = [
   { name: "Home", href: "/" },
@@ -42,6 +43,7 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDialogVisible, setIsDialogVisible] = useState(false); // Add state for Notifications visibility
   const [token, setToken] = useState(null);
 
   useEffect(() => {
@@ -104,7 +106,11 @@ const Navbar = () => {
 
       <div className="hidden md:flex gap-4 items-center">
         <SearchBar />
-        <MdNotificationsActive size={30} />
+        <MdNotificationsActive
+          size={30}
+          onClick={() => setIsDialogVisible(!isDialogVisible)} // Toggle the dialog visibility
+          className="cursor-pointer"
+        />
         <div className="flex gap-2 items-center cursor-pointer">
           {token ? (
             <Button
@@ -124,6 +130,12 @@ const Navbar = () => {
       </div>
 
       {isOpen && <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} />}
+
+      {/* Render Notifications component */}
+      <Notifications
+        isDialogVisible={isDialogVisible}
+        setIsDialogVisible={setIsDialogVisible}
+      />
     </nav>
   );
 };
