@@ -12,8 +12,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const token = Cookies.get("token");
 
-  console.log(user);
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -38,6 +36,13 @@ export const AuthProvider = ({ children }) => {
 
     fetchUser();
   }, [token]);
+
+  // useEffect(() => {
+  //   if (user) {
+  //     console.log("User object:", user);
+  //     console.log("User name:", user.msg.notifications);
+  //   }
+  // }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

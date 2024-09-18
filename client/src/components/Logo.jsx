@@ -6,7 +6,7 @@ const Logo = ({ type }) => {
     <div className="">
       <Link
         href="/"
-        className={`text-3xl text-rose-500 ${type && " text-5xl font-bold"}`}
+        className={`text-3xl text-primary ${type && " text-5xl font-bold"}`}
       >
         PK
         <span>

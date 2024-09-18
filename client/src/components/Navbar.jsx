@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import { CiMenuFries } from "react-icons/ci";
-import { MdNotificationsActive } from "react-icons/md";
 import Cookies from "js-cookie";
 import axios from "axios";
 import SearchBar from "./SearchBar";
@@ -43,7 +42,6 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDialogVisible, setIsDialogVisible] = useState(false); // Add state for Notifications visibility
   const [token, setToken] = useState(null);
 
   useEffect(() => {
@@ -104,20 +102,19 @@ const Navbar = () => {
         </ul>
       </div>
 
-      <div className="hidden md:flex gap-4 items-center">
+      <div className="hidden md:flex gap-5 items-center">
         <SearchBar />
-        <MdNotificationsActive
-          size={30}
-          onClick={() => setIsDialogVisible(!isDialogVisible)} // Toggle the dialog visibility
-          className="cursor-pointer"
-        />
+
         <div className="flex gap-2 items-center cursor-pointer">
           {token ? (
-            <Button
-              onClick={logoutHandle}
-              label="Log Out"
-              styles="flex items-center justify-center bg-black dark:bg-rose-600 text-white dark:text-white px-4 py-1.5 rounded-full"
-            />
+            <>
+              <Notifications />
+              <Button
+                onClick={logoutHandle}
+                label="Log Out"
+                styles="flex items-center justify-center bg-black dark:bg-rose-600 text-white dark:text-white px-4 py-1.5 rounded-full"
+              />
+            </>
           ) : (
             <Link href="/sign-in">
               <Button
@@ -130,12 +127,6 @@ const Navbar = () => {
       </div>
 
       {isOpen && <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} />}
-
-      {/* Render Notifications component */}
-      <Notifications
-        isDialogVisible={isDialogVisible}
-        setIsDialogVisible={setIsDialogVisible}
-      />
     </nav>
   );
 };

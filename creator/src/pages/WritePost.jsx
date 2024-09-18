@@ -208,6 +208,7 @@ const WritePost = () => {
               accept="image/*"
               onChange={handleBannerChange}
               className="absolute inset-0 opacity-0 cursor-pointer"
+              required
             />
             {bannerUrl && (
               <img

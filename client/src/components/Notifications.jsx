@@ -1,19 +1,33 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import Image from "next/image";
-import { IoMdCloseCircleOutline } from "react-icons/io";
+import { MdNotificationsActive } from "react-icons/md";
 import UserInfo from "./UserInfo";
 import Link from "next/link";
 import Cookies from "js-cookie";
 
-const Notifications = ({ isDialogVisible, setIsDialogVisible }) => {
-  const { loading, notifications = [] } = useAuth(); // Initialize notifications to an empty array
+const Notifications = () => {
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState([]);
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
   const token = Cookies.get("token");
+  const notificationsRef = useRef(null);
 
+  // Log notifications for debugging
+  useEffect(() => {
+    // console.log(
+    //   user?.msg?.notifications?.map((notification) => notification.message)
+    // );
+    if (user?.msg?.notifications) {
+      setNotifications(user.msg.notifications);
+    }
+  }, [user]);
+
+  // Fetch posts related to notifications
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -38,56 +52,93 @@ const Notifications = ({ isDialogVisible, setIsDialogVisible }) => {
     }
   }, [notifications]);
 
+  // Close notification on outside click or "Escape" key
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
+        closeNotification();
+      }
+    };
+
+    const handleKeyPress = (event) => {
+      if (event.key === "Escape") {
+        closeNotification();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener("click", handleOutsideClick);
+      window.addEventListener("keydown", handleKeyPress);
+    }
+
+    return () => {
+      window.removeEventListener("click", handleOutsideClick);
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [isOpen]);
+
+  const toggleNotificationButton = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const closeNotification = () => {
+    setIsOpen(false);
+  };
+
   const markAsRead = async (notificationId) => {
     const notification = notifications.find((n) => n._id === notificationId);
+    closeNotification();
+
     if (notification && !notification.read) {
-      await axios.patch(
-        `http://localhost:55555/api/v1/posts/${notificationId}/mark-notification`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      try {
+        await axios.patch(
+          `http://localhost:55555/api/v1/posts/${notificationId}/mark-notification`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        // Update local state to mark as read
+        setNotifications(
+          notifications.map((n) =>
+            n._id === notificationId ? { ...n, read: true } : n
+          )
+        );
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
+    return <div className="p-4 text-red-700">{error}</div>;
   }
 
   return (
-    <div
-      className={`fixed top-16 right-4 bg-white bg-opacity-90 z-50 p-4 max-w-sm w-full border border-gray-300 rounded-lg shadow-lg transition-transform ${
-        isDialogVisible ? "translate-x-0" : "translate-x-full"
-      }`}
-      style={{ maxHeight: "80vh", overflowY: "auto" }} // Added overflow-auto with max-height
-    >
+    <div ref={notificationsRef}>
       <button
-        aria-label="Close notifications"
-        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-50"
-        onClick={() => setIsDialogVisible(false)}
+        onClick={toggleNotificationButton}
+        className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
       >
-        <IoMdCloseCircleOutline size={24} />
-        {notifications.length > 0 &&
-          notifications.some((notification) => !notification.read) && (
-            <span className="absolute top-0 right-0 block h-3 w-3 bg-pink-500 rounded-full"></span>
-          )}
+        <MdNotificationsActive size={24} />
       </button>
-      {isDialogVisible && (
-        <div>
+      {isOpen && (
+        <div
+          className="absolute top-16 right-0 bg-white bg-opacity-90 z-50 p-4 max-w-sm w-full border border-gray-300 rounded-lg shadow-lg"
+          style={{ maxHeight: "80vh", overflowY: "auto" }}
+        >
           {posts.map(({ post, ...notification }) => (
             <div
               key={notification._id}
               className="relative mb-2 p-2 border border-gray-200 rounded-lg shadow-md bg-white"
             >
               {!notification.read && (
-                <span className="absolute top-2 right-2 block h-3 w-3 bg-pink-500 rounded-full"></span>
+                <span className="absolute top-2 right-2 block h-3 w-3 bg-primary rounded-full"></span>
               )}
               <div className="flex items-center mb-2">
                 <Image

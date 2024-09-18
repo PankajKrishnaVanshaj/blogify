@@ -127,7 +127,12 @@ const SearchBar = () => {
                     ? suggestion.title.slice(0, 57) + "..."
                     : suggestion.title}
                 </strong>
-                <p className="text-sm text-gray-500">{suggestion.content}</p>
+                <p
+                  className="text-sm text-gray-500"
+                  dangerouslySetInnerHTML={{
+                    __html: suggestion.content,
+                  }}
+                />
               </li>
             ))}
             {suggestions.length === 0 && query && (

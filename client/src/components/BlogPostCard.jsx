@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { IoBookmarks, IoEye, IoShareSocialSharp } from "react-icons/io5";
+import { IoBookmarks, IoEye } from "react-icons/io5";
 import Link from "next/link";
 import UserInfo from "./UserInfo";
 import ShareButton from "./ShareButton";
@@ -13,13 +13,18 @@ const BlogPostCard = ({ post }) => {
     createdAt = new Date(),
     views = 0,
     banner = "",
+    user,
   } = post || {};
 
   const postUrl = `/${_id}`;
+  const formattedDate = new Date(createdAt).toLocaleDateString();
+  const truncatedTitle = title.length > 40 ? `${title.slice(0, 40)}...` : title;
+  const truncatedContent =
+    content.length > 104 ? `${content.slice(0, 104)}...` : content;
 
   return (
-    <div className="h-60 border border-gray-200 rounded-lg shadow-md overflow-hidden">
-      <div className="flex my-1 items-center">
+    <div className="h-48 border border-gray-200 rounded-lg shadow-md overflow-hidden">
+      <div className="flex my-1 items-center justify-between">
         <div className="flex-shrink-0 mx-1">
           <Link href={postUrl}>
             {banner && (
@@ -28,22 +33,28 @@ const BlogPostCard = ({ post }) => {
                 alt={title}
                 width={160}
                 height={160}
-                priority={true}
-                className="object-cover rounded-lg h-40 w-40"
+                priority
+                className="object-cover rounded-lg h-28 w-28 hover:scale-105 transition-transform duration-300"
               />
             )}
           </Link>
         </div>
         <div className="mx-1 flex-1">
           <Link href={postUrl}>
-            <h1 className="text-xl font-semibold mb-1 text-gray-900">
-              {title.length > 50 ? `${title.slice(0, 50)}...` : title}
+            <h1 className="text-xl font-semibold mb-1 text-gray-900 hover:text-primary">
+              {truncatedTitle}
             </h1>
           </Link>
           <p className="text-gray-700 text-sm">
-            {content.length > 140 ? `${content.slice(0, 140)}...` : content}
+            <span
+              dangerouslySetInnerHTML={{
+                __html: truncatedContent,
+              }}
+            />
             <Link href={postUrl}>
-              <b className="font-bold"> Read More...</b>
+              <b className="font-bold text-primary hover:underline">
+                Read More...
+              </b>
             </Link>
           </p>
         </div>
@@ -51,13 +62,13 @@ const BlogPostCard = ({ post }) => {
 
       <hr className="my-3 mx-20 border-gray-300" />
       <div className="px-6 flex items-center justify-between text-sm text-gray-600">
-        {post?.user && <UserInfo user={post.user} use={"BlogPostCard"} />}
+        {user && <UserInfo user={user} use="BlogPostCard" />}
         <div className="flex items-center space-x-6">
           <span className="flex items-center space-x-1">
             <IoEye className="text-gray-500" />
             <span>{views}</span>
           </span>
-          <span>{new Date(createdAt).toLocaleDateString()}</span>
+          <span>{formattedDate}</span>
           <span className="flex items-center space-x-1">
             <ShareButton
               url={`${process.env.NEXT_PUBLIC_BASE_URL}/${_id}`}

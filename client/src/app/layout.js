@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,11 +16,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="w-full flex flex-col min-h-screen px-4 md:px-10 2xl:px-28">
-          <Navbar /> <Toaster position="top-center" richColors />
-          <div className="flex-1">{children}</div>
-          <Footer />
-        </div>
+        <AuthProvider>
+          <div className="w-full flex flex-col min-h-screen px-4 md:px-10 2xl:px-28">
+            <Navbar /> <Toaster position="top-center" richColors />
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

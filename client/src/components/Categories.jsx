@@ -18,8 +18,8 @@ const Categories = ({ onSelectCategory }) => {
           onClick={() => handleCategoryClick(category)}
           className={`py-2 px-4 rounded-lg transition duration-300 ${
             selectedCategory === category
-              ? "bg-blue-600 text-white"
-              : "bg-blue-500 text-white hover:bg-blue-600"
+              ? "bg-pink-600 text-white"
+              : "bg-primary text-white hover:bg-pink-600"
           }`}
         >
           {category}

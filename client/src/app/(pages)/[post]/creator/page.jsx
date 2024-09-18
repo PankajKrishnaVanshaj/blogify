@@ -53,9 +53,9 @@ const Creator = ({ params }) => {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 p-6 bg-white shadow-lg rounded-lg border border-gray-200">
-        <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-blue-500">
+    <div className="py-2">
+      <div className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 p-6 bg-white shadow-lg rounded-lg border border-gray-200 mx-auto max-w-4xl">
+        <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary">
           <Image
             src={user.avatarUrl || "/pankri.png"}
             alt={user.name}
@@ -84,7 +84,8 @@ const Creator = ({ params }) => {
           </div>
         </div>
       </div>
-      <div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 py-3">
         {user.posts.map((post) => (
           <BlogPostCard key={post._id} post={post} />
         ))}

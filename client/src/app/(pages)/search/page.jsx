@@ -33,11 +33,11 @@ const Search = () => {
   }, [query]); // The effect will run whenever the "query" changes
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto py-2">
       {loading ? (
         <div className="flex justify-center my-4">Loading...</div>
       ) : (
-        <div className="mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
           {results.length > 0 ? (
             results.map((post, index) => (
               <BlogPostCard key={index} post={post} />

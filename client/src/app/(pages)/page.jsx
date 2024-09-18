@@ -14,20 +14,32 @@ export default function Home() {
   const [category, setCategory] = useState("All");
 
   const loadMoreTriggerRef = useRef(null); // Reference for the load-more trigger element
+  const isFetchingRef = useRef(false); // To prevent multiple fetch triggers
 
   useEffect(() => {
     const fetchPosts = async () => {
+      if (isFetchingRef.current) return; // Avoid duplicate fetches
+      isFetchingRef.current = true;
+
+      setLoading(true);
+
       try {
         const categoryParam = category === "All" ? "" : `&category=${category}`;
         const response = await axios.get(
           `http://localhost:55555/api/v1/posts/get-all-posts?page=${page}&limit=10${categoryParam}`
         );
-        setPosts((prevPosts) => [...prevPosts, ...response.data.posts]); // Append new posts
+        setPosts(
+          (prevPosts) =>
+            page === 1
+              ? response.data.posts
+              : [...prevPosts, ...response.data.posts] // Avoid duplicate appending
+        );
         setTotalPages(response.data.totalPages);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
+        isFetchingRef.current = false; // Reset the fetch trigger
       }
     };
 
@@ -54,7 +66,7 @@ export default function Home() {
 
   const handleCategoryChange = (newCategory) => {
     setCategory(newCategory);
-    setPage(1); // Reset to first page on category change
+    setPage(1); // Reset to the first page on category change
     setPosts([]); // Clear existing posts to fetch new ones
   };
 
@@ -64,26 +76,16 @@ export default function Home() {
         <CarouselSection />
       </div>
       <Categories onSelectCategory={handleCategoryChange} />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-          {posts.length > 0
-            ? posts.map((post) => <BlogPostCard key={post._id} post={post} />)
-            : !loading && (
-                <p className="text-center text-gray-800 dark:text-gray-200 col-span-full">
-                  No posts available.
-                </p>
-              )}
-        </div>
-        <div className="space-y-4">
-          <div className="rounded-lg shadow-lg p-4">
-            {/* <PopularPosts /> */}
-            ADS
-          </div>
-          <div className="rounded-lg shadow-lg p-4">
-            {/* <PopularCreator /> */}
-            ADS
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+        {posts.length > 0
+          ? posts.map((post, index) => (
+              <BlogPostCard key={`${post._id}-${index}`} post={post} />
+            ))
+          : !loading && (
+              <p className="text-center text-gray-800 dark:text-gray-200 col-span-full">
+                No posts available.
+              </p>
+            )}
       </div>
 
       <div className="flex justify-center mt-4">
@@ -92,6 +94,16 @@ export default function Home() {
           className="w-full h-1 bg-transparent" // Invisible element to trigger loading more posts
         />
       </div>
+
+      {loading && (
+        <div className="text-center mt-4">
+          <p className="text-gray-500 dark:text-gray-300">
+            Loading more posts...
+          </p>
+        </div>
+      )}
+
+      {error && <div className="text-red-500">{error}</div>}
     </main>
   );
 }
