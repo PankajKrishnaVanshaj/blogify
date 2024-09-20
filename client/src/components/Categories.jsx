@@ -1,13 +1,25 @@
 import React, { useState } from "react";
 
-const categories = ["ALL", "NEWS", "SPORTS", "CODING", "EDUCATION", "FASHION"];
+const categories = [
+  "All",
+  "Technology & Innovation",
+  "Health & Wellness",
+  "Travel & Adventure",
+  "Education & Learning",
+  "Personal Development",
+  "Finance & Investment",
+  "Lifestyle & Fashion",
+  "Food & Recipes",
+  "Sports & Fitness",
+  "Business & Entrepreneurship",
+];
 
 const Categories = ({ onSelectCategory }) => {
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
-    onSelectCategory(category === "ALL" ? "" : category);
+    onSelectCategory(category === "All" ? "" : category);
   };
 
   return (

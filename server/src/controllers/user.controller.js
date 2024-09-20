@@ -8,7 +8,9 @@ export const getUserById = async (req, res) => {
     const userId = req.params.id;
 
     // Find the user by ID, excluding sensitive fields
-    const user = await Users.findById(userId).select("-password -email");
+    const user = await Users.findById(userId).select(
+      "-password -email -notifications"
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });

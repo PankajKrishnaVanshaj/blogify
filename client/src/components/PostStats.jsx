@@ -6,8 +6,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import ShareButton from "./ShareButton";
 import { toast } from "sonner"; // Import toast from Sonner Toast
+import { useAuth } from "@/context/AuthContext";
 
 const PostStats = ({ post }) => {
+  const { user } = useAuth();
   const token = Cookies.get("token");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
@@ -18,31 +20,39 @@ const PostStats = ({ post }) => {
   };
 
   useEffect(() => {
-    const fetchLikeStatus = async () => {
-      try {
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
+    if (post) {
+      setIsLiked(
+        post.likes.some((f) => f.user.toString() === user?.msg?._id.toString())
+      );
+    }
+  }, [user, post]);
 
-        const response = await axios.get(
-          `http://localhost:55555/api/v1/posts/${post._id}/likes-status`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  // useEffect(() => {
+  //   const fetchLikeStatus = async () => {
+  //     try {
+  //       if (!token) {
+  //         console.error("No token found");
+  //         return;
+  //       }
 
-        setIsLiked(response.data.isLiked);
-      } catch (error) {
-        console.error("Error fetching like status:", error);
-        toast.error("Failed to fetch like status.");
-      }
-    };
+  //       const response = await axios.get(
+  //         `http://localhost:55555/api/v1/posts/${post._id}/likes-status`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
 
-    fetchLikeStatus();
-  }, [post._id, token]);
+  //       setIsLiked(response.data.isLiked);
+  //     } catch (error) {
+  //       console.error("Error fetching like status:", error);
+  //       toast.error("Failed to fetch like status.");
+  //     }
+  //   };
+
+  //   fetchLikeStatus();
+  // }, [post._id, token]);
 
   const toggleLikeDislike = async () => {
     try {

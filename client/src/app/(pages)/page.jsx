@@ -24,7 +24,8 @@ export default function Home() {
       setLoading(true);
 
       try {
-        const categoryParam = category === "All" ? "" : `&category=${category}`;
+        const categoryParam =
+          category === "All" ? "" : `&category=${encodeURIComponent(category)}`;
         const response = await axios.get(
           `http://localhost:55555/api/v1/posts/get-all-posts?page=${page}&limit=10${categoryParam}`
         );

@@ -4,6 +4,7 @@ import axios from "axios";
 import { FcNext, FcPrevious } from "react-icons/fc";
 import Image from "next/image";
 import Link from "next/link";
+import UserInfo from "../UserInfo";
 
 const shuffleArray = (array) => {
   if (!Array.isArray(array)) return [];
@@ -74,7 +75,7 @@ const BlogCarousel = () => {
       <div className="relative h-96 rounded-lg overflow-hidden">
         <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 rounded-b-2xl px-2 ">
           <h1 className="font-semibold text-lg text-white text-center hover:underline hover:scale-105 duration-300 cursor-pointer">
-            <Link href={`/${currentBlog._id}`}>
+            <Link href={`/${currentBlog.createdBy._id}`}>
               {currentBlog.title.slice(0, 90) + "..."}
             </Link>
           </h1>
@@ -100,27 +101,13 @@ const BlogCarousel = () => {
         >
           <FcNext size={30} />
         </button>
-        <div className="absolute top-2 right-2 hidden md:block bg-white px-2 py-1 rounded-full font-mono font-bold shadow-md shadow-blue-600 bg-opacity-30 text-xs">
+        <div className="absolute top-2 right-2 hidden md:block bg-white px-2 py-1 rounded-full font-mono font-bold shadow-md shadow-primary bg-opacity-30 text-xs">
           {new Date(currentBlog.createdAt).toLocaleDateString()}
         </div>
-        <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-white pr-2 cursor-pointer shadow-md shadow-blue-600 hover:scale-105 duration-300 bg-opacity-30">
-          <div className="w-8 h-8 border border-gray-300 bg-white rounded-full overflow-hidden">
-            <Link href={`/${currentBlog.user._id}`}>
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BASE_URL}/${currentBlog.user?.avatar}`}
-                width={50}
-                height={50}
-                className="object-cover w-full h-full"
-                alt="User Avatar"
-              />
-            </Link>
-          </div>
-          <div className="flex flex-col items-center">
-            <Link href={`/${currentBlog.user._id}/creator`}>
-              <p className="text-sm font-semibold">{currentBlog.user.name}</p>
-              <p className="text-xs font-mono">@{currentBlog.user.username}</p>
-            </Link>
-          </div>
+        <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-white pr-2 cursor-pointer shadow-md shadow-primary hover:scale-105 duration-300 bg-opacity-30">
+          {currentBlog.createdBy && (
+            <UserInfo user={currentBlog.createdBy} use="BlogCarousel" />
+          )}
         </div>
       </div>
     </div>

@@ -6,7 +6,18 @@ import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-const categories = ["NEWS", "SPORTS", "CODING", "EDUCATION", "FASHION"];
+const categories = [
+  "Technology & Innovation",
+  "Health & Wellness",
+  "Travel & Adventure",
+  "Education & Learning",
+  "Personal Development",
+  "Finance & Investment",
+  "Lifestyle & Fashion",
+  "Food & Recipes",
+  "Sports & Fitness",
+  "Business & Entrepreneurship",
+];
 
 const WritePost = () => {
   const { postId } = useParams();

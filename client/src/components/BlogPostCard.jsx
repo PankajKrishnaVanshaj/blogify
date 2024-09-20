@@ -13,7 +13,7 @@ const BlogPostCard = ({ post }) => {
     createdAt = new Date(),
     views = 0,
     banner = "",
-    user,
+    createdBy,
   } = post || {};
 
   const postUrl = `/${_id}`;
@@ -62,7 +62,7 @@ const BlogPostCard = ({ post }) => {
 
       <hr className="my-3 mx-20 border-gray-300" />
       <div className="px-6 flex items-center justify-between text-sm text-gray-600">
-        {user && <UserInfo user={user} use="BlogPostCard" />}
+        {createdBy && <UserInfo user={createdBy} use="BlogPostCard" />}
         <div className="flex items-center space-x-6">
           <span className="flex items-center space-x-1">
             <IoEye className="text-gray-500" />

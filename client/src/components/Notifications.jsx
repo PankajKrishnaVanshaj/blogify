@@ -120,61 +120,61 @@ const Notifications = () => {
   }
 
   return (
-    <div ref={notificationsRef}>
+    <div className="relative z-10" ref={notificationsRef}>
       <button
         onClick={toggleNotificationButton}
-        className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200"
+        className="p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-150 ease-in-out"
       >
-        <MdNotificationsActive size={24} />
+        <MdNotificationsActive size={30} />
       </button>
       {isOpen && (
-        <div
-          className="absolute top-16 right-0 bg-white bg-opacity-90 z-50 p-4 max-w-sm w-full border border-gray-300 rounded-lg shadow-lg"
-          style={{ maxHeight: "80vh", overflowY: "auto" }}
-        >
-          {posts.map(({ post, ...notification }) => (
-            <div
-              key={notification._id}
-              className="relative mb-2 p-2 border border-gray-200 rounded-lg shadow-md bg-white"
-            >
-              {!notification.read && (
-                <span className="absolute top-2 right-2 block h-3 w-3 bg-primary rounded-full"></span>
-              )}
-              <div className="flex items-center mb-2">
-                <Image
-                  src={
-                    `${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}` ||
-                    "/default-image.png"
-                  }
-                  alt={post.title || "Notification Image"}
-                  width={80}
-                  height={80}
-                  className="object-cover w-12 h-12 rounded-lg"
-                />
-                <div className="ml-4">
-                  <Link
-                    href={`/${post._id}`}
-                    onClick={() => markAsRead(notification._id)}
-                  >
-                    <h1 className="text-md font-lg cursor-pointer hover:scale-x-105 duration-300">
-                      {post.title.length > 50
-                        ? `${post.title.slice(0, 50)}...`
-                        : post.title}
-                    </h1>
-                  </Link>
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-auto max-h-[calc(100vh-4rem)]">
+          {posts
+            .slice()
+            .reverse()
+            .map(({ post, ...notification }) => (
+              <div
+                key={notification._id}
+                className="relative mb-2 p-2 border border-gray-200 rounded-lg shadow-md bg-white"
+              >
+                {!notification.read && (
+                  <span className="absolute top-2 right-2 block h-3 w-3 bg-primary rounded-full"></span>
+                )}
+                <div className="flex items-center mb-2">
+                  <Image
+                    src={
+                      `${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}` ||
+                      "/default-image.png"
+                    }
+                    alt={post.title || "Notification Image"}
+                    width={80}
+                    height={80}
+                    className="object-cover w-12 h-12 rounded-lg"
+                  />
+                  <div className="ml-4">
+                    <Link
+                      href={`/${post._id}`}
+                      onClick={() => markAsRead(notification._id)}
+                    >
+                      <h1 className="text-md font-lg cursor-pointer hover:scale-x-105 duration-300">
+                        {post.title.length > 50
+                          ? `${post.title.slice(0, 50)}...`
+                          : post.title}
+                      </h1>
+                    </Link>
+                  </div>
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between text-sm text-gray-600">
+                  <div>
+                    {post.createdBy && (
+                      <UserInfo user={post.user} use={"BlogPostCard"} />
+                    )}
+                  </div>
+                  <div>{new Date(post.createdAt).toLocaleDateString()}</div>
                 </div>
               </div>
-              <hr className="my-2" />
-              <div className="flex justify-between text-sm text-gray-600">
-                <div>
-                  {post.createdBy && (
-                    <UserInfo user={post.user} use={"BlogPostCard"} />
-                  )}
-                </div>
-                <div>{new Date(post.createdAt).toLocaleDateString()}</div>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </div>

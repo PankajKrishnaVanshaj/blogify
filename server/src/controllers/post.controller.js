@@ -151,32 +151,31 @@ export const getAllPosts = async (req, res) => {
   try {
     const { page = 1, limit = 10, category } = req.query;
 
-    const query = category ? { category } : {};
+    // Decode the category if it exists
+    const decodedCategory = category ? decodeURIComponent(category) : null;
+
+    // Build query based on the decoded category
+    const query = decodedCategory ? { category: decodedCategory } : {};
 
     const posts = await Posts.find(query)
       .sort({ createdAt: -1 }) // Sort by creation date in descending order
       .select("-tags -comments -likes")
       .skip((page - 1) * limit)
-      .limit(Number(limit));
+      .limit(Number(limit))
+      .populate({
+        path: "createdBy",
+        select: "-password -email -following -followers -notifications",
+      });
 
     if (!posts.length) {
       return res.status(404).json({ message: "No posts found." });
     }
 
-    const postsWithUserDetails = await Promise.all(
-      posts.map(async (post) => {
-        const user = await Users.findById(post.createdBy).select(
-          "-password -email -following -followers -notifications"
-        );
-        return { ...post.toObject(), user };
-      })
-    );
-
     const totalPosts = await Posts.countDocuments(query);
     const totalPages = Math.ceil(totalPosts / limit);
 
     res.status(200).json({
-      posts: postsWithUserDetails,
+      posts,
       totalPosts,
       totalPages,
       currentPage: page,

@@ -5,6 +5,7 @@ import axios from "axios";
 import FollowButton from "@/components/FollowButton";
 import PostStats from "@/components/PostStats";
 import UserInfo from "@/components/UserInfo";
+import Suggestion from "@/components/Suggestion";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
@@ -35,7 +36,7 @@ const ReadPost = ({ params }) => {
   }
 
   return (
-    <div className="p-4 h-screen w-full overflow-auto">
+    <div className="p-4 w-full overflow-auto">
       <div className="relative grid grid-cols-1 md:grid-cols-5 gap-4 items-center mb-4">
         <div className="col-span-3 p-4">
           <h1 className="text-2xl md:text-5xl font-bold text-gray-800">
@@ -45,7 +46,7 @@ const ReadPost = ({ params }) => {
           </h1>
           <div className="flex justify-between gap-3 overflow-x-auto my-4 shadow-lg py-1 px-2 rounded-lg bg-white dark:bg-gray-900 sticky top-0">
             <UserInfo user={post.user} />
-            <FollowButton user={post.user} />
+            <FollowButton userId={post.user} />
             <PostStats post={post} />
           </div>
         </div>
@@ -66,19 +67,29 @@ const ReadPost = ({ params }) => {
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-        <div className="col-span-2 overflow-auto">
-          <p
-            className="text-gray-800 dark:text-gray-200"
-            dangerouslySetInnerHTML={{
-              __html: post.content,
-            }}
-          />
+        <div className="col-span-2">
+          <div className="overflow-auto">
+            <p
+              className="text-gray-800 dark:text-gray-200"
+              dangerouslySetInnerHTML={{
+                __html: post.content,
+              }}
+            />
+          </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-lg shadow-lg">{/* <PopularPosts /> */}</div>
-          <div className="rounded-lg shadow-lg">{/* <PopularCreator /> */}</div>
+        <div className="flex flex-col justify-evenly ">
+          <div className="rounded-lg shadow-lg h-full"> Ads Area </div>
+          <div className="rounded-lg shadow-lg h-full"> Ads Area </div>
+          <div className="rounded-lg shadow-lg h-full"> Ads Area </div>
         </div>
+      </div>
+      <hr className="mt-5 mx-16 border border-primary" />
+      <div className="mt-8">
+        <h2 className="text-xl md:text-2xl font-semibold text-primary mb-2 p-4">
+          Suggestions for you
+        </h2>
+        <Suggestion category={post.category} />
       </div>
     </div>
   );

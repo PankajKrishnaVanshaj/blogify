@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import SearchBar from "./SearchBar";
 import Notifications from "./Notifications"; // Import the Notifications component
+import Bookmark from "./Bookmark";
 
 const MenuItems = [
   { name: "Home", href: "/" },
@@ -108,6 +109,7 @@ const Navbar = () => {
         <div className="flex gap-2 items-center cursor-pointer">
           {token ? (
             <>
+              <Bookmark />
               <Notifications />
               <Button
                 onClick={logoutHandle}

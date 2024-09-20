@@ -49,40 +49,72 @@ export const searchPost = async (req, res) => {
         { title: { $regex: query, $options: "i" } },
         { content: { $regex: query, $options: "i" } },
       ],
-    }).select("-likes -comments ");
+    })
+      .select("-likes -comments")
+      .populate({
+        path: "createdBy",
+        select: "name username avatar _id",
+        // Include all fields from the Users collection
+      });
 
-    // Fetch user details for each post
-    const postsWithUserDetails = await Promise.all(
-      posts.map(async (post) => {
-        try {
-          const user = await Users.findById(post.createdBy).select(
-            "name username _id avatar views"
-          );
-          return {
-            _id: post._id, // Correctly retrieve the _id from the post object
-            title: post.title,
-            content: post.content,
-            banner: post.banner,
-            views: post.views,
-            user: user || null,
-          };
-        } catch (userError) {
-          console.error("Error fetching user details:", userError);
-          return {
-            _id: post._id, // Ensure the _id is still included even if user fetch fails
-            title: post.title,
-            content: post.content,
-            banner: post.banner,
-            views: post.views,
-            user: null, // Handle the case where user details cannot be fetched
-          };
-        }
-      })
-    );
-
-    res.status(200).json({ success: true, posts: postsWithUserDetails });
+    res.status(200).json({ success: true, posts });
   } catch (error) {
     console.error("Error during search:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const suggestionPostsByCategory = async (req, res, next) => {
+  try {
+    // Extract category from request query
+    const { category } = req.query;
+
+    // Log the incoming category for debugging
+    // console.log("Incoming category:", category);
+
+    // Validate category
+    if (!category || typeof category !== "string") {
+      // Create and pass an error to the next middleware
+      const error = new Error("Category is required and must be a string");
+      error.status = 400; // Bad Request
+      return next(error);
+    }
+
+    // Decode and sanitize the category string
+    const decodedCategory = decodeURIComponent(category.trim());
+
+    // Log the decoded category for debugging
+    // console.log("Decoded category:", decodedCategory);
+
+    // Create the query object to match the category
+    const query = {
+      category: decodedCategory, // Direct match without regex
+    };
+
+    // Log the query for debugging
+    // console.log("Query object:", query);
+
+    // Fetch posts based on the decoded category and populate the creator's name
+    const posts = await Posts.find(query)
+      .populate("createdBy", "name username avatar _id") // Populate with creator details
+      .sort({ createdAt: -1 })
+      .select("-likes -comments"); // Exclude likes and comments
+
+    // Log the fetched posts for debugging
+    // console.log("Fetched posts:", posts);
+
+    // Respond with the posts that match the category
+    res.status(200).json({
+      message: `Posts retrieved successfully for category: ${decodedCategory}`,
+      posts,
+    });
+  } catch (err) {
+    console.error("Error finding posts by category:", err);
+    // Create and pass an error to the next middleware
+    const error = new Error(
+      "Error finding posts by category: " + (err.message || "Unknown error")
+    );
+    error.status = 500; // Internal Server Error
+    return next(error);
   }
 };
