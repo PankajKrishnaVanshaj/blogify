@@ -5,10 +5,10 @@ import { useState, useEffect } from "react";
 import Button from "./Button";
 import { CiMenuFries } from "react-icons/ci";
 import Cookies from "js-cookie";
-import axios from "axios";
 import SearchBar from "./SearchBar";
 import Notifications from "./Notifications"; // Import the Notifications component
 import Bookmark from "./Bookmark";
+import MeInfo from "./MeInfo";
 
 const MenuItems = [
   { name: "Home", href: "/" },
@@ -49,34 +49,8 @@ const Navbar = () => {
     setToken(Cookies.get("token"));
   }, []);
 
-  const logoutHandle = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:55555/api/v1/auth/logout",
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.success) {
-        Cookies.remove("token");
-        window.location.replace("/"); // Redirect to home page
-      }
-    } catch (error) {
-      console.error(
-        "Logout Error:",
-        error.response ? error.response.data : error.message
-      );
-      alert("Failed to log out. Please try again.");
-    }
-  };
-
   return (
-    <nav className="relative flex flex-col md:flex-row w-full pt-3 items-center justify-between gap-4 md:gap-0 border-b-4 border-double px-3">
+    <nav className="relative flex flex-col md:flex-row w-full pt-3 items-center justify-between gap-4 md:gap-0 border-b-4 border-double px-3 rounded-xl">
       <div className="flex items-center justify-between w-full md:w-auto">
         <button
           aria-label="Open menu"
@@ -111,11 +85,7 @@ const Navbar = () => {
             <>
               <Bookmark />
               <Notifications />
-              <Button
-                onClick={logoutHandle}
-                label="Log Out"
-                styles="flex items-center justify-center bg-black dark:bg-rose-600 text-white dark:text-white px-4 py-1.5 rounded-full"
-              />
+              <MeInfo />
             </>
           ) : (
             <Link href="/sign-in">

@@ -121,17 +121,19 @@ export const logout = async (req, res) => {
 // logged-in user
 export const me = async (req, res) => {
   try {
-    // Assuming req.user contains user data
-    const userData = req.user;
+    // Assuming req.user contains user data, but we'll retrieve it with a selector
+    const userId = req.user._id; // Get the user's ID from the request
 
-    // Create a copy of the user data without sensitive fields
-    const { password, email, ...userPublicData } = userData.toObject(); // Convert mongoose document to plain object
+    // Retrieve user data without the password field
+    const userData = await Users.findById(userId).select("-password");
 
-    // Log the user data for debugging (optional)
-    // console.log(userPublicData);
+    // Check if user data was found
+    if (!userData) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    // Return the user data without password and email
-    return res.status(200).json({ msg: userPublicData });
+    // Return the user data without the password field
+    return res.status(200).json({ msg: userData });
   } catch (error) {
     console.log(`Error from user route: ${error}`);
     return res.status(500).json({ error: "Internal Server Error" });
