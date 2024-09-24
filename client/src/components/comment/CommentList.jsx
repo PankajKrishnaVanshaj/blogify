@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import UserInfo from "../UserInfo";
 import Cookies from "js-cookie";
+import { useAuth } from "@/context/AuthContext";
 
 const CommentList = ({ postId }) => {
+  const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -82,10 +84,12 @@ const CommentList = ({ postId }) => {
                 <div className="flex justify-between mt-2 text-gray-700 font-medium max-h-32 overflow-auto">
                   <p>{comment.comment}</p>
                   <span className="flex flex-row gap-2 text-lg">
-                    <MdOutlineDeleteOutline
-                      className="text-red-500 cursor-pointer"
-                      onClick={() => deleteHandle(comment._id)}
-                    />
+                    {comment.user._id === user?.msg?._id && (
+                      <MdOutlineDeleteOutline
+                        className="text-red-500 cursor-pointer"
+                        onClick={() => deleteHandle(comment._id)}
+                      />
+                    )}
                   </span>
                 </div>
               </li>

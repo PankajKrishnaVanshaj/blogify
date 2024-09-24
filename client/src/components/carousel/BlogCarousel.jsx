@@ -75,7 +75,7 @@ const BlogCarousel = () => {
       <div className="relative h-96 rounded-lg overflow-hidden">
         <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 rounded-b-2xl px-2 ">
           <h1 className="font-semibold text-lg text-white text-center hover:underline hover:scale-105 duration-300 cursor-pointer">
-            <Link href={`/${currentBlog.createdBy._id}`}>
+            <Link href={`/${currentBlog._id}/post`}>
               {currentBlog.title.slice(0, 90) + "..."}
             </Link>
           </h1>

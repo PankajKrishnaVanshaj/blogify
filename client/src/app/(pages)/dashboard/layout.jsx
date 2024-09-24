@@ -1,4 +1,3 @@
-import { useAuth } from "@/context/AuthContext";
 import Header from "./_components/Header";
 import Sidebar from "./_components/Sidebar";
 

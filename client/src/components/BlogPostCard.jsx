@@ -1,9 +1,10 @@
 import React from "react";
 import Image from "next/image";
-import { IoBookmarks, IoEye } from "react-icons/io5";
+import { IoEye } from "react-icons/io5";
 import Link from "next/link";
 import UserInfo from "./UserInfo";
 import ShareButton from "./ShareButton";
+import BookMarkStatus from "./BookMarkStatus";
 
 const BlogPostCard = ({ post }) => {
   const {
@@ -16,7 +17,7 @@ const BlogPostCard = ({ post }) => {
     createdBy,
   } = post || {};
 
-  const postUrl = `/${_id}`;
+  const postUrl = `/${_id}/post`;
   const formattedDate = new Date(createdAt).toLocaleDateString();
   const truncatedTitle = title.length > 40 ? `${title.slice(0, 40)}...` : title;
   const truncatedContent =
@@ -41,11 +42,11 @@ const BlogPostCard = ({ post }) => {
         </div>
         <div className="mx-1 flex-1">
           <Link href={postUrl}>
-            <h1 className="text-xl font-semibold mb-1 text-gray-900 hover:text-primary">
+            <h1 className="text-xl font-semibold mb-1 text-gray-900 hover:text-primary line-clamp-2">
               {truncatedTitle}
             </h1>
           </Link>
-          <p className="text-gray-700 text-sm">
+          <p className="text-gray-700 text-sm line-clamp-2">
             <span
               dangerouslySetInnerHTML={{
                 __html: truncatedContent,
@@ -70,13 +71,10 @@ const BlogPostCard = ({ post }) => {
           </span>
           <span>{formattedDate}</span>
           <span className="flex items-center space-x-1">
-            <ShareButton
-              url={`${process.env.NEXT_PUBLIC_BASE_URL}/${_id}`}
-              size={18}
-            />
+            <ShareButton url={`http://localhost:3000/${_id}/post`} size={18} />
           </span>
           <span className="flex items-center space-x-1">
-            <IoBookmarks className="text-gray-500" />
+            <BookMarkStatus post={post._id} size={16} />
           </span>
         </div>
       </div>

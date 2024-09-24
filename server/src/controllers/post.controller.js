@@ -214,6 +214,11 @@ export const deletePost = async (req, res) => {
     // Delete the post
     await Posts.findByIdAndDelete(postId);
     await deleteNotification(postId);
+    // Remove postId from all users' book mark
+    await Users.updateMany(
+      { "bookMarks.postId": postId },
+      { $pull: { bookMarks: { postId: postId } } }
+    );
 
     res.status(200).json({ message: "Post deleted successfully." });
   } catch (err) {

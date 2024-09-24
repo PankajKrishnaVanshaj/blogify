@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const AllPosts = () => {
+const AllBlogPosts = () => {
   const router = useRouter();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,15 +69,15 @@ const AllPosts = () => {
       "Are you sure you want to edit this post?"
     );
     if (!confirmEdit) return;
-    router.push(`/dashboard/create-post/${postId}`);
+    router.push(`/dashboard/create-blog-post/${postId}`);
   };
 
   if (loading) return <div className="spinner">Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div className="container">
-      <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+    <div className="container w-full">
+      <div className="overflow-x-auto w-full shadow-lg rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gradient-to-r from-pink-200 via-pink-100 to-pink-50">
             <tr>
@@ -92,6 +92,9 @@ const AllPosts = () => {
               </th>
               <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">
                 Views
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Likes
               </th>
               <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">
                 Comments
@@ -126,14 +129,26 @@ const AllPosts = () => {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs cursor-pointer">
-                      <Link href={`/${post._id}`}>{post.title}</Link>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-[28ch] cursor-pointer relative group">
+                      <Link
+                        href={`/${post._id}/post`}
+                        className="block w-full h-full"
+                      >
+                        {post.title}
+                      </Link>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-[14ch] cursor-pointer relative group">
                       {post.category}
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {post.views}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {Array.isArray(post.likes)
+                        ? post.likes.length
+                        : "No Likes"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {Array.isArray(post.comments)
@@ -149,14 +164,14 @@ const AllPosts = () => {
                         className="text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 transition duration-300 ease-in-out"
                       >
                         <FaEdit />
-                        <span></span>
+                        <span>Edit</span>
                       </button>
                       <button
                         onClick={() => handleDelete(post._id)}
                         className="text-red-600 hover:text-red-800 flex items-center space-x-1 transition duration-300 ease-in-out"
                       >
                         <FaTrash />
-                        <span></span>
+                        <span>Delete</span>
                       </button>
                     </td>
                   </tr>
@@ -164,7 +179,7 @@ const AllPosts = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="7"
+                  colSpan="8"
                   className="px-6 py-4 text-center text-sm text-gray-500"
                 >
                   No data available
@@ -178,4 +193,4 @@ const AllPosts = () => {
   );
 };
 
-export default AllPosts;
+export default AllBlogPosts;

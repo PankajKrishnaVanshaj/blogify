@@ -69,7 +69,7 @@ const MeInfo = () => {
         </div>
       </button>
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200">
+        <div className="absolute right-0 mt-2 w-fit bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200">
           <div className="p-4 border-b border-gray-200">
             <div className="text-lg font-semibold text-gray-800">
               {user?.msg?.name}

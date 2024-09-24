@@ -39,7 +39,7 @@ const UserInfo = ({ user, use }) => {
         className={`${avatarSize} rounded-full overflow-hidden bg-white border border-gray-300`}
       >
         {user.avatar && (
-          <Link href={`/${user._id}/creator`}>
+          <Link href={`/${user._id}`}>
             <Image
               src={user.avatar}
               width={avatarWidth}
@@ -52,7 +52,7 @@ const UserInfo = ({ user, use }) => {
         )}
       </div>
 
-      <Link href={`/${user._id}/creator`}>
+      <Link href={`/${user._id}`}>
         <div className="pr-1">
           {user.name && <p className={nameText}>{user.name}</p>}
           {user.username && <p className={usernameText}>@{user.username}</p>}

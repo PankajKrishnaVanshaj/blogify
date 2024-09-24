@@ -18,7 +18,7 @@ const ReadPost = ({ params }) => {
   const getPostDetails = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:55555/api/v1/posts/post/${params.post}`
+        `http://localhost:55555/api/v1/posts/post/${params.creator}`
       );
       setPost(response.data);
     } catch (error) {
@@ -36,7 +36,7 @@ const ReadPost = ({ params }) => {
   }
 
   return (
-    <div className="p-4 w-full overflow-auto">
+    <div className="py-4 px-0  w-full overflow-auto">
       <div className="relative grid grid-cols-1 md:grid-cols-5 gap-4 items-center mb-4">
         <div className="col-span-3 p-4">
           <h1 className="text-2xl md:text-5xl font-bold text-gray-800">
@@ -44,10 +44,20 @@ const ReadPost = ({ params }) => {
               ? `${post.title.slice(0, 85)}...`
               : post.title}
           </h1>
-          <div className="flex justify-between gap-3 overflow-x-auto my-4 shadow-lg py-1 px-2 rounded-lg bg-white dark:bg-gray-900 sticky top-0">
-            <UserInfo user={post.user} />
-            <FollowButton userId={post.user} />
-            <PostStats post={post} />
+          <p className="mt-2 text-sm font-thin text-gray-700">
+            Category:
+            <span className="text-primary font-mono"> {post.category}</span>
+          </p>
+          <div className="flex justify-between gap-3 overflow-x-auto my-4 shadow-lg py-1 px-2 rounded-lg ">
+            <span>
+              <UserInfo user={post.user} />
+            </span>
+            <span>
+              <FollowButton userId={post.user} />
+            </span>
+            <span>
+              <PostStats post={post} />
+            </span>
           </div>
         </div>
         <div className="col-span-2 h-72 w-full overflow-hidden rounded-lg">

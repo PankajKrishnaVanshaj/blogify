@@ -7,8 +7,9 @@ import Cookies from "js-cookie";
 import ShareButton from "./ShareButton";
 import { toast } from "sonner"; // Import toast from Sonner Toast
 import { useAuth } from "@/context/AuthContext";
+import BookMarkStatus from "./BookMarkStatus";
 
-const PostStats = ({ post }) => {
+const PostStats = ({ post, size = 21 }) => {
   const { user } = useAuth();
   const token = Cookies.get("token");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -90,14 +91,22 @@ const PostStats = ({ post }) => {
           {post.views}
         </span>
         <span
-          className="flex items-center gap-1 cursor-pointer text-xl text-red-500"
+          className={` flex items-center gap-1 cursor-pointer ${
+            isLiked ? "text-red-500 " : "text-black"
+          } transition-colors duration-200`}
           onClick={toggleLikeDislike}
         >
-          {isLiked ? <BiSolidHeart /> : <BiHeart />}
+          <BiHeart size={size} />
           {likesCount}
         </span>
         <span className="flex items-center gap-1 cursor-pointer">
-          <ShareButton url={`http://localhost:3000/${post._id}`} size={20} />
+          <ShareButton
+            url={`http://localhost:3000/${post._id}/post`}
+            size={20}
+          />
+        </span>
+        <span className="flex items-center gap-1 cursor-pointer">
+          <BookMarkStatus post={post._id} size={17} />
         </span>
         <span
           className="flex flex-shrink-0 items-center gap-1 border rounded-full px-3 py-1 text-sm font-thin cursor-pointer"

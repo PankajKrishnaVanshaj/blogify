@@ -21,7 +21,7 @@ const CommentForm = ({ closeForm, commentId, initialComment }) => {
     try {
       if (commentId) {
         await axios.put(
-          `http://localhost:55555/api/v1/comments/update/${param.post}/${commentId}`,
+          `http://localhost:55555/api/v1/comments/update/${param.creator}/${commentId}`,
           { comment: comment.trim() },
           {
             headers: {
@@ -31,7 +31,7 @@ const CommentForm = ({ closeForm, commentId, initialComment }) => {
         );
       } else {
         await axios.post(
-          `http://localhost:55555/api/v1/comments/create/${param.post}`,
+          `http://localhost:55555/api/v1/comments/create/${param.creator}`,
           { comment: comment.trim() },
           {
             headers: {
@@ -81,7 +81,7 @@ const CommentForm = ({ closeForm, commentId, initialComment }) => {
             </button>
           </div>
         </form>
-        <CommentList postId={param.post} />
+        <CommentList postId={param.creator} />
       </div>
     </div>
   );

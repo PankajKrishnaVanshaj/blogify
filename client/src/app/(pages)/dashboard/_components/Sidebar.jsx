@@ -1,4 +1,5 @@
 "use client";
+import Logo from "@/components/Logo";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
@@ -32,19 +33,29 @@ const Sidebar = () => {
       ],
     },
     {
-      title: "Posts",
+      title: "Content",
       icon: <RiArticleFill />,
       subItems: [
         {
-          title: "All Posts",
+          title: "All Blog Posts",
           icon: <FaEdit />,
-          link: `/dashboard/all-posts`,
+          link: `/dashboard/all-blog-posts`,
         },
         {
-          title: "Create Post",
+          title: "Create Blog Post",
           icon: <FaPlus />,
-          link: `/dashboard/create-post`,
+          link: `/dashboard/create-blog-post`,
         },
+        // {
+        //   title: "All Web Stories",
+        //   icon: <FaEdit />,
+        //   link: `/dashboard/all-web-stories`,
+        // },
+        // {
+        //   title: "Create Web Story",
+        //   icon: <FaPlus />,
+        //   link: `/dashboard/create-web-story`,
+        // },
       ],
     },
     {
@@ -67,7 +78,9 @@ const Sidebar = () => {
 
   return (
     <aside className="w-60 h-screen shadow-lg bg-gradient-to-r from-pink-50 via-pink-100 to-pink-200 p-4 rounded-l-sm rounded-r-3xl my-2 flex flex-col">
-      <div className="text-3xl font-extrabold mb-8 text-gray-800">Menu</div>
+      <div className="text-3xl font-extrabold ">
+        <Logo />
+      </div>
       <nav>
         <ul className="space-y-4">
           {sidebarItems.map((item, index) => (

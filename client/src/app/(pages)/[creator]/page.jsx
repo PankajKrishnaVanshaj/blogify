@@ -17,7 +17,7 @@ const Creator = ({ params }) => {
   const getUserDetails = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:55555/api/v1/users/user/${params.post}`
+        `http://localhost:55555/api/v1/users/user/${params.creator}`
       );
       setUser(response.data);
       setLoading(false);
@@ -86,9 +86,12 @@ const Creator = ({ params }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 py-3">
-        {user.posts.map((post) => (
-          <BlogPostCard key={post._id} post={post} />
-        ))}
+        {user.posts
+          .slice()
+          .reverse()
+          .map((post) => (
+            <BlogPostCard key={post._id} post={post} />
+          ))}
       </div>
     </div>
   );

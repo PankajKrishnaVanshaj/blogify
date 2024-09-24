@@ -1,13 +1,11 @@
-// AuthContext.js
-"use client";
+"use client"; // Ensure it's at the top
+
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// Create the AuthContext with default values
 const AuthContext = createContext({ user: null });
 
-// AuthProvider component to provide auth state to children
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const token = Cookies.get("token");
@@ -19,9 +17,7 @@ export const AuthProvider = ({ children }) => {
           const response = await axios.get(
             "http://localhost:55555/api/v1/auth/me",
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
           setUser(response.data);
@@ -30,19 +26,11 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.log("Error fetching user:", error);
-      } finally {
       }
     };
 
     fetchUser();
   }, [token]);
-
-  // useEffect(() => {
-  //   if (user) {
-  //     console.log("User object:", user);
-  //     console.log("User name:", user.msg.notifications);
-  //   }
-  // }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
@@ -52,6 +40,4 @@ export const AuthProvider = ({ children }) => {
 };
 
 // Custom hook to use the AuthContext
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

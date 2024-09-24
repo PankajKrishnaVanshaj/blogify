@@ -123,7 +123,6 @@ const EditPost = ({ params }) => {
 
       if (response.status === 200) {
         toast.success("Post updated successfully");
-        resetForm();
       } else {
         toast.error("Error submitting post");
       }
@@ -135,15 +134,6 @@ const EditPost = ({ params }) => {
         toast.error("An unexpected error occurred");
       }
     }
-  };
-
-  const resetForm = () => {
-    setTitle("");
-    setContent("");
-    setSelectedCategory(categories[0]);
-    setTags([]);
-    setBanner(null);
-    setBannerUrl(null);
   };
 
   return (

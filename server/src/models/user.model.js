@@ -50,22 +50,28 @@ const userSchema = new Schema(
     },
     following: [
       {
+        _id: false,
         user: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
         createdAt: { type: Date, default: Date.now },
       },
     ],
     followers: [
       {
+        _id: false,
         user: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
         createdAt: { type: Date, default: Date.now },
       },
     ],
-    // unfollowers: [
-    //   {
-    //     user: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
-    //     createdAt: { type: Date, default: Date.now },
-    //   },
-    // ],
+    bookMarks: [
+      {
+        _id: false,
+        postId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Posts",
+          required: true,
+        },
+      },
+    ],
     notifications: [notificationSchema],
   },
   { timestamps: true }
