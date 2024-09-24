@@ -14,8 +14,6 @@ const Bookmark = () => {
   const menuRef = useRef(null);
   const token = Cookies.get("token");
 
-  console.log(bookmark);
-
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };

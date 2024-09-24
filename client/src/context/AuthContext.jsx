@@ -4,7 +4,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const AuthContext = createContext({ user: null });
+export const AuthContext = createContext({ user: null });
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -40,4 +40,8 @@ export const AuthProvider = ({ children }) => {
 };
 
 // Custom hook to use the AuthContext
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  // console.log("useAuth context:", context); // Add this line for debugging
+  return context;
+};

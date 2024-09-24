@@ -10,7 +10,8 @@ export default function RootLayout({ children }) {
 
   return (
     <div className="w-full flex flex-col min-h-screen px-4 md:px-10 2xl:px-28">
-      {!isDashboardPath && <Navbar />}
+      {/* {!isDashboardPath && <Navbar />} */}
+      <Navbar />
       <Toaster position="top-center" richColors />
       <div className="flex-1">{children}</div>
       <Footer />

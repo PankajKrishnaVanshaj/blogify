@@ -1,0 +1,23 @@
+import Sidebar from "./_components/Sidebar";
+import Header from "./_components/Header";
+
+const DashboardLayout = ({ children }) => {
+  return (
+    <div className="w-full flex flex-col min-h-screen px-4 md:px-10 2xl:px-28">
+      <div className="h-full flex flex-col">
+        <Header />
+        <div className="flex flex-grow">
+          {/* Sidebar */}
+          <div className=" ">
+            <Sidebar />
+          </div>
+
+          {/* Main Content */}
+          <div className="flex-grow p-4">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardLayout;
