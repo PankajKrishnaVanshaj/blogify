@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import BlogPostCard from "./BlogPostCard";
 
 const Suggestion = ({ category }) => {
-  const { post: postId } = useParams(); // Use 'postId' for clarity
+  const { creator: postId } = useParams(); // Use 'postId' for clarity
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -47,7 +47,7 @@ const Suggestion = ({ category }) => {
     <div className="p-2">
       {isLoading && <p>Loading suggestions...</p>}
       {!isLoading && !error && posts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-3 max-w-7xl mx-auto mb-10">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-3 mb-10">
           {posts
             .filter((currentPost) => currentPost._id !== postId) // Skip the post with the matching ID
             .map((filteredPost) => (

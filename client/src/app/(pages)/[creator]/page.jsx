@@ -57,7 +57,10 @@ const Creator = ({ params }) => {
       <div className="flex flex-col md:flex-row justify-center items-center md:items-start space-y-4 md:space-y-0 md:space-x-6 p-6 bg-white shadow-lg rounded-lg border border-gray-200 mx-auto max-w-4xl">
         <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary">
           <Image
-            src={user.avatarUrl || "/pankri.png"}
+            src={
+              `${process.env.NEXT_PUBLIC_BASE_URL}/${user?.avatar}` ||
+              "/pankri.png"
+            }
             alt={user.name}
             layout="fill"
             objectFit="cover"

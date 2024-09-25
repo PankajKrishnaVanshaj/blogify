@@ -18,6 +18,7 @@ export const createPost = async (req, res) => {
     const bannerPath = req.file ? req.file.path : null;
     bannerFilename = bannerPath ? path.basename(bannerPath) : null;
     const createdBy = req.user ? req.user._id : null;
+    const isCreator = req.user ? req.user.isCreator : false;
 
     if (!title || !content) {
       return res
@@ -26,6 +27,13 @@ export const createPost = async (req, res) => {
     }
     if (!createdBy) {
       return res.status(401).json({ message: "Unauthorized. User not found." });
+    }
+    if (!isCreator) {
+      return res
+        .status(403)
+        .json({
+          message: "Forbidden. You are not authorized to create posts.",
+        });
     }
 
     const newPost = new Posts({

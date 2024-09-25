@@ -41,7 +41,10 @@ const UserInfo = ({ user, use }) => {
         {user.avatar && (
           <Link href={`/${user._id}`}>
             <Image
-              src={user.avatar}
+              src={
+                `${process.env.NEXT_PUBLIC_BASE_URL}/${user?.avatar}` ||
+                "/pankri.png"
+              }
               width={avatarWidth}
               height={avatarHeight}
               priority={true}

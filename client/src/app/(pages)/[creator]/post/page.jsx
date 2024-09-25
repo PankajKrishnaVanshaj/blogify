@@ -95,7 +95,7 @@ const ReadPost = ({ params }) => {
         </div>
       </div>
       <hr className="mt-5 mx-16 border border-primary" />
-      <div className="mt-8">
+      <div className="mt-8 px-0  w-full ">
         <h2 className="text-xl md:text-2xl font-semibold text-primary mb-2 p-4">
           Suggestions for you
         </h2>

@@ -14,7 +14,7 @@ const ProfileInfo = () => {
         <div className="w-40 h-40 rounded-full overflow-hidden bg-white border border-primary">
           {user?.avatar && (
             <Image
-              src={user?.avatar}
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/${user?.avatar}`}
               width={100}
               height={100}
               priority={true}

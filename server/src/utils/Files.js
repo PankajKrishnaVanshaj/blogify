@@ -23,7 +23,7 @@ export const deleteFile = (fileName, uploadDir) => {
 
 // Serve static files from the "public" directory
 export const serveStaticFiles = (app) => {
-  const avatarPath = path.resolve(__dirname, "../uploads/avatar");
+  const avatarPath = path.resolve(__dirname, "../../uploads/avatar");
   const bannerPath = path.resolve(__dirname, "../../uploads/banner");
 
   app.use(express.static(avatarPath));

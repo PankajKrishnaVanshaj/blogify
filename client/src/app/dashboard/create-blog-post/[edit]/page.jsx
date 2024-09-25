@@ -43,7 +43,7 @@ const EditPost = ({ params }) => {
         );
         setSelectedCategory(post.category);
         setTags(post.tags);
-        setBannerUrl(`${"http://localhost:55555"}/${post.banner}`);
+        setBannerUrl(`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`);
       } catch (error) {
         console.error("Error fetching post data:", error);
         toast.error("Failed to fetch post data.");

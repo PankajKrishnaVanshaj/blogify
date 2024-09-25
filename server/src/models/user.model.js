@@ -52,6 +52,11 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+    isCreator: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     following: [
       {
         _id: false,

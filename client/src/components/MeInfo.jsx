@@ -58,7 +58,10 @@ const MeInfo = () => {
         <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-300 shadow-lg">
           {user?.avatar && (
             <Image
-              src={user?.avatar}
+              src={
+                `${process.env.NEXT_PUBLIC_BASE_URL}/${user?.avatar}` ||
+                "/pankri.png"
+              }
               width={100}
               height={100}
               priority={true}
