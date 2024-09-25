@@ -23,7 +23,7 @@ const PostStats = ({ post, size = 21 }) => {
   useEffect(() => {
     if (post) {
       setIsLiked(
-        post.likes.some((f) => f.user.toString() === user?.msg?._id.toString())
+        post.likes.some((f) => f.user.toString() === user?._id.toString())
       );
     }
   }, [user, post]);

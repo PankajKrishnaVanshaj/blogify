@@ -18,8 +18,8 @@ const Notifications = () => {
   const notificationsRef = useRef(null);
 
   useEffect(() => {
-    if (user?.msg?.notifications) {
-      setNotifications(user.msg.notifications);
+    if (user?.notifications) {
+      setNotifications(user.notifications);
     }
   }, [user]);
 

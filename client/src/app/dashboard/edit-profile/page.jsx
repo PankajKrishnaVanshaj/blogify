@@ -1,14 +1,18 @@
 "use client";
+import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
+import Cookies from "js-cookie";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const EditProfile = () => {
-  // State for profile info
-  const [name, setName] = useState("John Doe");
-  const [username, setUsername] = useState("username");
-  const [bio, setBio] = useState("");
-  const [profileImage, setProfileImage] = useState(
-    "https://via.placeholder.com/150"
-  );
+  const { user, setUser } = useAuth();
+  const router = useRouter();
+  const [name, setName] = useState(user?.name);
+  const [username, setUsername] = useState(user?.username);
+  const [bio, setBio] = useState(user?.bio);
+  const [avatar, setavatar] = useState(user?.avatar);
+  const token = Cookies.get("token");
 
   // Handle image input
   const handleImageChange = (e) => {
@@ -16,15 +20,35 @@ const EditProfile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result); // Set the profile image to the image preview
+        setavatar(reader.result); // Set the profile image to the image preview
       };
       reader.readAsDataURL(file); // Convert the file to a base64-encoded image
     }
   };
 
-  const handleSave = () => {
-    // Handle save logic here (e.g., API call)
-    console.log("Profile updated:", { name, username, bio, profileImage });
+  const handleSave = async () => {
+    try {
+      if (token) {
+        const response = await axios.put(
+          "http://localhost:55555/api/v1/auth/update",
+          {
+            name,
+            username,
+            bio,
+            avatar,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setUser(response.data);
+        router.push("/dashboard");
+      } else {
+        console.log("No token found");
+      }
+    } catch (error) {
+      console.log("Error updating user:", error);
+    }
   };
 
   return (
@@ -34,7 +58,7 @@ const EditProfile = () => {
         {/* Profile Image */}
         <div className="relative w-40 h-40">
           <img
-            src={profileImage}
+            src={avatar}
             alt="Profile"
             className="w-full h-full rounded-full object-cover border-4 border-primary"
           />
@@ -78,7 +102,7 @@ const EditProfile = () => {
         <h2 className="text-xl font-semibold text-gray-700 mb-2">Bio</h2>
         <textarea
           className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
-          rows="4"
+          rows="5"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           placeholder="Tell us something about yourself..."

@@ -1,10 +1,16 @@
-import React from "react";
+"use client";
 import AccountCount from "./_components/AccountCount";
 import BlogPostCount from "./_components/BlogPostCount";
 import WebStoriesCount from "./_components/WebStoriesCount";
 import ProfileInfo from "./_components/ProfileInfo";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const router = useRouter();
+
   return (
     <div className="flex flex-col items-center">
       {/* Profile Section */}

@@ -1,24 +1,32 @@
-import React from "react";
+"use client";
+import { useAuth } from "@/context/AuthContext";
 import { IoBookmarksOutline } from "react-icons/io5";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { SlUserFollow, SlUserFollowing } from "react-icons/sl";
 
 const AccountCount = () => {
-  // Dummy data
-  const followers = 150;
-  const following = 75;
-  const bookmarks = 20;
-  const notifications = 80;
-
+  const { user } = useAuth();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 w-full">
-      <Card icon={<SlUserFollow />} title="Followers" value={followers} />
-      <Card icon={<SlUserFollowing />} title="Following" value={following} />
-      <Card icon={<IoBookmarksOutline />} title="Bookmarks" value={bookmarks} />
+      <Card
+        icon={<SlUserFollow />}
+        title="Followers"
+        value={user?.followers?.length}
+      />
+      <Card
+        icon={<SlUserFollowing />}
+        title="Following"
+        value={user?.following?.length}
+      />
+      <Card
+        icon={<IoBookmarksOutline />}
+        title="Bookmarks"
+        value={user?.bookMarks?.length}
+      />
       <Card
         icon={<MdOutlineNotificationsActive />}
         title="Notifications"
-        value={notifications}
+        value={user?.notifications?.length}
       />
     </div>
   );

@@ -56,9 +56,9 @@ const MeInfo = () => {
         className="p-1 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-200"
       >
         <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-300 shadow-lg">
-          {user?.msg?.avatar && (
+          {user?.avatar && (
             <Image
-              src={user?.msg?.avatar}
+              src={user?.avatar}
               width={100}
               height={100}
               priority={true}
@@ -72,9 +72,9 @@ const MeInfo = () => {
         <div className="absolute right-0 mt-2 w-fit bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 transition-all duration-200">
           <div className="p-4 border-b border-gray-200">
             <div className="text-lg font-semibold text-gray-800">
-              {user?.msg?.name}
+              {user?.name}
             </div>
-            <div className="text-sm text-primary">{user?.msg?.email}</div>
+            <div className="text-sm text-primary">{user?.email}</div>
           </div>
 
           <div

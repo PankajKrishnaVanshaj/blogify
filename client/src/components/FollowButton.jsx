@@ -12,11 +12,9 @@ const FollowButton = ({ userId }) => {
   const token = Cookies.get("token");
 
   useEffect(() => {
-    if (user?.msg?.following) {
+    if (user?.following) {
       setIsFollowing(
-        user.msg.following.some(
-          (f) => f.user.toString() === userId._id.toString()
-        )
+        user.following.some((f) => f.user.toString() === userId._id.toString())
       );
     }
   }, [user, userId]);

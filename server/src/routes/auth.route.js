@@ -1,8 +1,15 @@
 import express from "express";
-import { login, logout, me, register } from "../controllers/auth.controller.js";
+import {
+  login,
+  logout,
+  me,
+  register,
+  update,
+} from "../controllers/auth.controller.js";
 import "../config/google-strategy.js";
 import passport from "passport";
 import authMiddleware from "../middleware/authMiddleware.js";
+import { upload } from "../config/multer.js";
 
 const authRoute = express.Router();
 
@@ -10,6 +17,7 @@ authRoute.post("/register", register);
 authRoute.post("/login", login);
 authRoute.post("/logout", logout);
 authRoute.get("/me", authMiddleware, me);
+authRoute.put("/update", authMiddleware, upload.single("avatar"), update);
 
 // Route for initiating Google OAuth
 authRoute.get(

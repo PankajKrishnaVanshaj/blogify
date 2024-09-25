@@ -12,9 +12,9 @@ const BookMarkStatus = ({ post, size = 24 }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
-    if (user?.msg?.bookMarks) {
+    if (user?.bookMarks) {
       setIsBookmarked(
-        user.msg.bookMarks.some((item) => {
+        user.bookMarks.some((item) => {
           // Check if both item.postId and post are defined before comparing
           return (
             item.postId && post && item.postId.toString() === post.toString()

@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useRouter } from "next/navigation";
 
 const categories = [
   "Technology & Innovation",
@@ -20,6 +21,7 @@ const categories = [
 ];
 
 const CreatePost = () => {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
@@ -95,6 +97,7 @@ const CreatePost = () => {
       if (response.status === 201) {
         toast.success("Post submitted successfully");
         resetForm();
+        router.push("/dashboard/all-blog-posts");
       } else {
         toast.error("Error submitting post");
       }
