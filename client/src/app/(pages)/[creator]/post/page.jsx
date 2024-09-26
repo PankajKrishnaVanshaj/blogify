@@ -76,11 +76,9 @@ const ReadPost = ({ params }) => {
           </div>
         </div>
       </div>
-
       <h1 className="p-4 text-xl md:text-2xl font-extrabold text-gray-800 dark:text-gray-200">
         {post.title}
       </h1>
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
         <div className="col-span-3">
           <p
@@ -97,7 +95,6 @@ const ReadPost = ({ params }) => {
           <div className="rounded-lg shadow-lg h-full"> Ads Area </div>
         </div>
       </div>
-
       <hr className="mt-20 mx-16 border border-primary" />
       <div className="mt-8 px-0 w-full">
         <h2 className="text-xl md:text-2xl font-semibold text-primary mb-2 p-4">
