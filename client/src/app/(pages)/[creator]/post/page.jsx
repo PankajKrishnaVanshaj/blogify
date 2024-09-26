@@ -36,39 +36,44 @@ const ReadPost = ({ params }) => {
   }
 
   return (
-    <div className="py-4 px-0  w-full overflow-auto">
-      <div className="relative grid grid-cols-1 md:grid-cols-5 gap-4 items-center mb-4">
+    <div className="py-4 px-0 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {/* Main Content */}
         <div className="col-span-3 p-4">
-          <h1 className="text-2xl md:text-5xl font-bold text-gray-800">
+          <h1 className="text-2xl md:text-5xl font-bold text-gray-800 line-clamp-3">
             {post.title.length > 85
               ? `${post.title.slice(0, 85)}...`
               : post.title}
           </h1>
           <p className="mt-2 text-sm font-thin text-gray-700">
-            Category:
-            <span className="text-primary font-mono"> {post.category}</span>
+            Category:{" "}
+            <span className="text-primary font-mono">{post.category}</span>
           </p>
-          <div className="flex justify-between gap-3 overflow-x-auto my-4 shadow-lg py-1 px-2 rounded-lg ">
-            <span>
-              <UserInfo user={post.user} />
-            </span>
-            <span>
+
+          {/* Sticky Section */}
+          <div className="sticky top-0 bg-white z-50 shadow-lg py-2 px-4 rounded-lg overflow-x-auto">
+            <div className="flex justify-between items-center gap-4">
+              <span>
+                <UserInfo user={post.user} />
+              </span>
               <FollowButton userId={post.user} />
-            </span>
-            <span>
               <PostStats post={post} />
-            </span>
+            </div>
           </div>
         </div>
-        <div className="col-span-2 h-72 w-full overflow-hidden rounded-lg">
-          <Image
-            src={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`}
-            alt="Post image"
-            width={548}
-            height={288}
-            priority={true}
-            className="object-cover w-full h-full"
-          />
+
+        {/* Sidebar */}
+        <div className="col-span-2">
+          <div className="h-72 w-full overflow-hidden rounded-lg mb-4">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`}
+              alt="Post image"
+              width={548}
+              height={288}
+              priority={true}
+              className="object-cover w-full h-full"
+            />
+          </div>
         </div>
       </div>
 
@@ -76,16 +81,14 @@ const ReadPost = ({ params }) => {
         {post.title}
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-        <div className="col-span-2">
-          <div className="overflow-auto">
-            <p
-              className="text-gray-800 dark:text-gray-200"
-              dangerouslySetInnerHTML={{
-                __html: post.content,
-              }}
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+        <div className="col-span-3">
+          <p
+            className="text-gray-800 dark:text-gray-200"
+            dangerouslySetInnerHTML={{
+              __html: post.content,
+            }}
+          />
         </div>
 
         <div className="flex flex-col justify-evenly ">
@@ -94,8 +97,9 @@ const ReadPost = ({ params }) => {
           <div className="rounded-lg shadow-lg h-full"> Ads Area </div>
         </div>
       </div>
-      <hr className="mt-5 mx-16 border border-primary" />
-      <div className="mt-8 px-0  w-full ">
+
+      <hr className="mt-20 mx-16 border border-primary" />
+      <div className="mt-8 px-0 w-full">
         <h2 className="text-xl md:text-2xl font-semibold text-primary mb-2 p-4">
           Suggestions for you
         </h2>

@@ -73,7 +73,9 @@ const FollowButton = ({ userId }) => {
         toast(`You ${isFollowing ? "unfollowed" : "followed"} ${userId.name}`);
       }
     } catch (error) {
-      console.error("Error toggling follow/unfollow:", error);
+      // console.error("Error toggling follow/unfollow:", error);
+
+      toast.error(error.response && error.response.data.message);
     }
   };
 
