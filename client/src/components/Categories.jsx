@@ -18,17 +18,18 @@ const categories = [
 const Categories = ({ onSelectCategory }) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [startIndex, setStartIndex] = useState(0);
-  const [categoriesToShow, setCategoriesToShow] = useState(
-    getCategoriesToShow()
-  );
+  const [categoriesToShow, setCategoriesToShow] = useState(5); // Default to 5 until we can measure
 
   // Function to determine how many categories to show based on screen width
   function getCategoriesToShow() {
-    const width = window.innerWidth;
-    if (width < 640) return 2; // Mobile
-    if (width < 768) return 3; // Tablet
-    if (width < 1024) return 5; // Small desktop
-    return 6; // Large desktop
+    if (typeof window !== "undefined") {
+      const width = window.innerWidth;
+      if (width < 640) return 2; // Mobile
+      if (width < 768) return 3; // Tablet
+      if (width < 1024) return 5; // Small desktop
+      return 6; // Large desktop
+    }
+    return 5; // Default fallback
   }
 
   const handleCategoryClick = (category) => {
@@ -48,8 +49,11 @@ const Categories = ({ onSelectCategory }) => {
     }
   };
 
-  // Update categoriesToShow on window resize
+  // Update categoriesToShow on window resize and component mount
   useEffect(() => {
+    // Set categories to show when the component mounts
+    setCategoriesToShow(getCategoriesToShow());
+
     const handleResize = () => {
       setCategoriesToShow(getCategoriesToShow());
     };
