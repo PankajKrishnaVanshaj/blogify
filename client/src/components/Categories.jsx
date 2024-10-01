@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { LuChevronLeftSquare, LuChevronRightSquare } from "react-icons/lu";
 
 const categories = [
   "All",
@@ -16,27 +17,92 @@ const categories = [
 
 const Categories = ({ onSelectCategory }) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [startIndex, setStartIndex] = useState(0);
+  const [categoriesToShow, setCategoriesToShow] = useState(
+    getCategoriesToShow()
+  );
+
+  // Function to determine how many categories to show based on screen width
+  function getCategoriesToShow() {
+    const width = window.innerWidth;
+    if (width < 640) return 2; // Mobile
+    if (width < 768) return 3; // Tablet
+    if (width < 1024) return 5; // Small desktop
+    return 6; // Large desktop
+  }
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     onSelectCategory(category === "All" ? "" : category);
   };
 
+  const handleNext = () => {
+    if (startIndex + categoriesToShow < categories.length) {
+      setStartIndex(startIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (startIndex > 0) {
+      setStartIndex(startIndex - 1);
+    }
+  };
+
+  // Update categoriesToShow on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setCategoriesToShow(getCategoriesToShow());
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-wrap gap-4 p-4">
-      {categories.map((category) => (
+    <div className="flex items-center justify-between w-full px-4 py-2">
+      {/* Left Button */}
+      {startIndex > 0 && (
         <button
-          key={category}
-          onClick={() => handleCategoryClick(category)}
-          className={`py-2 px-4 rounded-lg transition duration-300 ${
-            selectedCategory === category
-              ? "bg-pink-600 text-white"
-              : "bg-primary text-white hover:bg-pink-600"
-          }`}
+          onClick={handlePrev}
+          aria-label="Previous Categories"
+          className="p-2 mr-4 rounded-lg bg-primary text-white hover:bg-pink-800 transition duration-300 ease-in-out"
         >
-          {category}
+          <LuChevronLeftSquare size={23} />
         </button>
-      ))}
+      )}
+
+      <div className="flex gap-4 overflow-hidden w-full">
+        {categories
+          .slice(startIndex, startIndex + categoriesToShow)
+          .map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryClick(category)}
+              className={`py-2 px-4 rounded-lg transition duration-300 ${
+                selectedCategory === category
+                  ? "bg-pink-800 text-white"
+                  : "bg-primary text-white hover:bg-pink-800"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+      </div>
+
+      {/* Right Button */}
+      {startIndex + categoriesToShow < categories.length && (
+        <button
+          onClick={handleNext}
+          aria-label="Next Categories"
+          className="p-2 ml-4 rounded-lg bg-primary text-white hover:bg-pink-800 transition duration-300 ease-in-out"
+        >
+          <LuChevronRightSquare size={23} />
+        </button>
+      )}
     </div>
   );
 };

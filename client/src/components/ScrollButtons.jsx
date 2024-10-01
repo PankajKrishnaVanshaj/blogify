@@ -51,7 +51,7 @@ const ScrollButtons = () => {
         <button
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="p-1.5 rounded-xl bg-primary shadow-lg hover:bg-pink-800 transition duration-300 ease-in-out transform hover:-translate-y-2 hover:rotate-12 focus:outline-none focus:ring-4 focus:ring-purple-300"
+          className="p-1.5 rounded-xl text-white bg-primary shadow-lg hover:bg-pink-800 transition duration-300 ease-in-out transform hover:-translate-y-2 hover:rotate-12 focus:outline-none focus:ring-4 focus:ring-purple-300"
         >
           <MdKeyboardArrowUp size={30} />
         </button>
@@ -61,7 +61,7 @@ const ScrollButtons = () => {
         <button
           onClick={scrollToBottom}
           aria-label="Scroll to bottom"
-          className="p-1.5 rounded-xl bg-primary shadow-lg hover:bg-pink-800 transition duration-300 ease-in-out transform hover:translate-y-2 hover:-rotate-12 focus:outline-none focus:ring-4 focus:ring-purple-300"
+          className="p-1.5 rounded-xl text-white bg-primary shadow-lg hover:bg-pink-800 transition duration-300 ease-in-out transform hover:translate-y-2 hover:-rotate-12 focus:outline-none focus:ring-4 focus:ring-purple-300"
         >
           <MdKeyboardArrowDown size={30} />
         </button>

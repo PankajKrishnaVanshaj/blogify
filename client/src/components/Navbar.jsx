@@ -30,7 +30,7 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
       >
         &times;
       </button>
-      <ul className="flex flex-col items-center justify-center h-full gap-8 text-2xl text-black dark:text-white">
+      <ul className="flex flex-col items-center justify-center h-full gap-8 text-2xl text-primary ">
         {MenuItems.map((item, index) => (
           <li key={index} onClick={() => setIsOpen(false)}>
             <Link href={item.href}>{item.name}</Link>
@@ -68,7 +68,7 @@ const Navbar = () => {
       </div>
 
       <div className="hidden md:flex gap-14 items-center">
-        <ul className="flex gap-8 text-base text-black dark:text-white">
+        <ul className="flex gap-8 text-base text-primary">
           {MenuItems.map((item, index) => (
             <li key={index}>
               <Link href={item.href}>{item.name}</Link>
@@ -91,7 +91,7 @@ const Navbar = () => {
             <Link href="/sign-in">
               <Button
                 label="Sign in"
-                styles="flex items-center justify-center bg-black dark:bg-rose-600 text-white dark:text-white px-4 py-1.5 rounded-full"
+                styles="flex items-center justify-center bg-primary text-white dark:text-white px-4 py-1.5 rounded-full"
               />
             </Link>
           )}

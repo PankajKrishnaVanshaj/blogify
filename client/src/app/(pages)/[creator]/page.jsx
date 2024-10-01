@@ -85,6 +85,9 @@ const Creator = ({ params }) => {
               <span>{new Date(user.createdAt).toLocaleDateString()}</span>
             </span>
           </div>
+          <p className="text-sm font-light leading-4 py-1 rounded-lg">
+            {user?.bio}
+          </p>
         </div>
       </div>
 

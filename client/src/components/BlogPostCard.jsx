@@ -19,7 +19,7 @@ const BlogPostCard = ({ post }) => {
 
   const postUrl = `/${_id}/post`;
   const formattedDate = new Date(createdAt).toLocaleDateString();
-  const truncatedTitle = title.length > 40 ? `${title.slice(0, 40)}...` : title;
+  const truncatedTitle = title.length > 60 ? `${title.slice(0, 60)}...` : title;
   const truncatedContent =
     content.length > 104 ? `${content.slice(0, 104)}...` : content;
 

@@ -53,7 +53,7 @@ const MeInfo = () => {
     <div className="relative z-50" ref={menuRef}>
       <button
         onClick={toggleMenu}
-        className="p-1 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-200"
+        className="p-0.5 rounded-full  border border-primary hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-200"
       >
         <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-300 shadow-lg">
           {user?.avatar && (

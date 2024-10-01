@@ -92,13 +92,13 @@ const SearchBar = () => {
     <div ref={SearchBarRef} className="flex justify-center">
       <button
         onClick={toggleSearchBar}
-        className="flex items-center gap-1 border rounded-full px-3 py-1 text-sm font-thin cursor-pointer"
+        className="flex items-center gap-1 border border-primary text-primary rounded-full px-3 py-1 text-sm font-thin cursor-pointer"
       >
         <CiSearch className="text-2xl" />
         Search...
       </button>
       {isOpen && (
-        <div className="absolute top-full w-1/2 left-1/2 transform -translate-x-1/2 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+        <div className="absolute top-full w-1/2 left-1/2 transform -translate-x-1/2 mt-0.5 bg-white border border-dashed border-primary rounded-md shadow-lg z-50">
           <div className="flex">
             <input
               type="text"
@@ -109,12 +109,12 @@ const SearchBar = () => {
             />
             <button
               onClick={() => handleSubmit()}
-              className="px-3 py-2 bg-primary text-white font-semibold rounded-r-lg hover:bg-primary-dark transition duration-150"
+              className="px-3 py-2 bg-primary text-white font-semibold rounded-r-md hover:bg-primary-dark transition duration-150"
             >
               <CiSearch size={24} />
             </button>
           </div>
-          <ul className="max-h-60 overflow-y-auto mt-2 border-t border-gray-300">
+          <ul className="max-h-60 overflow-y-auto border-gray-300">
             {suggestions.map((suggestion, index) => (
               <li
                 key={index}

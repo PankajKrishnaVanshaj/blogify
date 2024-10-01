@@ -119,7 +119,7 @@ const Notifications = () => {
     <div className="relative z-10" ref={notificationsRef}>
       <button
         onClick={toggleNotificationButton}
-        className="p-2 rounded-full  text-primary hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-150 ease-in-out relative"
+        className="p-2 rounded-full text-primary hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-150 ease-in-out relative"
       >
         <MdOutlineNotificationsActive size={30} />
         {unreadNotifications && (

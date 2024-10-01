@@ -74,14 +74,19 @@ const BlogCarousel = () => {
     <div className="">
       <div className="relative h-96 rounded-lg overflow-hidden">
         <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 rounded-b-2xl px-2 ">
-          <h1 className="font-semibold text-lg text-white text-center hover:underline hover:scale-105 duration-300 cursor-pointer">
+          <h1 className="font-semibold text-lg text-primary text-center hover:underline hover:scale-105 duration-300 cursor-pointer line-clamp-1">
             <Link href={`/${currentBlog._id}/post`}>
-              {currentBlog.title.slice(0, 90) + "..."}
+              {currentBlog.title.slice(0, 100) + "..."}
             </Link>
           </h1>
-          <p className="flex-1 overflow-hidden text-gray-500 text-sm text-justify">
-            {currentBlog.content.slice(0, 255) + "..."}
-          </p>
+          <p
+            className="flex-1 overflow-hidden text-white text-sm text-justify line-clamp-2"
+            dangerouslySetInnerHTML={{
+              __html: currentBlog.content
+                ? currentBlog.content.slice(0, 275) + "..."
+                : "",
+            }}
+          ></p>
         </div>
         <div
           className="h-full w-full bg-center bg-no-repeat bg-cover"
