@@ -24,7 +24,7 @@ const BlogPostCard = ({ post }) => {
     content.length > 104 ? `${content.slice(0, 104)}...` : content;
 
   return (
-    <div className="h-48 border border-gray-200 rounded-lg shadow-md overflow-hidden">
+    <div className="h-48 border border-gray-200 rounded-lg shadow-sm hover:shadow-primary overflow-hidden">
       <div className="flex my-1 items-center justify-between">
         <div className="flex-shrink-0 mx-1">
           <Link href={postUrl}>

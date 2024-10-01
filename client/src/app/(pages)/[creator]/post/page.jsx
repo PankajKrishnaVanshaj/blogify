@@ -6,13 +6,28 @@ import FollowButton from "@/components/FollowButton";
 import PostStats from "@/components/PostStats";
 import UserInfo from "@/components/UserInfo";
 import Suggestion from "@/components/Suggestion";
+import TextToVoice from "@/components/TextToVoice";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
   const [error, setError] = useState(null);
+  const [selectedText, setSelectedText] = useState("");
 
   useEffect(() => {
     getPostDetails();
+
+    const handleTextSelection = () => {
+      const selection = window.getSelection();
+      const selected = selection.toString();
+      if (selected) {
+        setSelectedText(selected);
+      }
+    };
+
+    document.addEventListener("mouseup", handleTextSelection);
+    return () => {
+      document.removeEventListener("mouseup", handleTextSelection);
+    };
   }, []);
 
   const getPostDetails = async () => {
@@ -25,6 +40,10 @@ const ReadPost = ({ params }) => {
       console.error("Error fetching post data:", error);
       setError("Failed to fetch post data");
     }
+  };
+
+  const handleStopSpeaking = () => {
+    setSelectedText(""); // Clear the selected text when speech stops
   };
 
   if (error) {
@@ -40,7 +59,7 @@ const ReadPost = ({ params }) => {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Main Content */}
         <div className="col-span-3 p-4">
-          <h1 className="text-2xl md:text-5xl font-bold text-gray-800 line-clamp-3">
+          <h1 className="text-2xl md:text-5xl font-bold text-gray-800 line-clamp-3 pt-3">
             {post.title.length > 85
               ? `${post.title.slice(0, 85)}...`
               : post.title}
@@ -51,7 +70,7 @@ const ReadPost = ({ params }) => {
           </p>
 
           {/* Sticky Section */}
-          <div className="sticky top-0 bg-white z-50 shadow-lg py-2 px-4 rounded-lg overflow-x-auto">
+          <div className="sticky top-0 bg-white z-50 shadow-sm hover:shadow-primary py-2 px-4 mt-1.5 rounded-lg overflow-x-auto">
             <div className="flex justify-between items-center gap-4">
               <span>
                 <UserInfo user={post.user} />
@@ -64,7 +83,7 @@ const ReadPost = ({ params }) => {
 
         {/* Sidebar */}
         <div className="col-span-2">
-          <div className="h-72 w-full overflow-hidden rounded-lg mb-4">
+          <div className="h-72 w-full overflow-hidden rounded-lg mb-4 shadow-sm hover:shadow-primary">
             <Image
               src={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`}
               alt="Post image"
@@ -95,6 +114,13 @@ const ReadPost = ({ params }) => {
           <div className="rounded-lg shadow-lg h-full"> Ads Area </div>
         </div>
       </div>
+
+      {/* Text to Voice Component */}
+      <TextToVoice
+        text={selectedText || post.content}
+        onStop={handleStopSpeaking}
+      />
+
       <hr className="mt-20 mx-16 border border-primary" />
       <div className="mt-8 px-0 w-full">
         <h2 className="text-xl md:text-2xl font-semibold text-primary mb-2 p-4">
