@@ -1,5 +1,5 @@
 import {
-  getUserById,
+  getUserByIdOrUsername,
   toggleFollowUnfollow,
   followersStatus,
 } from "../controllers/user.controller.js";
@@ -8,7 +8,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const userRoute = express.Router();
 
-userRoute.get("/user/:id", getUserById);
+userRoute.get("/user/:id", getUserByIdOrUsername);
 userRoute.post(
   "/user/:id/toggle-follow-unfollow",
   authMiddleware,

@@ -2,27 +2,36 @@ import mongoose from "mongoose";
 import { Posts } from "../models/post.model.js";
 import Users from "../models/user.model.js";
 
-// Fetch user by ID and their posts
-export const getUserById = async (req, res) => {
+// Fetch user by ID or username and their posts
+export const getUserByIdOrUsername = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const { id } = req.params;
 
-    // Find the user by ID, excluding sensitive fields
-    const user = await Users.findById(userId).select(
-      "-password -email -notifications"
+    let query = {};
+
+    // Check if `id` is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query._id = id; // Search by _id if it's a valid ObjectId
+    } else {
+      query.username = id; // Otherwise, search by username
+    }
+
+    // Find the user by either ID or username, excluding sensitive fields
+    const user = await Users.findOne(query).select(
+      "-password -email -notifications -bookMarks"
     );
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Fetch posts by the user ID
-    const posts = await Posts.find({ createdBy: userId });
+    // Fetch posts by the user's ID
+    const posts = await Posts.find({ createdBy: user._id });
 
     // Return the user with user details and posts
     res.status(200).json({ ...user.toObject(), posts });
   } catch (err) {
-    console.error("Error fetching user by ID:", err);
+    console.error("Error fetching user by ID or username:", err);
     res.status(500).json({ message: "Error fetching user." });
   }
 };
