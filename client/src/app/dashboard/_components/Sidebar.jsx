@@ -1,8 +1,8 @@
 "use client";
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import React, { useState } from "react";
+import { BiSolidMessageAltDetail } from "react-icons/bi";
 import {
   FaTachometerAlt,
   FaUser,
@@ -20,6 +20,11 @@ const Sidebar = () => {
       title: "Dashboard",
       icon: <FaTachometerAlt />,
       link: `/dashboard`,
+    },
+    {
+      title: "Messages",
+      icon: <BiSolidMessageAltDetail />,
+      link: `/dashboard/messages`,
     },
     {
       title: "Profile",

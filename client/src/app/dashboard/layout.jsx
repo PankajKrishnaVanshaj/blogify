@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }) {
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-grow p-4">{children}</div>
+                <div className="flex-grow p-2">{children}</div>
               </div>
             </div>
           </div>

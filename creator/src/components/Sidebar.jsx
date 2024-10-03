@@ -10,8 +10,8 @@ import {
 const sidebarItems = [
   { name: "Dashboard", path: "/dashboard", icon: <MdDashboard /> },
   { name: "Analytics", path: "/analytics", icon: <MdAnalytics /> },
+  { name: "Users", path: "/users", icon: <MdPeople /> },
   { name: "Contents", path: "/contents", icon: <MdContentPaste /> },
-  { name: "Followers", path: "/followers", icon: <MdPeople /> },
   { name: "Create Post", path: "/create-post", icon: <IoMdCreate /> },
   { name: "Settings", path: "/settings", icon: <IoMdSettings /> },
 ];

@@ -14,6 +14,12 @@ module.exports = {
       },
       colors: {
         primary: "#c9304b",
+        secondary: "#0658bd",
+        tertiary: "#fdba74",
+      },
+      backgroundImage: {
+        "primary-gradient":
+          "linear-gradient(to right, #c9304b, #0658bd, #fdba74)",
       },
     },
   },
