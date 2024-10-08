@@ -7,6 +7,7 @@ import commentRouter from "./comment.route.js";
 import searchRoute from "./search.route.js";
 import bookMarkRouter from "./bookMark.router.js";
 import messageRouter from "./message.routes.js";
+import conversationRouter from "./conversation.routes.js";
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use("/comments", commentRouter);
 router.use("/search", searchRoute);
 router.use("/bookmark", bookMarkRouter);
 router.use("/message", messageRouter);
+router.use("/conversation", conversationRouter);
 
 export default router;

@@ -4,12 +4,12 @@ const messageSchema = new Schema(
   {
     sender: {
       type: Schema.Types.ObjectId,
-      ref: "Users", // Assuming you have a User model
+      ref: "Users",
       required: true,
     },
     receiver: {
       type: Schema.Types.ObjectId,
-      ref: "Users", // Reference to the receiver
+      ref: "Users",
       required: true,
     },
     content: {

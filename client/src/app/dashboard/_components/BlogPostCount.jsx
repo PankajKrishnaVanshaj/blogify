@@ -92,7 +92,7 @@ const BlogPostCount = () => {
 };
 
 const StatCard = ({ icon, title, value }) => (
-  <div className="flex items-center bg-white p-4 rounded-lg shadow-md transition-shadow duration-300 ease-in-out hover:shadow-xl">
+  <div className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-tertiary transition-shadow duration-300 ease-in-out hover:shadow-xl">
     <div className="text-2xl text-primary mr-3">{icon}</div>
     <div>
       <p className="font-semibold">{title}</p>

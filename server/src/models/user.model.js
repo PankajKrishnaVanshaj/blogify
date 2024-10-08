@@ -57,6 +57,13 @@ const userSchema = new Schema(
       required: true,
       default: false,
     },
+    blockedUsers: [
+      {
+        _id: false,
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "Users" },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     following: [
       {
         _id: false,

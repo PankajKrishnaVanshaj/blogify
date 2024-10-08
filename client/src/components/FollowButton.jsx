@@ -82,11 +82,11 @@ const FollowButton = ({ userId }) => {
   return (
     <div className="flex items-center flex-col">
       <div className="flex items-center text-sm font-semibold text-gray-600 font-mono gap-1">
-        <ImUserCheck size={14} />
+        <ImUserCheck size={14} className="text-primary" />
         {followers}
       </div>
       <button
-        className="px-2 border rounded-full text-sm font-light"
+        className="px-2 border border-primary rounded-full text-sm font-light"
         onClick={toggleFollowUnfollow}
       >
         {isFollowing ? "Unfollow" : "Follow"}
