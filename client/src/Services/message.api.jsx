@@ -54,3 +54,13 @@ export const toggleUserBlock = async (userId) => {
     }
   );
 };
+export const toggleFollowingUnfollowing = async (userId) => {
+  const token = getToken();
+  return axios.post(
+    `http://localhost:55555/api/v1/users/user/${userId}/toggle-follow-unfollow`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};

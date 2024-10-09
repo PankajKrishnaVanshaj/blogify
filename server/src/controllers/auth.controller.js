@@ -131,18 +131,24 @@ export const me = async (req, res) => {
 
     const userId = req.user._id; // Get the user's ID from the request
 
-    // Retrieve user data without the password field
-    const user = await Users.findById(userId).select("-password");
+    // Retrieve user data without the password field, populate relationships
+    const user = await Users.findById(userId)
+      .select("-password")
+      .populate({
+        path: "blockedUsers.user following.user followers.user",
+        select: "_id name username avatar", // Select specific fields
+      })
+      .populate({
+        path: "bookMarks.postId",
+        select: "_id title", // For bookmarks, you can adjust post fields as necessary
+      });
 
-    // Check if user data was found
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Return the user data
     return res.status(200).json(user);
   } catch (error) {
-    // More detailed logging for errors
     console.error(`Error in 'me' route: ${error.message}`, error);
     return res.status(500).json({ error: "Internal Server Error" });
   }

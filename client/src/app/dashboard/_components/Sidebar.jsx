@@ -35,23 +35,7 @@ const Sidebar = () => {
     {
       title: "Users",
       icon: <FaUsers />,
-      subItems: [
-        {
-          title: "Followers",
-          icon: <FaUserPlus />,
-          link: `/dashboard/edit-profile`,
-        },
-        {
-          title: "Following",
-          icon: <FaUserCheck />,
-          link: `/dashboard/all-web-stories`,
-        },
-        {
-          title: "Blocked Users",
-          icon: <FaUserTimes />,
-          link: `/dashboard/edit-profile`,
-        },
-      ],
+      link: `/dashboard/users`,
     },
     {
       title: "Profile",

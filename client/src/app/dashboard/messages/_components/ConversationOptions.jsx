@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaTimes } from "react-icons/fa";
 import { toast } from "sonner";
 import { deleteConversation, toggleUserBlock } from "@/services/message.api";
