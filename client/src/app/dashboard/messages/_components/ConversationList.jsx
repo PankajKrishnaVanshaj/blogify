@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 const ConversationList = ({
   selectedConversation,
   handleConversationClick,
-  conversations,
+  conversations = [], // Default to an empty array to avoid undefined errors
   loading,
   error,
   fetchConversations,
@@ -14,13 +14,15 @@ const ConversationList = ({
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter conversations based on the search term and exclude the current user from participants
-  const filteredConversations = conversations.filter((conversation) =>
-    conversation.participants
-      .find((participant) => participant._id !== user._id)
-      ?.name?.toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+  // Safely filter conversations and avoid errors with undefined/null values
+  const filteredConversations = conversations.filter((conversation) => {
+    const otherParticipant = conversation.participants?.find(
+      (participant) => participant?._id !== user?._id
+    );
+    return otherParticipant?.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="lg:w-1/3 w-full p-3 shadow-sm shadow-primary bg-gradient-to-r from-pink-100 via-blue-50 to-orange-50 rounded-xl lg:h-screen h-auto">
@@ -49,8 +51,8 @@ const ConversationList = ({
         <ul className="overflow-y-auto max-h-[80vh]">
           {filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => {
-              const otherParticipant = conversation.participants.find(
-                (participant) => participant._id !== user._id
+              const otherParticipant = conversation.participants?.find(
+                (participant) => participant?._id !== user?._id
               );
 
               return (

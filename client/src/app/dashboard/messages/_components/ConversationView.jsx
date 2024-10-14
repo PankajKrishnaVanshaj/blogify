@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { fetchMessages, sendMessage } from "@/services/message.api";
+import { fetchMessages, sendMessage } from "@/Services/api/message.api";
 import { useAuth } from "@/context/AuthContext";
 
 const ConversationView = ({ selectedConversation }) => {
@@ -48,9 +48,10 @@ const ConversationView = ({ selectedConversation }) => {
           <h2 className="text-xl font-bold mb-2 py-2 px-4">
             Conversation with {getReceiver()?.name || "Unknown User"}
           </h2>
-          <div className="p-3 bg-white min-h-[515px] mx-2 mb-2 rounded-xl border flex flex-col justify-between">
+
+          <div className="flex flex-col h-[575px] p-3 bg-white mx-2 mb-2 rounded-xl border">
             {/* Messages Section */}
-            <div className="flex-grow overflow-y-auto">
+            <div className="flex-grow overflow-y-auto mb-3 pr-2">
               {messages.length ? (
                 messages.map((msg, index) => (
                   <div
@@ -60,7 +61,7 @@ const ConversationView = ({ selectedConversation }) => {
                     }`}
                   >
                     <p
-                      className={`px-2 py-0.5 my-0.5 rounded-lg w-fit break-words ${
+                      className={`px-2 py-0.5 my-0.5 rounded-lg w-fit break-words max-w-[70%] ${
                         msg.sender === user._id
                           ? "bg-pink-100 text-right"
                           : "bg-orange-100"
@@ -76,22 +77,23 @@ const ConversationView = ({ selectedConversation }) => {
                 </p>
               )}
             </div>
-          </div>
-          {/* Message Input Section */}
-          <div className="flex px-4 mt-3">
-            <input
-              type="text"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              className="flex-grow p-2 border-2 rounded-lg border-primary focus:outline-none"
-              placeholder="Type a message..."
-            />
-            <button
-              onClick={handleSendMessage}
-              className="ml-2 px-5 py-2 bg-primary text-white rounded-lg border border-tertiary hover:bg-primary-dark"
-            >
-              Send
-            </button>
+
+            {/* Message Input Section */}
+            <div className="flex px-4 mt-auto">
+              <input
+                type="text"
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                className="flex-grow p-2 border-2 rounded-lg border-primary bg-gradient-to-r from-pink-50 via-blue-50 to-orange-50 focus:outline-none"
+                placeholder="Type a message..."
+              />
+              <button
+                onClick={handleSendMessage}
+                className="ml-2 px-5 py-2 bg-primary text-white rounded-lg border border-tertiary hover:bg-primary-dark"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </>
       ) : (

@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { toggleUserBlock } from "@/Services/message.api";
+import { toggleUserBlock } from "@/Services/api/user.api";
 import Image from "next/image";
 import { toast } from "sonner";
 import React, { useState } from "react";

@@ -1,50 +1,67 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaTimes } from "react-icons/fa";
 import { toast } from "sonner";
-import { deleteConversation, toggleUserBlock } from "@/services/message.api";
+import { deleteConversation } from "@/Services/api/message.api";
+import { toggleUserBlock } from "@/Services/api/user.api";
 import { useAuth } from "@/context/AuthContext";
 
 const ConversationOptions = ({ conversation, fetchConversations }) => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Ensure user context is available
   const [showOptions, setShowOptions] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
-  const receiver = conversation?.participants.find((p) => p._id !== user._id);
+  // Ensure conversation and user exist before accessing their properties
+  const receiver = conversation?.participants?.find(
+    (p) => p?._id && p._id !== user?._id
+  );
   const userIdToBlock = receiver?._id;
 
+  // Sync block status whenever user or conversation changes
   useEffect(() => {
-    if (user?.blockedUsers) {
-      setIsBlocked(
-        user.blockedUsers.some(
-          (blockedUser) => blockedUser.user === userIdToBlock
-        )
-      );
-    }
+    if (!user || !userIdToBlock) return; // Early exit if user or receiver is missing
+
+    const isAlreadyBlocked = user?.blockedUsers?.some((blockedUser) => {
+      if (typeof blockedUser === "object" && blockedUser?.user) {
+        return blockedUser.user._id === userIdToBlock; // Object with user field
+      }
+      return blockedUser === userIdToBlock; // For an array of user IDs
+    });
+
+    setIsBlocked(isAlreadyBlocked);
   }, [user, userIdToBlock]);
 
   const handleDeleteConversation = async () => {
+    if (!conversation?._id) return; // Ensure conversation exists
+
     if (window.confirm("Are you sure you want to delete this conversation?")) {
       try {
         await deleteConversation(conversation._id);
         fetchConversations();
         toast.success("Conversation deleted");
       } catch (error) {
+        console.error("Error deleting conversation:", error);
         toast.error("Failed to delete conversation");
       }
     }
   };
 
   const toggleBlockUnblock = async () => {
+    if (!userIdToBlock) return; // Ensure the user to block exists
+
     try {
       await toggleUserBlock(userIdToBlock);
-      setIsBlocked(!isBlocked);
+      setIsBlocked((prev) => !prev); // Toggle block status
       toast.success(
         `${isBlocked ? "Unblocked" : "Blocked"} ${receiver?.name || "user"}`
       );
     } catch (error) {
+      console.error("Error toggling block status:", error);
       toast.error("Failed to update block status");
     }
   };
+
+  // Prevent rendering if required data is missing
+  if (!conversation || !receiver) return null;
 
   return (
     <div className="relative z-10">
