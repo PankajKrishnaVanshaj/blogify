@@ -14,7 +14,7 @@ const TextToVoice = ({ text, onStop }) => {
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = speechSynthesis.getVoices();
-      console.log("Available voices:", availableVoices); // Log available voices
+      // console.log("Available voices:", availableVoices); // Log available voices
       if (availableVoices.length > 0) {
         setVoices(availableVoices);
       }

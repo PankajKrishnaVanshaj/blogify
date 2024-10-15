@@ -59,7 +59,7 @@ const ReadPost = ({ params }) => {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Main Content */}
         <div className="col-span-3 p-4">
-          <h1 className="text-2xl md:text-5xl font-bold text-gray-800 line-clamp-3 pt-3">
+          <h1 className="text-2xl md:text-5xl font-bold text-gray-800">
             {post.title.length > 85
               ? `${post.title.slice(0, 85)}...`
               : post.title}

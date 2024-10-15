@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import axios from "axios";
 import {
   AiOutlineFundProjectionScreen,
   AiOutlineComment,
   AiOutlineFileText,
 } from "react-icons/ai";
 import { FiHeart } from "react-icons/fi";
+import { fetchAllPosts } from "@/Services/api/blogPost.api";
 
 const BlogPostCount = () => {
   const [loading, setLoading] = useState(true);
@@ -19,23 +19,8 @@ const BlogPostCount = () => {
   const token = Cookies.get("token");
 
   const fetchData = async () => {
-    if (!token) {
-      setError("No user found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data } = await axios.get(
-        `http://localhost:55555/api/v1/posts/all-posts-of-creator`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const fetchedPosts = Array.isArray(data) ? data : data.posts;
+      const fetchedPosts = await fetchAllPosts();
 
       const totalViews = fetchedPosts.reduce(
         (acc, post) => acc + post.views,
@@ -64,7 +49,7 @@ const BlogPostCount = () => {
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, []);
 
   if (loading) return <div className="text-center">Loading...</div>;
   if (error) return <div className="text-red-500 text-center">{error}</div>;

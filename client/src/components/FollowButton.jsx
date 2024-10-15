@@ -7,56 +7,30 @@ import { useAuth } from "@/context/AuthContext";
 
 const FollowButton = ({ userId }) => {
   const { user } = useAuth();
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followers, setFollowers] = useState(userId?.followers?.length || 0); // Safe access and default value
+  const [isFollowing, setIsFollowing] = useState(false); // Track if the current user follows the target user
+  const [followers, setFollowers] = useState(userId?.followers?.length || 0); // Initialize followers count
   const token = Cookies.get("token");
 
+  // Check follow status on component mount or when user/userId changes
   useEffect(() => {
-    if (user?.following) {
-      setIsFollowing(
-        user.following.some((f) => f.user.toString() === userId._id.toString())
+    if (user?.following?.length && userId) {
+      const isFollowed = user.following.some(
+        (f) => f.user._id === userId._id // Direct comparison of user IDs
       );
+      setIsFollowing(isFollowed); // Set follow status correctly
     }
   }, [user, userId]);
-
-  // useEffect(() => {
-  //   const fetchFollowStatus = async () => {
-  //     try {
-  //       if (!token) {
-  //         console.error("No token found");
-  //         return;
-  //       }
-
-  //       const response = await axios.get(
-  //         `http://localhost:55555/api/v1/users/user/${user._id}/followers-status`, // Use user._id for API call
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-
-  //       setIsFollowing(response.data.isFollowing);
-  //     } catch (error) {
-  //       console.error("Error fetching follow status:", error);
-  //     }
-  //   };
-
-  //   if (user && user._id) {
-  //     fetchFollowStatus();
-  //   }
-  // }, [token, user]);
 
   const toggleFollowUnfollow = async () => {
     try {
       if (!token) {
-        toast.error("Login first");
+        toast.error("Please log in first");
         return;
       }
 
       const response = await axios.post(
-        `http://localhost:55555/api/v1/users/user/${userId._id}/toggle-follow-unfollow`, // Use user._id for API call
-        {}, // body is empty
+        `http://localhost:55555/api/v1/users/user/${userId._id}/toggle-follow-unfollow`,
+        {}, // No body required
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -65,17 +39,12 @@ const FollowButton = ({ userId }) => {
       );
 
       if (response.status === 200) {
-        // Update the following status and follower count
-        setIsFollowing(!isFollowing);
-        setFollowers(isFollowing ? followers - 1 : followers + 1);
-
-        // Show the correct toast message
+        setIsFollowing((prev) => !prev); // Toggle follow status
+        setFollowers((prev) => (isFollowing ? prev - 1 : prev + 1)); // Update follower count
         toast(`You ${isFollowing ? "unfollowed" : "followed"} ${userId.name}`);
       }
     } catch (error) {
-      // console.error("Error toggling follow/unfollow:", error);
-
-      toast.error(error.response && error.response.data.message);
+      toast.error(error.response?.data?.message || "An error occurred");
     }
   };
 
@@ -86,7 +55,9 @@ const FollowButton = ({ userId }) => {
         {followers}
       </div>
       <button
-        className="px-2 border border-primary rounded-full text-sm font-light"
+        className={`px-2 border rounded-full text-sm font-light ${
+          isFollowing ? "border-red-500 text-red-500" : "border-primary"
+        }`}
         onClick={toggleFollowUnfollow}
       >
         {isFollowing ? "Unfollow" : "Follow"}

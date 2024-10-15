@@ -54,7 +54,7 @@ const CommentList = ({ postId }) => {
     return <div className="text-center text-red-500 py-4">Error: {error}</div>;
 
   return (
-    <div className="rounded-lg shadow-md bg-white p-4 max-h-80 overflow-auto">
+    <div className="max-h-80 overflow-auto">
       {comments.length > 0 ? (
         <ul>
           {comments
@@ -63,7 +63,7 @@ const CommentList = ({ postId }) => {
             .map((comment) => (
               <li
                 key={comment._id}
-                className="px-4 py-2 my-2 transition duration-300 ease-in-out transform hover:-translate-y-1 shadow-md hover:shadow-lg rounded-lg bg-gray-50"
+                className="p-2 my-2 mx-1 transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-md hover:shadow-md hover:shadow-tertiary rounded-lg bg-gray-50"
               >
                 <div className="flex justify-between items-center mb-2">
                   <UserInfo user={comment.user} use={"BlogPostCard"} />
@@ -84,7 +84,7 @@ const CommentList = ({ postId }) => {
                 <div className="flex justify-between mt-2 text-gray-700 font-medium max-h-32 overflow-auto">
                   <p>{comment.comment}</p>
                   <span className="flex flex-row gap-2 text-lg">
-                    {comment.user._id === user?.msg?._id && (
+                    {comment.user._id === user?._id && (
                       <MdOutlineDeleteOutline
                         className="text-red-500 cursor-pointer"
                         onClick={() => deleteHandle(comment._id)}
