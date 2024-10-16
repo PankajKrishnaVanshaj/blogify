@@ -12,6 +12,7 @@ import { FcGoogle } from "react-icons/fc";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import Cookies from "js-cookie";
 import { toast } from "sonner"; // Import the toast function
+import { signUp } from "@/api/auth.api";
 
 const Signup = () => {
   const [showForm, setShowForm] = useState(false);
@@ -38,48 +39,24 @@ const Signup = () => {
     setFileURL(URL.createObjectURL(selectedFile));
   };
 
-  const googleLogin = () => {
-    window.open(`http://localhost:55555/api/v1/auth/google`, "_self");
+  const initiateGoogleLogin = async () => {
+    const result = await googleLogin();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      password: data.password,
-    };
+    const { success, message } = await signUp(
+      data.firstName,
+      data.lastName,
+      data.email,
+      data.password
+    );
 
-    try {
-      const response = await axios.post(
-        "http://localhost:55555/api/v1/auth/register",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true, // Include credentials in the request
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Account created successfully!");
-        window.location.replace("/"); // Redirect to home page
-      } else {
-        toast.error(
-          response.data.message || "Sign-up failed. Please try again."
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Error:",
-        error.response ? error.response.data : error.message
-      );
-      toast.error(
-        error.response?.data?.message || "Sign-up failed. Please try again."
-      );
+    if (success) {
+      window.location.replace("/"); // Redirect to home page
+    } else {
+      toast.error(message || "Sign-up failed. Please try again.");
     }
   };
 
@@ -199,7 +176,7 @@ const Signup = () => {
               <>
                 <div className="max-w-md w-full space-y-8">
                   <Button
-                    onClick={() => googleLogin()}
+                    onClick={() => initiateGoogleLogin()}
                     label="Sign up with Google"
                     icon={<FcGoogle className="text-xl" />}
                     styles="w-full flex flex-row-reverse gap-4 bg-black dark:bg-transparent dark:border text-white px-5 py-2.5 rounded-full"

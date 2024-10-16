@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { toggleFollowingUnfollowing } from "@/Services/api/user.api";
+import { toggleFollowingUnfollowing } from "@/api/user.api";
 import Image from "next/image";
 import { toast } from "sonner";
 import React, { useState, useEffect } from "react";

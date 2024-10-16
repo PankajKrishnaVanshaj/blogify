@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import BlogPostCard from "@/components/BlogPostCard";
+import { searchPosts } from "@/api/search.api"; // Import the searchPosts function
 
 const Search = () => {
   const searchParams = useSearchParams();
@@ -15,13 +15,8 @@ const Search = () => {
       if (!query.trim()) return; // If the query is empty, don't fetch data
       setLoading(true);
       try {
-        const response = await axios.get(
-          "http://localhost:55555/api/v1/search",
-          {
-            params: { q: query }, // Pass the query to the API as a parameter
-          }
-        );
-        setResults(response.data.posts);
+        const posts = await searchPosts(query); // Call the API function
+        setResults(posts); // Set the results
       } catch (error) {
         console.error("Error fetching search results:", error);
       } finally {
@@ -39,8 +34,8 @@ const Search = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
           {results.length > 0 ? (
-            results.map((post, index) => (
-              <BlogPostCard key={index} post={post} />
+            results.map((post) => (
+              <BlogPostCard key={post._id} post={post} /> // Ensure the unique key is post._id
             ))
           ) : (
             <div className="text-center text-gray-500">

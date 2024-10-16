@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "next/navigation";
 import BlogPostCard from "./BlogPostCard";
+import { fetchPostsByCategory } from "@/api/blogPost.api";
 
 const Suggestion = ({ category }) => {
   const { creator: postId } = useParams(); // Use 'postId' for clarity
@@ -14,23 +14,9 @@ const Suggestion = ({ category }) => {
       if (!category) return; // Exit early if category is null or undefined
 
       try {
-        const response = await axios.get(
-          `http://localhost:55555/api/v1/search/suggestion-posts-by-category?category=${encodeURIComponent(
-            category
-          )}`
-        );
+        const fetchedPosts = await fetchPostsByCategory(category);
+        setPosts(fetchedPosts);
 
-        const data = response.data;
-
-        // Log the full data for debugging
-        // console.log("Response data:", data);
-
-        // Check if data has 'posts' array
-        if (!Array.isArray(data.posts)) {
-          throw new Error("Received data is not in the expected format");
-        }
-
-        setPosts(data.posts);
         setIsLoading(false); // Set loading to false after successful fetch
         setError(null); // Clear any previous error
       } catch (error) {

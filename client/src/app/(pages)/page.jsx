@@ -2,8 +2,8 @@
 import { useEffect, useState, useRef } from "react";
 import CarouselSection from "@/components/CarouselSection";
 import BlogPostCard from "@/components/BlogPostCard";
-import axios from "axios";
 import Categories from "@/components/Categories";
+import { fetchFilterPosts } from "@/api/blogPost.api"; // Import the fetchPosts function
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -17,25 +17,19 @@ export default function Home() {
   const isFetchingRef = useRef(false); // To prevent multiple fetch triggers
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchPostsData = async () => {
       if (isFetchingRef.current) return; // Avoid duplicate fetches
       isFetchingRef.current = true;
 
       setLoading(true);
 
       try {
-        const categoryParam =
-          category === "All" ? "" : `&category=${encodeURIComponent(category)}`;
-        const response = await axios.get(
-          `http://localhost:55555/api/v1/posts/get-all-posts?page=${page}&limit=10${categoryParam}`
-        );
+        const data = await fetchFilterPosts(page, category);
         setPosts(
           (prevPosts) =>
-            page === 1
-              ? response.data.posts
-              : [...prevPosts, ...response.data.posts] // Avoid duplicate appending
+            page === 1 ? data.posts : [...prevPosts, ...data.posts] // Avoid duplicate appending
         );
-        setTotalPages(response.data.totalPages);
+        setTotalPages(data.totalPages);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -44,7 +38,7 @@ export default function Home() {
       }
     };
 
-    fetchPosts();
+    fetchPostsData();
   }, [page, category]);
 
   useEffect(() => {

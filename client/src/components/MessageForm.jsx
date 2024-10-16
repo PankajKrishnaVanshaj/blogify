@@ -1,15 +1,14 @@
 import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import { BiMessageRoundedDetail } from "react-icons/bi";
-import axios from "axios";
-import Cookies from "js-cookie";
+
+import { sendMessage } from "@/api/message.api";
 
 const MessageForm = ({ receiver = {} }) => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messageContent, setMessageContent] = useState(""); // Message content state
   const [errorMessage, setErrorMessage] = useState(""); // Error message state
-  const token = Cookies.get("token");
 
   // Toggle dialog open/close
   const toggleDialog = () => {
@@ -40,19 +39,7 @@ const MessageForm = ({ receiver = {} }) => {
     }
 
     try {
-      // Send message using axios
-      const response = await axios.post(
-        "http://localhost:55555/api/v1/message/send",
-        {
-          receiverId: receiver._id, // Change this to receiverId
-          content: messageContent,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await sendMessage(receiver._id, messageContent.trim());
 
       // Handle success response
       console.log("Message sent:", response.data);

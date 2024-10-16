@@ -7,7 +7,7 @@ import {
   AiOutlineFileText,
 } from "react-icons/ai";
 import { FiHeart } from "react-icons/fi";
-import { fetchAllPosts } from "@/Services/api/blogPost.api";
+import { fetchAllPosts } from "@/api/blogPost.api";
 
 const BlogPostCount = () => {
   const [loading, setLoading] = useState(true);

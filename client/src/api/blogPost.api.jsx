@@ -1,0 +1,170 @@
+import axios from "axios";
+import Cookies from "js-cookie";
+
+const API_URL = "http://localhost:55555/api/v1/posts";
+
+// Create an axios instance with default settings
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+});
+
+export const fetchAllPosts = async () => {
+  try {
+    const response = await axiosInstance.get("/get-all-posts");
+    return response.data.posts || [];
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch posts");
+  }
+};
+
+export const fetchFilterPosts = async (page, category) => {
+  const categoryParam =
+    category === "All" ? "" : `&category=${encodeURIComponent(category)}`;
+  const response = await axios.get(
+    `${API_URL}/get-all-posts?page=${page}&limit=10${categoryParam}`
+  );
+  return response.data;
+};
+
+// Fetch all posts for the creator
+export const fetchCreatorPosts = async () => {
+  const token = Cookies.get("token");
+
+  if (!token) {
+    throw new Error("No user found. Please log in.");
+  }
+
+  try {
+    const { data } = await axiosInstance.get("/all-posts-of-creator", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return Array.isArray(data) ? data : data.posts;
+  } catch (error) {
+    throw new Error("Failed to fetch posts.");
+  }
+};
+
+// Fetch a post by ID
+export const getPostById = async (postId) => {
+  try {
+    const response = await axiosInstance.get(`/post/${postId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch post data.");
+  }
+};
+
+// Create a new post
+export const createPostAPI = async (formData) => {
+  const token = Cookies.get("token");
+
+  if (!token) {
+    throw new Error("You must be logged in to create a post.");
+  }
+
+  try {
+    const response = await axiosInstance.post("/create-post", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.status === 201) {
+      return { success: true, message: "Post submitted successfully" };
+    } else {
+      return { success: false, message: "Error submitting post" };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response
+        ? error.response.data.message
+        : "An unexpected error occurred",
+    };
+  }
+};
+
+// Update a post
+export const updatePost = async (postId, formData) => {
+  const token = Cookies.get("token");
+
+  if (!token) {
+    throw new Error("You must be logged in to update a post.");
+  }
+
+  try {
+    const response = await axiosInstance.put(`/edit-post/${postId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response
+        ? error.response.data.message
+        : "An unexpected error occurred"
+    );
+  }
+};
+
+// Delete a post
+export const deletePost = async (postId) => {
+  const token = Cookies.get("token");
+
+  if (!token) {
+    throw new Error("You must be logged in to delete posts.");
+  }
+
+  try {
+    await axiosInstance.delete(`/post/${postId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    throw new Error("Failed to delete post.");
+  }
+};
+
+export const fetchPostsByCategory = async (category) => {
+  if (!category) {
+    throw new Error("Category is required");
+  }
+
+  const response = await axios.get(
+    `http://localhost:55555/api/v1/search/suggestion-posts-by-category?category=${encodeURIComponent(
+      category
+    )}`
+  );
+
+  const data = response.data;
+
+  // Check if data has 'posts' array
+  if (!Array.isArray(data.posts)) {
+    throw new Error("Received data is not in the expected format");
+  }
+
+  return data.posts;
+};
+
+// Toggle like/dislike for a post
+export const toggleLikeDislike = async (postId) => {
+  const token = Cookies.get("token");
+  if (!token) throw new Error("Login required.");
+
+  try {
+    const { data } = await axiosInstance.post(
+      `/${postId}/toggle-like-dislike`,
+      {}, // Empty body
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return data; // Return relevant data
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to toggle like/dislike"
+    );
+  }
+};

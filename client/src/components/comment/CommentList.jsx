@@ -1,24 +1,20 @@
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import UserInfo from "../UserInfo";
-import Cookies from "js-cookie";
 import { useAuth } from "@/context/AuthContext";
+import { deleteComment, getComments } from "@/api/comment.api";
 
 const CommentList = ({ postId }) => {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = Cookies.get("token");
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:55555/api/v1/comments/${postId}`
-        );
-        setComments(response.data);
+        const fetchedComments = await getComments(postId);
+        setComments(fetchedComments);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -31,14 +27,8 @@ const CommentList = ({ postId }) => {
 
   const deleteHandle = async (commentId) => {
     try {
-      await axios.delete(
-        `http://localhost:55555/api/v1/comments/delete/${postId}/${commentId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await deleteComment(postId, commentId);
+
       setComments(comments.filter((comment) => comment._id !== commentId));
     } catch (error) {
       console.error(

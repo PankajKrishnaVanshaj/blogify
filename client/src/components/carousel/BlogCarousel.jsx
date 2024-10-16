@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { FcNext, FcPrevious } from "react-icons/fc";
-import Image from "next/image";
 import Link from "next/link";
 import UserInfo from "../UserInfo";
+import { fetchAllPosts } from "@/api/blogPost.api";
 
 const shuffleArray = (array) => {
   if (!Array.isArray(array)) return [];
@@ -42,15 +41,9 @@ const BlogCarousel = () => {
   }, [currentIndex, posts.length]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:55555/api/v1/posts/get-all-posts"
-        );
-
-        const postsArray = Array.isArray(response.data.posts)
-          ? response.data.posts
-          : [];
+        const postsArray = await fetchAllPosts(); // Fetch posts from PostService
         const shuffledPosts = shuffleArray(postsArray);
         setPosts(shuffledPosts.slice(0, 5)); // Get 5 random posts
       } catch (err) {
@@ -60,7 +53,7 @@ const BlogCarousel = () => {
       }
     };
 
-    fetchPosts();
+    fetchData();
   }, []);
 
   if (loading) return <p>Loading...</p>;

@@ -1,9 +1,9 @@
-import axios from "axios";
 import { ImUserCheck } from "react-icons/im";
 import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import { toast } from "sonner"; // Import toast from Sonner Toast
 import { useAuth } from "@/context/AuthContext";
+import { toggleFollowingUnfollowing } from "@/api/user.api";
 
 const FollowButton = ({ userId }) => {
   const { user } = useAuth();
@@ -28,17 +28,10 @@ const FollowButton = ({ userId }) => {
         return;
       }
 
-      const response = await axios.post(
-        `http://localhost:55555/api/v1/users/user/${userId._id}/toggle-follow-unfollow`,
-        {}, // No body required
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Call the service function to toggle follow/unfollow
+      const response = await toggleFollowingUnfollowing(userId._id);
 
-      if (response.status === 200) {
+      if (response) {
         setIsFollowing((prev) => !prev); // Toggle follow status
         setFollowers((prev) => (isFollowing ? prev - 1 : prev + 1)); // Update follower count
         toast(`You ${isFollowing ? "unfollowed" : "followed"} ${userId.name}`);

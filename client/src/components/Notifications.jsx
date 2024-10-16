@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
+import notificationService from "@/api/notifications.api";
 import Image from "next/image";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import UserInfo from "./UserInfo";
 import Link from "next/link";
-import Cookies from "js-cookie";
 
 const Notifications = () => {
   const { user } = useAuth();
@@ -14,7 +13,6 @@ const Notifications = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  const token = Cookies.get("token");
   const notificationsRef = useRef(null);
 
   useEffect(() => {
@@ -30,10 +28,8 @@ const Notifications = () => {
           notifications.map(async (notification) => {
             const postId = notification.message;
             try {
-              const response = await axios.get(
-                `http://localhost:55555/api/v1/posts/post/${postId}`
-              );
-              return { ...notification, post: response.data };
+              const post = await notificationService.fetchPostById(postId); // Use the service
+              return { ...notification, post };
             } catch (error) {
               console.error("Error fetching post data:", error);
               return { ...notification, post: null }; // Handle missing posts
@@ -93,15 +89,7 @@ const Notifications = () => {
 
     if (notification && !notification.read) {
       try {
-        await axios.patch(
-          `http://localhost:55555/api/v1/posts/${notificationId}/mark-notification`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await notificationService.markAsRead(notificationId); // Use the service
         setNotifications(
           notifications.map((n) =>
             n._id === notificationId ? { ...n, read: true } : n
@@ -141,9 +129,6 @@ const Notifications = () => {
                       : "border-primary bg-pink-50"
                   } rounded-lg shadow-md`}
                 >
-                  {/* {!notification.read && (
-                    <span className="absolute top-2 right-2 block h-3 w-3 bg-primary rounded-full"></span>
-                  )} */}
                   <div className="flex items-center mb-2">
                     <Image
                       src={

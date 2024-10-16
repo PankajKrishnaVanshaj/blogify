@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import FollowButton from "@/components/FollowButton";
 import PostStats from "@/components/PostStats";
 import UserInfo from "@/components/UserInfo";
 import Suggestion from "@/components/Suggestion";
 import TextToVoice from "@/components/TextToVoice";
+import { getPostById } from "@/api/blogPost.api";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
@@ -32,10 +32,9 @@ const ReadPost = ({ params }) => {
 
   const getPostDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:55555/api/v1/posts/post/${params.creator}`
-      );
-      setPost(response.data);
+      const postId = params.creator; // Ensure `params.creator` contains the correct post ID
+      const postData = await getPostById(postId); // Use the imported function to get post data
+      setPost(postData); // Set the post data from the response
     } catch (error) {
       console.error("Error fetching post data:", error);
       setError("Failed to fetch post data");
@@ -43,7 +42,7 @@ const ReadPost = ({ params }) => {
   };
 
   const handleStopSpeaking = () => {
-    setSelectedText(""); // Clear the selected text when speech stops
+    setSelectedText("");
   };
 
   if (error) {

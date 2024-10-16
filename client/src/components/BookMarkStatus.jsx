@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import axios from "axios";
 import { IoBookmarksOutline } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { toggleBookmark as toggleBookmarkAPI } from "@/api/bookMarks.api";
 
 const BookMarkStatus = ({ post, size = 24 }) => {
   const { user } = useAuth();
@@ -54,33 +54,20 @@ const BookMarkStatus = ({ post, size = 24 }) => {
 
   const toggleBookmark = async () => {
     try {
-      if (!token) {
-        alert("Please log in first");
-        return;
-      }
+      const response = await toggleBookmarkAPI(post); // Call the API function
+      setIsBookmarked(!isBookmarked); // Update the bookmarked state
 
-      const response = await axios.post(
-        `http://localhost:55555/api/v1/bookmark/${post}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      // Show toast notification after the state has been updated
+      toast(
+        `You ${
+          !isBookmarked
+            ? "bookmarked this post!"
+            : "removed this post from your bookmarks!"
+        }`
       );
-
-      if (response.status === 200) {
-        setIsBookmarked(!isBookmarked);
-        toast(
-          `You ${
-            isBookmarked
-              ? "removed this post from your bookmarks!"
-              : "bookmarked this post!"
-          }`
-        );
-      }
     } catch (error) {
       console.error("Error toggling bookmark:", error);
+      toast.error("Failed to toggle bookmark");
     }
   };
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import ConversationList from "./_components/ConversationList";
 import ConversationView from "./_components/ConversationView";
-import { fetchConversations } from "@/Services/api/message.api";
+import { fetchConversations } from "@/api/message.api";
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);

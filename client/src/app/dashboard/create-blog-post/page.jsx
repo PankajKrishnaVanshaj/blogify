@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useRouter } from "next/navigation";
+import { createPostAPI } from "@/api/blogPost.api";
 
 const categories = [
   "Technology & Innovation",
@@ -50,14 +49,11 @@ const CreatePost = () => {
   const handleBannerChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
-      // File validation: 2MB max size and image types
       const validTypes = ["image/jpeg", "image/png", "image/gif"];
       if (file.size > 2 * 1024 * 1024 || !validTypes.includes(file.type)) {
         toast.error("Please upload a valid image file (Max size: 2MB)");
         return;
       }
-
       setBanner(file);
       setBannerUrl(URL.createObjectURL(file));
     }
@@ -76,37 +72,16 @@ const CreatePost = () => {
     formData.append("content", content);
     formData.append("category", selectedCategory);
     formData.append("tags", JSON.stringify(tags));
-    if (banner) {
-      formData.append("banner", banner);
-    }
+    if (banner) formData.append("banner", banner);
 
-    const token = Cookies.get("token");
+    const { success, message } = await createPostAPI(formData); // Call API
 
-    try {
-      const response = await axios.post(
-        "http://localhost:55555/api/v1/posts/create-post",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.status === 201) {
-        toast.success("Post submitted successfully");
-        resetForm();
-        router.push("/dashboard/all-blog-posts");
-      } else {
-        toast.error("Error submitting post");
-      }
-    } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("An unexpected error occurred");
-      }
+    if (success) {
+      toast.success(message);
+      resetForm();
+      router.push("/dashboard/all-blog-posts");
+    } else {
+      toast.error(message);
     }
   };
 
@@ -184,7 +159,6 @@ const CreatePost = () => {
               accept="image/*"
               onChange={handleBannerChange}
               className="absolute inset-0 opacity-0 cursor-pointer"
-              required
             />
             {bannerUrl && (
               <img

@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Cookies from "js-cookie";
-import axios from "axios";
 import CommentList from "./CommentList";
+import { createComment, updateComment } from "@/api/comment.api";
 
 const CommentForm = ({ closeForm, commentId, initialComment }) => {
   const param = useParams();
   const [comment, setComment] = useState(initialComment || "");
   const [error, setError] = useState("");
-  const token = Cookies.get("token");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,25 +18,9 @@ const CommentForm = ({ closeForm, commentId, initialComment }) => {
 
     try {
       if (commentId) {
-        await axios.put(
-          `http://localhost:55555/api/v1/comments/update/${param.creator}/${commentId}`,
-          { comment: comment.trim() },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await updateComment(param.creator, commentId, comment.trim());
       } else {
-        await axios.post(
-          `http://localhost:55555/api/v1/comments/create/${param.creator}`,
-          { comment: comment.trim() },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await createComment(param.creator, comment.trim());
       }
       setComment("");
       setError("");

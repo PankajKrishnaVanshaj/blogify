@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CiSearch } from "react-icons/ci";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { fetchSearchSuggestions } from "@/api/search.api";
 
 const SearchBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,36 +18,16 @@ const SearchBar = () => {
     setIsOpen(false);
   };
 
-  const fetchSuggestions = async (searchQuery) => {
-    if (searchQuery.trim()) {
-      try {
-        const response = await axios.get(
-          "http://localhost:55555/api/v1/search/suggestion",
-          {
-            params: { q: searchQuery },
-          }
-        );
-
-        const data = response.data;
-
-        // Ensure the data is an array
-        if (Array.isArray(data)) {
-          setSuggestions(data);
-        } else {
-          setSuggestions([]); // or handle the case where data is not an array
-        }
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-        setSuggestions([]); // Set to an empty array in case of an error
-      }
-    } else {
-      setSuggestions([]);
-    }
-  };
-
   useEffect(() => {
+    const fetchSuggestions = async () => {
+      const results = await fetchSearchSuggestions(query);
+      setSuggestions(results);
+    };
+
     if (query) {
-      fetchSuggestions(query);
+      fetchSuggestions();
+    } else {
+      setSuggestions([]); // Clear suggestions if query is empty
     }
   }, [query]);
 

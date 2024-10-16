@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaEllipsisV, FaTimes } from "react-icons/fa";
 import { toast } from "sonner";
-import { deleteConversation } from "@/Services/api/message.api";
-import { toggleUserBlock } from "@/Services/api/user.api";
+import { deleteConversation } from "@/api/message.api";
+import { toggleUserBlock } from "@/api/user.api";
 import { useAuth } from "@/context/AuthContext";
 
 const ConversationOptions = ({ conversation, fetchConversations }) => {

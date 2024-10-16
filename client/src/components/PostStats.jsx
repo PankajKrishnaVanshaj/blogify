@@ -2,16 +2,14 @@
 import { BiHeart, BiShowAlt, BiSolidChat, BiSolidHeart } from "react-icons/bi";
 import CommentForm from "./comment/CommentForm";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
 import ShareButton from "./ShareButton";
 import { toast } from "sonner"; // Import toast from Sonner Toast
 import { useAuth } from "@/context/AuthContext";
 import BookMarkStatus from "./BookMarkStatus";
+import { toggleLikeDislike } from "@/api/blogPost.api";
 
 const PostStats = ({ post, size = 21 }) => {
   const { user } = useAuth();
-  const token = Cookies.get("token");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes.length);
@@ -55,31 +53,15 @@ const PostStats = ({ post, size = 21 }) => {
   //   fetchLikeStatus();
   // }, [post._id, token]);
 
-  const toggleLikeDislike = async () => {
+  const handleToggleLike = async () => {
     try {
-      if (!token) {
-        toast.error("Login first");
-        return;
-      }
-
-      const response = await axios.post(
-        `http://localhost:55555/api/v1/posts/${post._id}/toggle-like-dislike`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        setIsLiked(!isLiked);
-        setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
-        toast(`You ${isLiked ? "unliked" : "liked"} this post!`);
-      }
+      await toggleLikeDislike(post._id); // Call API function
+      setIsLiked(!isLiked);
+      setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
+      toast(`You ${isLiked ? "unliked" : "liked"} this post!`);
     } catch (error) {
       console.error("Error toggling like/dislike:", error);
-      toast.error("Failed to update like status.");
+      toast.error(error.message || "Failed to update like status.");
     }
   };
 
@@ -94,7 +76,7 @@ const PostStats = ({ post, size = 21 }) => {
           className={` flex items-center gap-1 cursor-pointer ${
             isLiked ? "text-red-500 " : "text-black"
           } transition-colors duration-200`}
-          onClick={toggleLikeDislike}
+          onClick={handleToggleLike}
         >
           <BiHeart size={size} />
           {likesCount}

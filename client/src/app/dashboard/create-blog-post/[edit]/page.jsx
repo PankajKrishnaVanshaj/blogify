@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { getPostById, updatePost } from "@/api/blogPost.api"; // Adjust the import path as necessary
 
 const categories = [
   "Technology & Innovation",
@@ -31,10 +30,7 @@ const EditPost = ({ params }) => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:55555/api/v1/posts/post/${params.edit}`
-        );
-        const post = response.data;
+        const post = await getPostById(params.edit);
         setTitle(post.title);
         setContent(
           typeof post.content === "string"
@@ -107,32 +103,11 @@ const EditPost = ({ params }) => {
       formData.append("banner", banner);
     }
 
-    const token = Cookies.get("token");
-
     try {
-      const response = await axios.put(
-        `http://localhost:55555/api/v1/posts/edit-post/${params.edit}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success("Post updated successfully");
-      } else {
-        toast.error("Error submitting post");
-      }
+      await updatePost(params.edit, formData);
+      toast.success("Post updated successfully");
     } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        console.error(error); // Log the error for debugging
-        toast.error("An unexpected error occurred");
-      }
+      toast.error(error.message);
     }
   };
 

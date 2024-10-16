@@ -1,8 +1,9 @@
+// Creator.jsx
 "use client";
 import BlogPostCard from "@/components/BlogPostCard";
 import FollowButton from "@/components/FollowButton";
 import MessageForm from "@/components/MessageForm";
-import axios from "axios";
+import { getUserDetails } from "@/api/user.api"; // Import the API function
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
@@ -12,22 +13,18 @@ const Creator = ({ params }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getUserDetails();
-  }, []);
+    const fetchUserDetails = async () => {
+      const { userData, userError } = await getUserDetails(params.creator);
+      if (userError) {
+        setError(userError);
+      } else {
+        setUser(userData);
+      }
+      setLoading(false);
+    };
 
-  const getUserDetails = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:55555/api/v1/users/user/${params.creator}`
-      );
-      setUser(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      setError("Failed to fetch user data");
-      setLoading(false);
-    }
-  };
+    fetchUserDetails();
+  }, [params.creator]);
 
   if (loading) {
     return (

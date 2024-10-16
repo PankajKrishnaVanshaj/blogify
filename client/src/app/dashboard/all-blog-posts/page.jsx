@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import Cookies from "js-cookie";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import Image from "next/image";
 import Link from "next/link";
+import { deletePost, fetchCreatorPosts } from "@/api/blogPost.api";
 
 const AllBlogPosts = () => {
   const router = useRouter();
@@ -13,29 +12,12 @@ const AllBlogPosts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const token = Cookies.get("token");
-
   const fetchData = async () => {
-    if (!token) {
-      setError("No user found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await axios.get(
-        `http://localhost:55555/api/v1/posts/all-posts-of-creator`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setData(
-        Array.isArray(response.data) ? response.data : response.data.posts
-      );
+      const posts = await fetchCreatorPosts();
+      setData(posts);
     } catch (err) {
-      setError(err.message || "An error occurred while fetching data.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -43,7 +25,7 @@ const AllBlogPosts = () => {
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleDelete = async (postId) => {
     const confirmDelete = window.confirm(
@@ -51,15 +33,9 @@ const AllBlogPosts = () => {
     );
     if (!confirmDelete) return;
     try {
-      await axios.delete(`http://localhost:55555/api/v1/posts/post/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      // Optimistic UI update
-      setData(data.filter((post) => post._id !== postId));
-    } catch (error) {
+      await deletePost(postId);
+      setData(data.filter((post) => post._id !== postId)); // Optimistic UI update
+    } catch {
       alert("An error occurred while deleting the post.");
     }
   };
@@ -68,8 +44,7 @@ const AllBlogPosts = () => {
     const confirmEdit = window.confirm(
       "Are you sure you want to edit this post?"
     );
-    if (!confirmEdit) return;
-    router.push(`/dashboard/create-blog-post/${postId}`);
+    if (confirmEdit) router.push(`/dashboard/create-blog-post/${postId}`);
   };
 
   if (loading) return <div className="spinner">Loading...</div>;

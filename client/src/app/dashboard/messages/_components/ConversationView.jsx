@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { fetchMessages, sendMessage } from "@/Services/api/message.api";
+import { fetchMessages, sendMessage } from "@/api/message.api";
 import { useAuth } from "@/context/AuthContext";
 
 const ConversationView = ({ selectedConversation }) => {

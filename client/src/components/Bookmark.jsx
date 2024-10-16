@@ -1,10 +1,8 @@
-"use client";
 import { useEffect, useRef, useState } from "react";
 import { IoBookmarksOutline } from "react-icons/io5";
-import axios from "axios";
+import { fetchBookmarks } from "@/api/bookMarks.api";
 import Image from "next/image";
 import Link from "next/link";
-import Cookies from "js-cookie";
 
 const Bookmark = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,15 +10,9 @@ const Bookmark = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const menuRef = useRef(null);
-  const token = Cookies.get("token");
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const closeMenu = () => {
-    setIsOpen(false);
-  };
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -30,33 +22,18 @@ const Bookmark = () => {
     };
 
     const handleKeyPress = (event) => {
-      if (event.key === "Escape") {
-        closeMenu();
-      }
+      if (event.key === "Escape") closeMenu();
     };
 
     if (isOpen) {
       window.addEventListener("click", handleOutsideClick);
       window.addEventListener("keydown", handleKeyPress);
 
-      // Fetch bookmarks when menu opens
-      const fetchBookmarks = async () => {
+      const fetchUserBookmarks = async () => {
         setLoading(true);
         try {
-          if (!token) {
-            alert("No token found");
-            return;
-          }
-
-          const response = await axios.get(
-            `http://localhost:55555/api/v1/bookmark`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          setBookmark(response.data.bookMarks);
+          const bookmarks = await fetchBookmarks();
+          setBookmark(bookmarks);
         } catch (error) {
           setError("Error fetching bookmarks");
         } finally {
@@ -64,7 +41,7 @@ const Bookmark = () => {
         }
       };
 
-      fetchBookmarks();
+      fetchUserBookmarks();
     }
 
     return () => {
@@ -89,38 +66,33 @@ const Bookmark = () => {
             <div className="p-4 text-red-500 text-center">{error}</div>
           ) : bookmark.length > 0 ? (
             <ul className="p-1 space-y-1">
-              {bookmark
-                .slice()
-                .reverse()
-                .map((item, index) => (
-                  <li
-                    key={item.postId?._id || item._id || index} // Ensure postId exists
-                    className="flex items-center space-x-3 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition duration-150 ease-in-out"
+              {bookmark.map((item) => (
+                <li
+                  key={item.postId?._id || item._id}
+                  className="flex items-center space-x-3 bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition duration-150 ease-in-out"
+                >
+                  {item.postId?.banner ? (
+                    <Image
+                      src={`http://localhost:55555/${item.postId.banner}`}
+                      alt={item.postId.title}
+                      width={48}
+                      height={48}
+                      className="w-12 h-12 object-cover rounded-md"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-300 rounded-md flex items-center justify-center text-gray-500">
+                      No Image
+                    </div>
+                  )}
+                  <Link
+                    href={`/${item.postId?._id || item._id}/post`}
+                    className="text-primary text-sm hover:underline line-clamp-2"
+                    onClick={closeMenu}
                   >
-                    {item.postId?.banner ? ( // Check if coverImage exists
-                      <Image
-                        src={`${"http://localhost:55555/"}${
-                          item.postId.banner
-                        }`}
-                        alt={item.postId.title}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 object-cover rounded-md"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-300 rounded-md flex items-center justify-center text-gray-500">
-                        No Image
-                      </div> // Display placeholder if no coverImage
-                    )}
-                    <Link
-                      href={`/${item.postId?._id || item._id}` + "/post"} // Ensure postId exists
-                      className="text-primary text-sm hover:underline line-clamp-2"
-                      onClick={() => closeMenu()}
-                    >
-                      {item.postId?.title || "Untitled"}
-                    </Link>
-                  </li>
-                ))}
+                    {item.postId?.title || "Untitled"}
+                  </Link>
+                </li>
+              ))}
             </ul>
           ) : (
             <div className="p-4 text-center">No items in bookmark</div>

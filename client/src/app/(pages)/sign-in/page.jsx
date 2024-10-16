@@ -6,9 +6,9 @@ import Inputbox from "@/components/Inputbox";
 import Logo from "@/components/Logo";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { signIn, googleLogin } from "@/api/auth.api";
 
 const Signin = () => {
   const [data, setData] = useState({
@@ -24,46 +24,20 @@ const Signin = () => {
     });
   };
 
-  const googleLogin = () => {
-    window.open(`http://localhost:55555/api/v1/auth/google`, "_self");
+  const initiateGoogleLogin = async () => {
+    const result = await googleLogin();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      email: data.email,
-      password: data.password,
-    };
+    const { success, message } = await signIn(data.email, data.password);
 
-    try {
-      const response = await axios.post(
-        "http://localhost:55555/api/v1/auth/login",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true, // Include credentials in the request
-        }
-      );
-
-      if (response.data.success) {
-        toast.success(response.data.message || "Successfully signed in!");
-        window.location.replace("/");
-      } else {
-        toast.error(
-          response.data.message || "Sign-in failed. Please try again."
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Error:",
-        error.response ? error.response.data : error.message
-      );
-      toast.error(
-        error.response?.data?.message || "Sign-in failed. Please try again."
-      );
+    if (success) {
+      toast.success(message || "Successfully signed in!");
+      window.location.replace("/");
+    } else {
+      toast.error(message || "Sign-in failed. Please try again.");
     }
   };
 
@@ -96,7 +70,7 @@ const Signin = () => {
             </div>
 
             <Button
-              onClick={googleLogin}
+              onClick={initiateGoogleLogin}
               label="Sign in with Google"
               icon={<FcGoogle />}
               styles="w-full flex flex-row-reverse gap-4 bg-white dark:bg-transparent text-black dark:text-white px-5 py-2.5 rounded-full border border-gray-300 dark:border-gray-700"
