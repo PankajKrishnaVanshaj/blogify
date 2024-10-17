@@ -107,6 +107,7 @@ const AllBlogPosts = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-[28ch] cursor-pointer relative group">
                       <Link
                         href={`/${post._id}/post`}
+                        target="_blank"
                         className="block w-full h-full"
                       >
                         {post.title}

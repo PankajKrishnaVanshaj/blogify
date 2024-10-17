@@ -19,7 +19,7 @@ const BlockedUserCard = () => {
         [blockedUser._id]: !prevStatus[blockedUser._id],
       }));
       toast.success(
-        `${blockedStatus[blockedUser._id] ? "Unblocked" : "Blocked"}`
+        `${blockedStatus[blockedUser._id] ? "Blocked" : "Unblocked"}`
       );
     } catch (error) {
       toast.error("Failed to update block status");

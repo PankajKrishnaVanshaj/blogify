@@ -6,30 +6,48 @@ import cookieParser from "cookie-parser";
 import dbConnection from "./config/db.js";
 import router from "./routes/index.js";
 import { serveStaticFiles } from "./utils/Files.js";
+import { app, server } from "./socket/index.js";
 
+// Load environment variables
 dotenv.config();
-const app = express();
 const PORT = process.env.PORT || 8800;
 
-const corsOptions = {
-  origin: [process.env.CREATOR_HOST, process.env.CLIENT_HOST],
-  credentials: true,
-  optionsSuccessStatus: 200,
+// Middleware configuration
+const configureMiddleware = () => {
+  app.use(cookieParser());
+  app.use(cors(getCorsOptions()));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true }));
+  app.use(passport.initialize());
+  serveStaticFiles(app);
 };
 
-app.use(cookieParser());
-app.use(cors(corsOptions));
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
-
-app.use(passport.initialize());
-
-serveStaticFiles(app);
-
-app.use("/api/v1", router);
-
-dbConnection().then(() => {
-  app.listen(PORT, () => {
-    console.log("Server running on port " + PORT);
-  });
+// CORS options configuration
+const getCorsOptions = () => ({
+  origin: [process.env.CREATOR_HOST, process.env.CLIENT_HOST],
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  optionsSuccessStatus: 200,
 });
+
+// Start the Express server
+const startServer = () => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+// Main function to bootstrap the application
+const main = async () => {
+  try {
+    await dbConnection(); // Connect to the database
+    configureMiddleware(); // Initialize middleware
+    app.use("/api/v1", router); // Set up routes
+    startServer(); // Start the server
+  } catch (error) {
+    console.error("Error starting the server:", error);
+  }
+};
+
+// Execute main function
+main();

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { fetchMessages, sendMessage } from "@/api/message.api";
 import { useAuth } from "@/context/AuthContext";
+import { useSocket } from "@/context/SocketContext";
 
 const ConversationView = ({ selectedConversation }) => {
+  const { user } = useAuth();
+  const socket = useSocket();
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState([]);
-  const { user } = useAuth();
 
   // Get the receiver of the message
   const getReceiver = useCallback(() => {

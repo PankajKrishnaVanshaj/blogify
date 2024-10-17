@@ -1,13 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import {
   AiOutlineFundProjectionScreen,
   AiOutlineComment,
   AiOutlineFileText,
 } from "react-icons/ai";
 import { FiHeart } from "react-icons/fi";
-import { fetchAllPosts } from "@/api/blogPost.api";
+import { fetchCreatorPosts } from "@/api/blogPost.api";
 
 const BlogPostCount = () => {
   const [loading, setLoading] = useState(true);
@@ -16,11 +15,10 @@ const BlogPostCount = () => {
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState(0);
   const [posts, setPosts] = useState(0);
-  const token = Cookies.get("token");
 
   const fetchData = async () => {
     try {
-      const fetchedPosts = await fetchAllPosts();
+      const fetchedPosts = await fetchCreatorPosts();
 
       const totalViews = fetchedPosts.reduce(
         (acc, post) => acc + post.views,
