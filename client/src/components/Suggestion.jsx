@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import BlogPostCard from "./BlogPostCard";
-import { fetchPostsByCategory } from "@/api/blogPost.api";
+import { fetchPostsByCategory } from "@/api/search.api";
 
 const Suggestion = ({ category }) => {
   const { creator: postId } = useParams(); // Use 'postId' for clarity

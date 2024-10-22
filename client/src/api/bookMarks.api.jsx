@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "http://localhost:55555/api/v1/bookmark";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/bookmark";
 
 const getToken = () => Cookies.get("token");
 

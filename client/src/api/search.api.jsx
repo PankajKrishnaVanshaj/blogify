@@ -1,7 +1,28 @@
 import axios from "axios";
 
 // Define the base API URL
-const API_URL = "http://localhost:55555/api/v1";
+const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
+
+export const fetchPostsByCategory = async (category) => {
+  if (!category) {
+    throw new Error("Category is required");
+  }
+
+  const response = await axios.get(
+    `${API_URL}/search/suggestion-posts-by-category?category=${encodeURIComponent(
+      category
+    )}`
+  );
+
+  const data = response.data;
+
+  // Check if data has 'posts' array
+  if (!Array.isArray(data.posts)) {
+    throw new Error("Received data is not in the expected format");
+  }
+
+  return data.posts;
+};
 
 // Function to fetch search suggestions
 export const fetchSearchSuggestions = async (query) => {

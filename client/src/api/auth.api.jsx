@@ -2,8 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 
-const API_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:55555/api/v1"; // Use an environment variable
+const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
 
 const apiClient = axios.create({
   baseURL: API_URL,

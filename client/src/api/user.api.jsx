@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 // Define the base API URL
-const API_URL = "http://localhost:55555/api/v1";
+const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
 
 // Utility function to get the token
 const getToken = () => Cookies.get("token");

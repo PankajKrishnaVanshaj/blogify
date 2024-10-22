@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL = "http://localhost:55555/api/v1/posts"; // Adjust this as needed
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/posts";
 
 const token = Cookies.get("token");
 
