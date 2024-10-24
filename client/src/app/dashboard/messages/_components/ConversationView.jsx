@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { fetchMessages, sendMessage } from "@/api/message.api";
 import { useAuth } from "@/context/AuthContext";
 import { useSocket } from "@/context/SocketContext";
+import { TimeAgo } from "@/components/TimeAgo";
 
 const ConversationView = ({ selectedConversation }) => {
   const { user } = useAuth();
@@ -43,6 +44,15 @@ const ConversationView = ({ selectedConversation }) => {
     }
   };
 
+  // Format timestamp using JavaScript Date
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.getHours()}:${String(date.getMinutes()).padStart(
+      2,
+      "0"
+    )} ${date.toLocaleDateString()}`;
+  };
+
   return (
     <div className="lg:w-2/3 w-full shadow-sm shadow-tertiary bg-gradient-to-r from-pink-50 via-blue-50 to-orange-50 rounded-xl lg:ml-3">
       {selectedConversation ? (
@@ -63,13 +73,16 @@ const ConversationView = ({ selectedConversation }) => {
                     }`}
                   >
                     <p
-                      className={`px-2 py-0.5 my-0.5 rounded-lg w-fit break-words max-w-[70%] ${
+                      className={`px-2 py-0.5 my-0.5 shadow-md rounded-lg w-fit break-words max-w-[70%] ${
                         msg.sender === user._id
                           ? "bg-pink-100 text-right"
                           : "bg-orange-100"
                       }`}
                     >
-                      {msg.content}
+                      <p className="break-words">{msg.content}</p>
+                      <p className="text-xs text-gray-400">
+                        {TimeAgo(msg.createdAt)}
+                      </p>
                     </p>
                   </div>
                 ))

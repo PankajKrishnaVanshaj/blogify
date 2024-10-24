@@ -1,28 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { FaSearch } from "react-icons/fa";
-import ConversationOptions from "./ConversationOptions"; // Import the ConversationOptions component
+import ConversationOptions from "./ConversationOptions";
 import { useAuth } from "@/context/AuthContext";
+import { useSocket } from "@/context/SocketContext";
 
 const ConversationList = ({
   selectedConversation,
   handleConversationClick,
-  conversations = [], // Default to an empty array to avoid undefined errors
+  conversations = [], // Default empty array to prevent errors
   loading,
   error,
   fetchConversations,
 }) => {
   const { user } = useAuth();
+  const { socket, onlineUsers } = useSocket(); // Access socket and online users from context
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Safely filter conversations and avoid errors with undefined/null values
-  const filteredConversations = conversations.filter((conversation) => {
-    const otherParticipant = conversation.participants?.find(
-      (participant) => participant?._id !== user?._id
-    );
-    return otherParticipant?.name
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-  });
+  // Memoize the filtered conversations for performance
+  const filteredConversations = useMemo(() => {
+    return conversations.filter((conversation) => {
+      const otherParticipant = conversation.participants?.find(
+        (participant) => participant?._id !== user?._id
+      );
+      return otherParticipant?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
+    });
+  }, [conversations, searchTerm, user]);
+
+  // Check if a participant is online
+  const isUserOnline = (userId) => onlineUsers.includes(userId);
 
   return (
     <div className="lg:w-1/3 w-full p-3 shadow-sm shadow-primary bg-gradient-to-r from-pink-100 via-blue-50 to-orange-50 rounded-xl lg:h-screen h-auto">
@@ -42,7 +49,7 @@ const ConversationList = ({
         </div>
       </div>
 
-      {/* Display loading or error messages */}
+      {/* Loading, Error, and Conversation List */}
       {loading ? (
         <p className="text-gray-500">Loading conversations...</p>
       ) : error ? (
@@ -54,6 +61,7 @@ const ConversationList = ({
               const otherParticipant = conversation.participants?.find(
                 (participant) => participant?._id !== user?._id
               );
+              const isOnline = isUserOnline(otherParticipant?._id);
 
               return (
                 <li
@@ -66,7 +74,11 @@ const ConversationList = ({
                   onClick={() => handleConversationClick(conversation)}
                 >
                   <div className="flex-grow">
-                    <p className="font-semibold">
+                    <p
+                      className={`font-semibold ${
+                        isOnline ? "text-primary font-serif" : "text-black "
+                      }`}
+                    >
                       {otherParticipant?.name || "Unnamed User"}
                     </p>
                     <p className="text-sm text-gray-600 truncate">

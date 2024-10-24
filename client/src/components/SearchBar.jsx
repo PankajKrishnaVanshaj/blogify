@@ -78,7 +78,7 @@ const SearchBar = () => {
         Search...
       </button>
       {isOpen && (
-        <div className="absolute top-full w-1/2 left-1/2 transform -translate-x-1/2 mt-0.5 bg-white border border-dashed border-primary rounded-md shadow-lg z-50">
+        <div className="absolute top-full w-1/2 left-1/2 transform -translate-x-1/2 mt-0.5 bg-white border border-dashed pl-0.5 border-primary rounded-md shadow-lg z-50">
           <div className="flex">
             <input
               type="text"
@@ -98,7 +98,7 @@ const SearchBar = () => {
             {suggestions.map((suggestion, index) => (
               <li
                 key={index}
-                className="px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                className="px-3 py-0.5 hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
                   setQuery(suggestion.title);
                   handleSubmit(suggestion.title);
