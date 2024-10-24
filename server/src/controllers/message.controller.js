@@ -53,6 +53,11 @@ export const sendMessage = async (req, res) => {
     }
 
     await conversation.save();
+    const receiverSocketId = getReceiverSocketId(receiverId);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
 
     res.status(200).json(savedMessage);
   } catch (err) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { fetchMessages, sendMessage } from "@/api/message.api";
 import { useAuth } from "@/context/AuthContext";
 import { useSocket } from "@/context/SocketContext";
@@ -6,16 +6,25 @@ import { TimeAgo } from "@/components/TimeAgo";
 
 const ConversationView = ({ selectedConversation }) => {
   const { user } = useAuth();
-  const socket = useSocket();
+  const { socket } = useSocket();
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isSending, setIsSending] = useState(false);
 
-  // Get the receiver of the message
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
   const getReceiver = useCallback(() => {
     return selectedConversation?.participants.find((p) => p._id !== user._id);
   }, [selectedConversation, user]);
 
-  // Fetch conversation messages
   useEffect(() => {
     const loadMessages = async () => {
       if (!selectedConversation?._id) return;
@@ -23,34 +32,46 @@ const ConversationView = ({ selectedConversation }) => {
         const { data } = await fetchMessages(selectedConversation._id);
         setMessages(data.messages);
       } catch (error) {
-        console.error("Error fetching conversation:", error);
+        console.error("Error fetching messages:", error);
       }
     };
 
     loadMessages();
   }, [selectedConversation]);
 
-  // Handle message sending
+  useEffect(() => {
+    // Listen for new messages through socket
+    if (socket && selectedConversation?._id) {
+      socket.on("newMessage", (newMessage) => {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      });
+
+      // Cleanup listener on component unmount
+      return () => socket.off("newMessage");
+    }
+  }, [socket, selectedConversation]);
+
   const handleSendMessage = async () => {
     const receiver = getReceiver();
-    if (!messageInput.trim() || !receiver) return;
+    if (!messageInput.trim() || !receiver || isSending) return;
 
+    setIsSending(true);
     try {
+      const newMessage = {
+        sender: user._id,
+        receiver: receiver._id,
+        content: messageInput,
+        createdAt: new Date().toISOString(),
+      };
+
       await sendMessage(receiver._id, messageInput);
-      setMessages([...messages, { sender: user._id, content: messageInput }]);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessageInput("");
     } catch (error) {
       console.error("Error sending message:", error);
+    } finally {
+      setIsSending(false);
     }
-  };
-
-  // Format timestamp using JavaScript Date
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return `${date.getHours()}:${String(date.getMinutes()).padStart(
-      2,
-      "0"
-    )} ${date.toLocaleDateString()}`;
   };
 
   return (
@@ -62,7 +83,6 @@ const ConversationView = ({ selectedConversation }) => {
           </h2>
 
           <div className="flex flex-col h-[575px] p-3 bg-white mx-2 mb-2 rounded-xl border">
-            {/* Messages Section */}
             <div className="flex-grow overflow-y-auto mb-3 pr-2">
               {messages.length ? (
                 messages.map((msg, index) => (
@@ -79,7 +99,7 @@ const ConversationView = ({ selectedConversation }) => {
                           : "bg-orange-100"
                       }`}
                     >
-                      <p className="break-words">{msg.content}</p>
+                      <span>{msg.content}</span>
                       <p className="text-xs text-gray-400">
                         {TimeAgo(msg.createdAt)}
                       </p>
@@ -91,9 +111,9 @@ const ConversationView = ({ selectedConversation }) => {
                   No messages in this conversation.
                 </p>
               )}
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* Message Input Section */}
             <div className="flex px-4 mt-auto">
               <input
                 type="text"
@@ -104,7 +124,12 @@ const ConversationView = ({ selectedConversation }) => {
               />
               <button
                 onClick={handleSendMessage}
-                className="ml-2 px-5 py-2 bg-primary text-white rounded-lg border border-tertiary hover:bg-primary-dark"
+                disabled={!messageInput.trim() || isSending}
+                className={`ml-2 px-5 py-2 rounded-lg border ${
+                  isSending
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-primary text-white hover:bg-primary-dark"
+                }`}
               >
                 Send
               </button>
