@@ -7,6 +7,7 @@ import UserInfo from "@/components/UserInfo";
 import Suggestion from "@/components/Suggestion";
 import TextToVoice from "@/components/TextToVoice";
 import { getPostById } from "@/api/blogPost.api";
+import { TimeAgo } from "@/components/TimeAgo";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
@@ -63,10 +64,18 @@ const ReadPost = ({ params }) => {
               ? `${post.title.slice(0, 85)}...`
               : post.title}
           </h1>
-          <p className="mt-2 text-sm font-thin text-gray-700">
-            Category:{" "}
-            <span className="text-primary font-mono">{post.category}</span>
-          </p>
+          <div className="flex justify-between mt-2 text-sm font-thin text-primary">
+            <span>
+              Category:{" "}
+              <span className="text-secondary font-mono">{post.category}</span>
+            </span>
+            <span>
+              {TimeAgo(post.createdAt)} ||{" "}
+              <span className="text-secondary font-mono">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </span>
+            </span>
+          </div>
 
           {/* Sticky Section */}
           <div className="sticky top-0 bg-white z-50 shadow-sm hover:shadow-primary py-2 px-4 mt-1.5 rounded-lg overflow-x-auto">
