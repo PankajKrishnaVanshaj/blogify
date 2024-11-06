@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import BlogPostCard from "./BlogPostCard";
 import { fetchPostsByCategory } from "@/api/search.api";
+import dynamic from "next/dynamic";
+const BlogPostCard = dynamic(() => import("@/components/BlogPostCard"), {
+  ssr: false,
+});
 
 const Suggestion = ({ category }) => {
   const { creator: postId } = useParams(); // Use 'postId' for clarity

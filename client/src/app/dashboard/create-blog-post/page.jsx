@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { createPostAPI } from "@/api/blogPost.api";
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const categories = [
   "Technology & Innovation",

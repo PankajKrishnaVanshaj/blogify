@@ -1,11 +1,14 @@
 // Creator.jsx
 "use client";
-import BlogPostCard from "@/components/BlogPostCard";
 import FollowButton from "@/components/FollowButton";
 import MessageForm from "@/components/MessageForm";
-import { getUserDetails } from "@/api/user.api"; // Import the API function
+import { getUserDetails } from "@/api/user.api";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+const BlogPostCard = dynamic(() => import("@/components/BlogPostCard"), {
+  ssr: false,
+});
 
 const Creator = ({ params }) => {
   const [user, setUser] = useState(null);

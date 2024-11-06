@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import CarouselSection from "@/components/CarouselSection";
-import BlogPostCard from "@/components/BlogPostCard";
 import Categories from "@/components/Categories";
-import { fetchFilterPosts } from "@/api/blogPost.api"; // Import the fetchPosts function
+import { fetchFilterPosts } from "@/api/blogPost.api";
+import dynamic from "next/dynamic";
+const BlogPostCard = dynamic(() => import("@/components/BlogPostCard"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
