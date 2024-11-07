@@ -2,7 +2,7 @@ import { FcGoogle } from "react-icons/fc";
 
 const AuthForm = () => {
   const googleLogin = () => {
-    window.open(`http://localhost:55555/api/v1/auth/google`, "_self");
+    window.open(`${import.meta.env.VITE_API_URL}/auth/google`, "_self");
   };
 
   return (
