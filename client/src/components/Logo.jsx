@@ -19,9 +19,7 @@ const Logo = ({ type }) => {
           />
         </span>
         <span
-          className={`text-2xl font-semibold dark:text-white ${
-            type && "text-white  text-4xl"
-          }`}
+          className={`text-2xl text-primary ${type && " text-4xl font-bold"}`}
         >
           Blogify
         </span>
