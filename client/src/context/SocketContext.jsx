@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     // Initialize socket only if user exists
     if (user) {
-      const newSocket = io("http://localhost:55555", {
+      const newSocket = io(`${process.env.NEXT_PUBLIC_BASE_URL}`, {
         query: { userId: user._id },
       });
       setSocket(newSocket);
