@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ["localhost"],
-  },
+  // images: {
+  //   unoptimized: true,
+  // },
+  // output: "export",
 };
 
 export default nextConfig;
