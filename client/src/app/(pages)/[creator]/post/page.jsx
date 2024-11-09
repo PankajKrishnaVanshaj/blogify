@@ -69,7 +69,7 @@ const ReadPost = ({ params }) => {
               Category:{" "}
               <span className="text-secondary font-mono">{post.category}</span>
             </span>
-            <span>
+            <span className="hidden md:block">
               {TimeAgo(post.createdAt)} ||{" "}
               <span className="text-secondary font-mono">
                 {new Date(post.createdAt).toLocaleDateString()}

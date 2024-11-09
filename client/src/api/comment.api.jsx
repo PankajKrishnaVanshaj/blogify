@@ -1,8 +1,8 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/comments";
-const token = Cookies.get("token");
+const token =
+  typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
 const getComments = async (postId) => {
   const response = await axios.get(`${API_BASE_URL}/${postId}`);

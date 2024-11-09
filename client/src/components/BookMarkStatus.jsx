@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import { IoBookmarksOutline } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -7,7 +6,8 @@ import { toggleBookmark as toggleBookmarkAPI } from "@/api/bookMarks.api";
 
 const BookMarkStatus = ({ post, size = 24 }) => {
   const { user } = useAuth();
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [isBookmarked, setIsBookmarked] = useState(false);
 

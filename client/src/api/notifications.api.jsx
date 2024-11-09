@@ -1,9 +1,9 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/posts";
 
-const token = Cookies.get("token");
+const token =
+  typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
 const notificationService = {
   markAsRead: async (notificationId) => {

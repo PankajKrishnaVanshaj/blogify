@@ -4,14 +4,12 @@ import Button from "@/components/Button";
 import Divider from "@/components/Divider";
 import Inputbox from "@/components/Inputbox";
 import Logo from "@/components/Logo";
-import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BiImages } from "react-icons/bi";
 import { FcGoogle } from "react-icons/fc";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
-import Cookies from "js-cookie";
-import { toast } from "sonner"; // Import the toast function
+import { toast } from "sonner";
 import { signUp } from "@/api/auth.api";
 
 const Signup = () => {
@@ -54,14 +52,14 @@ const Signup = () => {
     );
 
     if (success) {
-      window.location.replace("/"); // Redirect to home page
+      window.location.replace("/dashboard");
     } else {
       toast.error(message || "Sign-up failed. Please try again.");
     }
   };
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (token) {
       window.location.replace("/");
     }

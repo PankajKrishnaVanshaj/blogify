@@ -3,7 +3,6 @@ import { useAuth } from "@/context/AuthContext";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { FaTachometerAlt } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
-import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,7 +20,7 @@ const MeInfo = () => {
   };
 
   const handleLogout = () => {
-    Cookies.remove("token");
+    localStorage.removeItem("token");
     window.location.href = "/sign-in";
   };
 

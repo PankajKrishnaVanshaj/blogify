@@ -83,12 +83,9 @@ const Sidebar = () => {
   };
 
   const handleLogout = () => {
-    // Handle logout logic here, e.g., clearing tokens or user data
-    console.log("User logged out"); // Replace with actual logout logic
-    // Optionally, redirect to the login page
-    // window.location.href = "/login"; // Uncomment and use this line for redirection
+    localStorage.removeItem("token");
+    window.location.href = "/sign-in";
   };
-
   return (
     <aside className="w-60 h-screen shadow-lg bg-gradient-to-r from-pink-50 via-pink-100 to-pink-200 p-4 rounded-l-sm rounded-r-3xl my-2 flex flex-col">
       <div className="text-3xl font-extrabold ">

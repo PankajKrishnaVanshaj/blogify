@@ -40,16 +40,13 @@ export const register = async (req, res) => {
     // Exclude password from the response
     user.password = undefined;
 
+    // Generate token
     const token = createJWT(user._id);
-
-    // Set token in a cookie
-    res.cookie("token", token);
 
     res.status(201).json({
       success: true,
       message: "Account created successfully",
-      user,
-      token,
+      token, // Include token in response
     });
   } catch (error) {
     console.error(error);
@@ -87,13 +84,9 @@ export const login = async (req, res) => {
 
     const token = createJWT(user._id);
 
-    // Set token in a cookie
-    res.cookie("token", token);
-
     res.status(200).json({
       success: true,
       message: "Login successful",
-      user,
       token,
     });
   } catch (error) {

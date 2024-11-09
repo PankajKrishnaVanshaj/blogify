@@ -6,7 +6,6 @@ import Inputbox from "@/components/Inputbox";
 import Logo from "@/components/Logo";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { signIn, googleLogin } from "@/api/auth.api";
 
@@ -35,14 +34,14 @@ const Signin = () => {
 
     if (success) {
       toast.success(message || "Successfully signed in!");
-      window.location.replace("/");
+      window.location.replace("/dashboard");
     } else {
       toast.error(message || "Sign-in failed. Please try again.");
     }
   };
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (token) {
       window.location.replace("/");
     }

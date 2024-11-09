@@ -1,12 +1,12 @@
 // user.api.js
 import axios from "axios";
-import Cookies from "js-cookie";
 
 // Define the base API URL
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
 
 // Utility function to get the token
-const getToken = () => Cookies.get("token");
+const getToken = () =>
+  typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
 // Utility function to create headers with Authorization token
 const getAuthHeaders = () => {

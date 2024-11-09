@@ -1,5 +1,4 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
@@ -34,7 +33,8 @@ const handleApiCall = async (promise) => {
 
 // Function to get the current user
 export const getCurrentUser = async () => {
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   if (!token) {
     console.log("No token found");
@@ -59,7 +59,9 @@ export const signIn = async (email, password) => {
   const result = await handleApiCall(promise);
 
   if (result.success) {
-    Cookies.set("token", result.data.token); // Assuming the token is returned in the response
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", result.data.token);
+    }
     return { success: true, message: result.data.message };
   }
   return result;
@@ -69,7 +71,15 @@ export const signIn = async (email, password) => {
 export const signUp = async (firstName, lastName, email, password) => {
   const payload = { firstName, lastName, email, password };
   const promise = apiClient.post("/auth/register", payload);
-  return handleApiCall(promise);
+  const result = await handleApiCall(promise);
+
+  if (result.success) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", result.data.token);
+    }
+    return { success: true, message: result.data.message };
+  }
+  return result;
 };
 
 // Google login function

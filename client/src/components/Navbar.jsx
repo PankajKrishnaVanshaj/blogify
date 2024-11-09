@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import { CiMenuFries } from "react-icons/ci";
-import Cookies from "js-cookie";
 import SearchBar from "./SearchBar";
-import Notifications from "./Notifications"; // Import the Notifications component
+import Notifications from "./Notifications";
 import Bookmark from "./Bookmark";
 import MeInfo from "./MeInfo";
 
@@ -46,7 +45,7 @@ const Navbar = () => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    setToken(Cookies.get("token"));
+    setToken(localStorage.getItem("token"));
   }, []);
 
   return (

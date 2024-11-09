@@ -36,13 +36,14 @@ authRoute.get(
     failureRedirect: `${process.env.CLIENT_HOST}`,
   }),
   (req, res) => {
-    const { user, token } = req.user;
-
-    // Set token in a cookie
-    res.cookie("token", token);
-
-    // Successful authentication, redirect home.
-    res.redirect(`${process.env.CLIENT_HOST}`);
+    if (req.user && req.user.token) {
+      const { token } = req.user;
+      // Redirect to client with token as a query parameter
+      res.redirect(`${process.env.CLIENT_HOST}/auth?token=${token}`);
+    } else {
+      // Redirect to client if no token
+      res.redirect(`${process.env.CLIENT_HOST}`);
+    }
   }
 );
 

@@ -1,5 +1,4 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/posts";
 
@@ -28,7 +27,8 @@ export const fetchFilterPosts = async (page, category) => {
 
 // Fetch all posts for the creator
 export const fetchCreatorPosts = async () => {
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   if (!token) {
     throw new Error("No user found. Please log in.");
@@ -56,7 +56,8 @@ export const getPostById = async (postId) => {
 
 // Create a new post
 export const createPostAPI = async (formData) => {
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   if (!token) {
     throw new Error("You must be logged in to create a post.");
@@ -87,7 +88,8 @@ export const createPostAPI = async (formData) => {
 
 // Update a post
 export const updatePost = async (postId, formData) => {
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   if (!token) {
     throw new Error("You must be logged in to update a post.");
@@ -112,7 +114,8 @@ export const updatePost = async (postId, formData) => {
 
 // Delete a post
 export const deletePost = async (postId) => {
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   if (!token) {
     throw new Error("You must be logged in to delete posts.");
@@ -129,7 +132,8 @@ export const deletePost = async (postId) => {
 
 // Toggle like/dislike for a post
 export const toggleLikeDislike = async (postId) => {
-  const token = Cookies.get("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   if (!token) throw new Error("Login required.");
 
   try {

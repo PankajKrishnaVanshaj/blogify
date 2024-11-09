@@ -14,17 +14,24 @@ const TextToVoice = ({ text, onStop }) => {
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = speechSynthesis.getVoices();
-      // console.log("Available voices:", availableVoices); // Log available voices
       if (availableVoices.length > 0) {
         setVoices(availableVoices);
       }
     };
 
+    // Attempt to load voices multiple times for mobile support
+    let voiceLoadAttempts = 0;
+    const intervalId = setInterval(() => {
+      if (speechSynthesis.getVoices().length > 0 || voiceLoadAttempts > 10) {
+        loadVoices();
+        clearInterval(intervalId);
+      }
+      voiceLoadAttempts += 1;
+    }, 200);
+
     if (speechSynthesis.onvoiceschanged !== undefined) {
       speechSynthesis.onvoiceschanged = loadVoices;
     }
-
-    loadVoices();
 
     return () => {
       speechSynthesis.cancel();
@@ -37,7 +44,7 @@ const TextToVoice = ({ text, onStop }) => {
   };
 
   const getVoiceForLanguage = (language) => {
-    return voices.find((voice) => voice.lang === language) || voices[0]; // Use the first available voice if none is found
+    return voices.find((voice) => voice.lang === language) || voices[0];
   };
 
   const startSpeaking = () => {
@@ -51,7 +58,6 @@ const TextToVoice = ({ text, onStop }) => {
       return;
     }
 
-    // Avoid starting speech if already speaking or paused
     if (isSpeaking) {
       console.warn("Speech synthesis is already in progress.");
       return;
@@ -73,14 +79,11 @@ const TextToVoice = ({ text, onStop }) => {
     }
 
     utterance.rate = 0.7;
-
     utterance.onend = () => {
       setIsSpeaking(false);
       setIsPaused(false);
     };
-
     utterance.onerror = (event) => {
-      // console.error("Error during speech synthesis:", event.error);
       setIsSpeaking(false);
       setIsPaused(false);
       if (onStop) onStop();

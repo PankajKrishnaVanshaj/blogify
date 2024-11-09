@@ -1,15 +1,15 @@
 import { ImUserCheck } from "react-icons/im";
-import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
-import { toast } from "sonner"; // Import toast from Sonner Toast
+import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { toggleFollowingUnfollowing } from "@/api/user.api";
 
 const FollowButton = ({ userId }) => {
   const { user } = useAuth();
-  const [isFollowing, setIsFollowing] = useState(false); // Track if the current user follows the target user
-  const [followers, setFollowers] = useState(userId?.followers?.length || 0); // Initialize followers count
-  const token = Cookies.get("token");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followers, setFollowers] = useState(userId?.followers?.length || 0);
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   // Check follow status on component mount or when user/userId changes
   useEffect(() => {

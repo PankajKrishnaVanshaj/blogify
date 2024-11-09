@@ -73,7 +73,7 @@ const Bookmark = () => {
                 >
                   {item.postId?.banner ? (
                     <Image
-                      src={`http://localhost:55555/${item.postId.banner}`}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/${item.postId.banner}`}
                       alt={item.postId.title}
                       width={48}
                       height={48}
