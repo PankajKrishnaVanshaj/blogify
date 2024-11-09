@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // images: {
-  //   unoptimized: true,
-  // },
-  // output: "export",
+  images: {
+    domains: ["server.blogify.pankri.com"],
+  },
 };
 
 export default nextConfig;
