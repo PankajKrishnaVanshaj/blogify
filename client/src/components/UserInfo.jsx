@@ -6,22 +6,23 @@ const UserInfo = ({ user, use }) => {
   const styles = {
     BlogCarousel: {
       avatarSize: "w-7 h-7",
-      nameText: "text-sm font-semibold text-xs font-mono leading-none",
+      nameText:
+        "text-sm font-semibold text-black text-xs font-mono leading-none",
       usernameText: "text-xs font-mono leading-none",
       avatarWidth: 24,
       avatarHeight: 24,
     },
     BlogPostCard: {
       avatarSize: "w-8 h-8",
-      nameText: "text-sm font-semibold text-xs font-mono leading-tight",
+      nameText:
+        "text-sm font-semibold text-black text-xs font-mono leading-tight",
       usernameText: "text-xs font-mono leading-none",
       avatarWidth: 32,
       avatarHeight: 32,
     },
     ReadPost: {
       avatarSize: "w-10 h-10",
-      nameText:
-        "text-base font-medium text-gray-800 dark:text-gray-200 pl-2 leading-tight",
+      nameText: "text-base font-medium text-black pl-2 leading-tight",
       usernameText: "text-sm text-gray-600 dark:text-gray-400 leading-none",
       avatarWidth: 40,
       avatarHeight: 40,

@@ -109,7 +109,7 @@ const ReadPost = ({ params }) => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
         <div className="col-span-3">
           <p
-            className="text-gray-800 dark:text-gray-200"
+            className="text-black"
             dangerouslySetInnerHTML={{
               __html: post.content,
             }}

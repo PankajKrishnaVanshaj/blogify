@@ -19,15 +19,14 @@ const TextToVoice = ({ text, onStop }) => {
       }
     };
 
-    // Attempt to load voices multiple times for mobile support
     let voiceLoadAttempts = 0;
     const intervalId = setInterval(() => {
-      if (speechSynthesis.getVoices().length > 0 || voiceLoadAttempts > 10) {
+      if (speechSynthesis.getVoices().length > 0 || voiceLoadAttempts > 15) {
         loadVoices();
         clearInterval(intervalId);
       }
       voiceLoadAttempts += 1;
-    }, 200);
+    }, 300);
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
       speechSynthesis.onvoiceschanged = loadVoices;
@@ -58,11 +57,6 @@ const TextToVoice = ({ text, onStop }) => {
       return;
     }
 
-    if (isSpeaking) {
-      console.warn("Speech synthesis is already in progress.");
-      return;
-    }
-
     speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -83,7 +77,7 @@ const TextToVoice = ({ text, onStop }) => {
       setIsSpeaking(false);
       setIsPaused(false);
     };
-    utterance.onerror = (event) => {
+    utterance.onerror = () => {
       setIsSpeaking(false);
       setIsPaused(false);
       if (onStop) onStop();
