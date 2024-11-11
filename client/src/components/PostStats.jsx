@@ -83,7 +83,7 @@ const PostStats = ({ post, size = 21 }) => {
         </span>
         <span className="flex items-center gap-1 cursor-pointer">
           <ShareButton
-            url={`http://localhost:3000/${post._id}/post`}
+            url={`https://blogify.pankri.com/${post._id}/post`}
             size={20}
           />
         </span>

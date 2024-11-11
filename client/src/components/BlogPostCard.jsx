@@ -71,7 +71,10 @@ const BlogPostCard = ({ post }) => {
           </span>
           <span>{formattedDate}</span>
           <span className="flex items-center space-x-1">
-            <ShareButton url={`http://localhost:3000/${_id}/post`} size={18} />
+            <ShareButton
+              url={`https://blogify.pankri.com/${_id}/post`}
+              size={18}
+            />
           </span>
           <span className="flex items-center space-x-1">
             <BookMarkStatus post={post._id} size={16} />
