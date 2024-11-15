@@ -11,7 +11,7 @@ const Logo = ({ type }) => {
         PK
         <span>
           <Image
-            src={"/pankri.png"}
+            src={"/blogify.png"}
             width={50}
             height={50}
             alt="logo"

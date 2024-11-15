@@ -8,6 +8,7 @@ import Suggestion from "@/components/Suggestion";
 import TextToVoice from "@/components/TextToVoice";
 import { getPostById } from "@/api/blogPost.api";
 import { TimeAgo } from "@/components/TimeAgo";
+import { generateMetadata } from "@/components/generateMetadata";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
@@ -46,6 +47,12 @@ const ReadPost = ({ params }) => {
     setSelectedText("");
   };
 
+  // Call generateMetadata when post data is available
+  useEffect(() => {
+    if (post) {
+      generateMetadata(post);
+    }
+  }, [post]);
   if (error) {
     return <div className="p-4 text-red-500">{error}</div>;
   }
