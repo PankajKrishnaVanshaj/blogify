@@ -1,33 +1,20 @@
 import { fetchAllPosts } from "@/api/blogPost.api";
 
-export default async function sitemap() {
-  let posts;
-  try {
-    posts = await fetchAllPosts();
-    // console.log("Fetched posts:", posts); // Log the fetched posts for debugging
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    return []; // Return an empty array if there is an error fetching posts
-  }
+export async function generateSitemaps() {
+  return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
+}
 
-  if (!posts || posts.length === 0) {
-    console.log("No posts found, returning empty sitemap.");
-    return []; // Return an empty array if no posts are found
-  }
+export default async function sitemap({ id }) {
+  // Google's limit is 50,000 URLs per sitemap
+  const start = id * 50000;
+  const end = start + 50000;
 
-  const postUrls = posts.map((post) => {
-    const lastModifiedDate = new Date(post.date);
-    const lastmod = !isNaN(lastModifiedDate)
-      ? lastModifiedDate.toISOString()
-      : new Date().toISOString();
+  // Fetch all posts
+  const products = await fetchAllPosts();
 
-    return {
-      loc: `https://blogify.pankri.com/${post._id.toString()}/post`,
-      lastmod,
-      changefreq: "daily",
-      priority: 0.6,
-    };
-  });
-
-  return postUrls;
+  // Ensure you're mapping over the products array correctly
+  return products.slice(start, end).map((product) => ({
+    url: `${"https://blogify.pankri.com"}/${product._id.toString()}/post`, // Use product instead of post
+    lastModified: product.date,
+  }));
 }
