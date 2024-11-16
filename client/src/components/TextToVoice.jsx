@@ -14,22 +14,13 @@ const TextToVoice = ({ text, onStop }) => {
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = speechSynthesis.getVoices();
-      if (availableVoices.length > 0) {
-        setVoices(availableVoices);
-      }
+      setVoices(availableVoices);
     };
-
-    let voiceLoadAttempts = 0;
-    const intervalId = setInterval(() => {
-      if (speechSynthesis.getVoices().length > 0 || voiceLoadAttempts > 15) {
-        loadVoices();
-        clearInterval(intervalId);
-      }
-      voiceLoadAttempts += 1;
-    }, 300);
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
       speechSynthesis.onvoiceschanged = loadVoices;
+    } else {
+      loadVoices();
     }
 
     return () => {
@@ -37,47 +28,66 @@ const TextToVoice = ({ text, onStop }) => {
     };
   }, []);
 
-  const detectLanguage = (text) => {
+  // Utility function to sanitize text by stripping or escaping HTML-like characters
+  const sanitizeText = (html) => {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    const sanitized = tempDiv.textContent || tempDiv.innerText || "";
+
+    // Replace specific HTML entities (like &lt;, &gt;) with their character equivalents
+    return sanitized
+      .replace(/</g, " ")
+      .replace(/>/g, " ")
+      .replace(/&/g, "and")
+      .trim(); // Ensure no trailing spaces
+  };
+
+  const detectLanguage = (cleanedText) => {
     const hindiPattern = /[\u0900-\u097F]/;
-    return hindiPattern.test(text) ? "hi-IN" : "en-US";
+    return hindiPattern.test(cleanedText) ? "hi-IN" : "en-US";
   };
 
   const getVoiceForLanguage = (language) => {
-    return voices.find((voice) => voice.lang === language) || voices[0];
+    const voice = voices.find((voice) => voice.lang === language);
+    if (!voice) {
+      console.warn(
+        `No voice found for ${language}, defaulting to system voice.`
+      );
+    }
+    return voice || null;
   };
 
   const startSpeaking = () => {
-    if (!text) {
-      console.error("No text to speak");
+    const cleanedText = sanitizeText(text); // Clean the text
+
+    if (!cleanedText) {
+      console.error("No text to speak after sanitization.");
       return;
     }
 
     if (voices.length === 0) {
-      console.error("Voices are not loaded yet.");
+      console.error("No voices available.");
       return;
     }
 
     speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    const detectedLang = detectLanguage(text);
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
+    const detectedLang = detectLanguage(cleanedText);
     const selectedVoice = getVoiceForLanguage(detectedLang);
 
     if (selectedVoice) {
       utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang;
-    } else {
-      console.warn(
-        `No voice found for language: ${detectedLang}, using first available voice.`
-      );
     }
+    utterance.lang = selectedVoice ? selectedVoice.lang : detectedLang;
 
-    utterance.rate = 0.7;
+    utterance.rate = 0.8; // Adjust rate for better clarity
     utterance.onend = () => {
       setIsSpeaking(false);
       setIsPaused(false);
     };
-    utterance.onerror = () => {
+    utterance.onerror = (event) => {
+      console.error("Speech synthesis error:", event.error);
       setIsSpeaking(false);
       setIsPaused(false);
       if (onStop) onStop();

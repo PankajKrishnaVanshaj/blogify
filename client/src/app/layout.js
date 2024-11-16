@@ -4,6 +4,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
+  metadataBase: new URL("https://blogify.pankri.com"),
   title: {
     default: "PK Blogify | Explore, Write, and Connect",
     template: "%s - PK Blogify | Explore, Write, and Connect",
