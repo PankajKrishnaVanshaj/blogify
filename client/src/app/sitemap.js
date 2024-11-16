@@ -1,14 +1,33 @@
 import { fetchAllPosts } from "@/api/blogPost.api";
 
 export default async function sitemap() {
-  const posts = await fetchAllPosts();
+  let posts;
+  try {
+    posts = await fetchAllPosts();
+    // console.log("Fetched posts:", posts); // Log the fetched posts for debugging
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return []; // Return an empty array if there is an error fetching posts
+  }
 
-  const postUrls = posts.map((post) => ({
-    url: `${"https://blogify.pankri.com"}/${post._id.toString()}/post`, // Constructing the post URL
-    lastModified: post.date, // Use the post's last modified date
-    changeFrequency: "daily", // Posts can change frequently
-    priority: 0.6, // Default priority for posts
-  }));
+  if (!posts || posts.length === 0) {
+    console.log("No posts found, returning empty sitemap.");
+    return []; // Return an empty array if no posts are found
+  }
 
-  return [...postUrls];
+  const postUrls = posts.map((post) => {
+    const lastModifiedDate = new Date(post.date);
+    const lastmod = !isNaN(lastModifiedDate)
+      ? lastModifiedDate.toISOString()
+      : new Date().toISOString();
+
+    return {
+      loc: `https://blogify.pankri.com/${post._id.toString()}/post`,
+      lastmod,
+      changefreq: "daily",
+      priority: 0.6,
+    };
+  });
+
+  return postUrls;
 }
