@@ -14,32 +14,29 @@ const TextToVoice = ({ text, onStop }) => {
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = speechSynthesis.getVoices();
-      setVoices(availableVoices);
+      if (availableVoices.length > 0) {
+        setVoices(availableVoices);
+      }
     };
 
     if (speechSynthesis.onvoiceschanged !== undefined) {
       speechSynthesis.onvoiceschanged = loadVoices;
-    } else {
-      loadVoices();
     }
+    loadVoices(); // Initial call in case voices are already loaded
 
     return () => {
       speechSynthesis.cancel();
     };
   }, []);
 
-  // Utility function to sanitize text by stripping or escaping HTML-like characters
   const sanitizeText = (html) => {
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
-    const sanitized = tempDiv.textContent || tempDiv.innerText || "";
-
-    // Replace specific HTML entities (like &lt;, &gt;) with their character equivalents
-    return sanitized
+    return (tempDiv.textContent || tempDiv.innerText || "")
       .replace(/</g, " ")
       .replace(/>/g, " ")
       .replace(/&/g, "and")
-      .trim(); // Ensure no trailing spaces
+      .trim();
   };
 
   const detectLanguage = (cleanedText) => {
@@ -58,8 +55,7 @@ const TextToVoice = ({ text, onStop }) => {
   };
 
   const startSpeaking = () => {
-    const cleanedText = sanitizeText(text); // Clean the text
-
+    const cleanedText = sanitizeText(text);
     if (!cleanedText) {
       console.error("No text to speak after sanitization.");
       return;
@@ -81,7 +77,7 @@ const TextToVoice = ({ text, onStop }) => {
     }
     utterance.lang = selectedVoice ? selectedVoice.lang : detectedLang;
 
-    utterance.rate = 0.8; // Adjust rate for better clarity
+    utterance.rate = 0.8;
     utterance.onend = () => {
       setIsSpeaking(false);
       setIsPaused(false);
