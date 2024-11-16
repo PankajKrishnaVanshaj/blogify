@@ -123,6 +123,15 @@ const TextToVoice = ({ text, onStop }) => {
     if (onStop) onStop();
   };
 
+  useEffect(() => {
+    return () => {
+      // Cleanup to stop playback when the page reloads or changes
+      speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+    };
+  }, []);
+
   return (
     <div className="fixed bottom-2 left-2 flex flex-col space-y-2 z-50">
       <div className="flex flex-col space-y-2">
