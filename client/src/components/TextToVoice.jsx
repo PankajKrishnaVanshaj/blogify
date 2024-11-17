@@ -22,7 +22,7 @@ const TextToVoice = ({ text, onStop }) => {
     if (speechSynthesis.onvoiceschanged !== undefined) {
       speechSynthesis.onvoiceschanged = loadVoices;
     }
-    loadVoices(); // Initial call in case voices are already loaded
+    loadVoices();
 
     return () => {
       speechSynthesis.cancel();
