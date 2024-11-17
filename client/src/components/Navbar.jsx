@@ -18,7 +18,7 @@ const MenuItems = [
 const MobileMenu = ({ isOpen, setIsOpen }) => {
   return (
     <div
-      className={`fixed top-0 left-0 w-full h-full bg-white dark:bg-black z-50 transform ${
+      className={`fixed top-0 left-0 w-full h-full bg-white cd z-50 transform ${
         isOpen ? "translate-x-0" : "translate-x-full"
       } transition-transform duration-300 ease-in-out`}
     >
@@ -35,6 +35,9 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
             <Link href={item.href}>{item.name}</Link>
           </li>
         ))}
+        <li onClick={() => setIsOpen(false)}>
+          <Link href={"/sign-in"}>Sign in</Link>
+        </li>
       </ul>
     </div>
   );

@@ -87,7 +87,7 @@ const ReadPost = ({ params }) => {
           </div>
 
           {/* Sticky Section */}
-          <div className="sticky top-0 bg-white z-50 shadow-sm hover:shadow-primary py-2 px-4 mt-1.5 rounded-lg overflow-x-auto">
+          <div className="sticky top-0 bg-white z-10 shadow-sm hover:shadow-primary py-2 px-4 mt-1.5 rounded-lg overflow-x-auto">
             <div className="flex justify-between items-center gap-4">
               <span>
                 <UserInfo user={post.user} />
