@@ -139,7 +139,7 @@ const ShareButton = ({ url, size }) => {
     <div className="relative" ref={shareButtonRef}>
       <button
         onClick={toggleShareButton}
-        className="p-2  rounded-full hover:bg-gray-200 transition-colors duration-200 "
+        className="p-2 text-black rounded-full hover:bg-gray-200 transition-colors duration-200 "
       >
         <BiShareAlt size={size} />
       </button>

@@ -1,6 +1,6 @@
-export async function generateMetadata(postId) {
-  // Default metadata if postId is missing
-  if (!postId) {
+export async function generateMetadata(post) {
+  // Default metadata if post is missing
+  if (!post) {
     return {
       title: "PK Blogify | Explore, Write, and Connect",
       description:
@@ -24,19 +24,19 @@ export async function generateMetadata(postId) {
   try {
     return {
       title: {
-        absolute: postId?.title || "PK Blogify | Explore, Write, and Connect",
+        absolute: post?.title || "PK Blogify | Explore, Write, and Connect",
       },
-      description: postId.content || "PK Blogify description...",
-      keywords: postId.tags || ["PK Blogify", "Blogify", "pankri", "pk"],
+      description: post.content || "PK Blogify description...",
+      keywords: post.tags || ["PK Blogify", "Blogify", "pankri", "pk"],
       openGraph: {
-        title: postId.title || "PK Blogify | Explore, Write, and Connect",
-        description: postId.content || "PK Blogify description...",
-        images: [{ url: postId.banner || "/blogify.png" }],
+        title: post.title || "PK Blogify | Explore, Write, and Connect",
+        description: post.content || "PK Blogify description...",
+        images: [{ url: post.banner || "/blogify.png" }],
       },
       twitter: {
-        title: postId.title || "PK Blogify | Explore, Write, and Connect",
-        description: postId.content || "PK Blogify description...",
-        images: [{ url: postId.banner || "/blogify.png" }],
+        title: post.title || "PK Blogify | Explore, Write, and Connect",
+        description: post.content || "PK Blogify description...",
+        images: [{ url: post.banner || "/blogify.png" }],
         card: "summary_large_image",
         creator: "pankri",
       },

@@ -3,10 +3,11 @@ import { BiHeart, BiShowAlt, BiSolidChat, BiSolidHeart } from "react-icons/bi";
 import CommentForm from "./comment/CommentForm";
 import { useEffect, useState } from "react";
 import ShareButton from "./ShareButton";
-import { toast } from "sonner"; // Import toast from Sonner Toast
+import { toast } from "sonner"; 
 import { useAuth } from "@/context/AuthContext";
 import BookMarkStatus from "./BookMarkStatus";
 import { toggleLikeDislike } from "@/api/blogPost.api";
+import PostSummary from "./PostSummary";
 
 const PostStats = ({ post, size = 21 }) => {
   const { user } = useAuth();
@@ -67,9 +68,9 @@ const PostStats = ({ post, size = 21 }) => {
 
   return (
     <div className="">
-      <div className="flex items-center space-x-4 text-gray-700 dark:text-gray-400">
+      <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-400">
         <span className="flex items-center gap-1">
-          <BiShowAlt className="text-xl" />
+          <BiShowAlt className="text-xl text-black" />
           {post.views}
         </span>
         <span
@@ -89,6 +90,9 @@ const PostStats = ({ post, size = 21 }) => {
         </span>
         <span className="flex items-center gap-1 cursor-pointer">
           <BookMarkStatus post={post._id} size={17} />
+        </span>
+        <span className="flex items-center gap-1 cursor-pointer">
+          <PostSummary PostContent={post.content}  />
         </span>
         <span
           className="flex flex-shrink-0 items-center gap-1 border rounded-full px-3 py-1 text-sm font-thin cursor-pointer"
