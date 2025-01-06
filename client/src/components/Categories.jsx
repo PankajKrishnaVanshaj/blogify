@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { LuChevronLeftSquare, LuChevronRightSquare } from "react-icons/lu";
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+
 
 const categories = [
   "All",
@@ -75,7 +76,7 @@ const Categories = ({ onSelectCategory }) => {
           aria-label="Previous Categories"
           className="p-2 mr-4 rounded-lg bg-primary text-white hover:bg-pink-800 transition duration-300 ease-in-out"
         >
-          <LuChevronLeftSquare size={23} />
+          <FaChevronLeft size={23} />
         </button>
       )}
 
@@ -104,7 +105,7 @@ const Categories = ({ onSelectCategory }) => {
           aria-label="Next Categories"
           className="p-2 ml-4 rounded-lg bg-primary text-white hover:bg-pink-800 transition duration-300 ease-in-out"
         >
-          <LuChevronRightSquare size={23} />
+          <FaChevronRight size={23} />
         </button>
       )}
     </div>
