@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import Head from "next/head";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -68,14 +69,16 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <head>
-        {/* Global JSON-LD */}
+      <Head>
+        {/* JSON-LD Script */}
         <script
+          key="jsonld-global"
           type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(globalJsonLd),
+          }}
         />
-      </head>
+      </Head>
       <body className={inter.className}>{children}</body>
     </html>
   );
