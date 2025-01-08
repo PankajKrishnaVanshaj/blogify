@@ -1,9 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { LuSendHorizontal } from "react-icons/lu";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import runChat from "@/utils/ChatGeminiAIModal";
+
+// Create a Suspense boundary only for the search params part
+const SearchParamsWrapper = ({ children }) => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      {children}
+    </Suspense>
+  );
+};
 
 const ChatWithAI = () => {
   const searchParams = useSearchParams();
@@ -43,7 +52,7 @@ const ChatWithAI = () => {
     setLoading(true);
     setInput("");
 
-    // Add user input to the message list
+// Add user input to the message list
     const newMessages = [...messages, { type: "user", text: trimmedInput }];
     setMessages(newMessages);
 
@@ -174,4 +183,10 @@ const ChatWithAI = () => {
   );
 };
 
-export default ChatWithAI;
+export default function ChatWithAIPage() {
+  return (
+    <SearchParamsWrapper>
+      <ChatWithAI />
+    </SearchParamsWrapper>
+  );
+}
