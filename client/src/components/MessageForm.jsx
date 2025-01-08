@@ -55,7 +55,7 @@ const MessageForm = ({ receiver = {} }) => {
       {/* Button to open dialog */}
       <button
         onClick={toggleDialog}
-        className="border border-primary text-primary px-5 py-0.5 mt-1.5 rounded-md hover:bg-primary hover:text-white transition-colors"
+        className="border border-primary text-primary px-6 py-1.5 rounded-md hover:bg-primary hover:text-white transition-colors"
         aria-label="Send a message"
       >
         <BiMessageRoundedDetail size={29} />

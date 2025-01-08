@@ -8,6 +8,7 @@ import Suggestion from "@/components/Suggestion";
 import TextToVoice from "@/components/TextToVoice";
 import { getPostById } from "@/api/blogPost.api";
 import { TimeAgo } from "@/components/TimeAgo";
+import ScrollButtons from "./ScrollButtons";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
@@ -60,6 +61,8 @@ const ReadPost = ({ params }) => {
     <div className="py-4 px-0 w-full">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Main Content */}
+        <ScrollButtons />
+
         <div className="col-span-3 p-4">
           <h1 className="text-2xl md:text-5xl font-bold text-gray-800">
             {post.title.length > 85

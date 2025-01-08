@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { CiSearch } from "react-icons/ci";
 import { useRouter } from "next/navigation";
 import { fetchSearchSuggestions } from "@/api/search.api";
+import { TbVirusSearch } from "react-icons/tb";
 
 const SearchBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const SearchBarRef = useRef(null);
-  const router = useRouter(); // Use Next.js's router
+  const router = useRouter();
 
   const toggleSearchBar = () => {
     setIsOpen(!isOpen);
@@ -70,12 +70,8 @@ const SearchBar = () => {
 
   return (
     <div ref={SearchBarRef} className="flex justify-center">
-      <button
-        onClick={toggleSearchBar}
-        className="flex items-center gap-1 border border-primary text-primary rounded-full px-3 py-1 text-sm font-thin cursor-pointer"
-      >
-        <CiSearch className="text-2xl" />
-        Search...
+      <button onClick={toggleSearchBar}>
+        <TbVirusSearch className="text-2xl" />
       </button>
       {isOpen && (
         <div className="absolute top-full w-1/2 left-1/2 transform -translate-x-1/2 mt-0.5 bg-white border border-dashed pl-0.5 border-primary rounded-md shadow-lg z-50">
@@ -91,14 +87,14 @@ const SearchBar = () => {
               onClick={() => handleSubmit()}
               className="px-3 py-2 bg-primary text-white font-semibold rounded-r-md hover:bg-primary-dark transition duration-150"
             >
-              <CiSearch size={24} />
+              <TbVirusSearch size={24} />
             </button>
           </div>
           <ul className="max-h-60 overflow-y-auto border-gray-300">
             {suggestions.map((suggestion, index) => (
               <li
                 key={index}
-                className="px-3 py-0.5 hover:bg-gray-100 cursor-pointer"
+                className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
                   setQuery(suggestion.title);
                   handleSubmit(suggestion.title);
@@ -109,14 +105,15 @@ const SearchBar = () => {
                     ? suggestion.title.slice(0, 57) + "..."
                     : suggestion.title}
                 </strong>
-                <p
+                {/* <p
                   className="text-sm text-gray-500"
                   dangerouslySetInnerHTML={{
                     __html: suggestion.content,
                   }}
-                />
+                /> */}
               </li>
-            ))}
+            ))}                
+
             {suggestions.length === 0 && query && (
               <li className="px-4 py-3 text-gray-500">No suggestions found.</li>
             )}

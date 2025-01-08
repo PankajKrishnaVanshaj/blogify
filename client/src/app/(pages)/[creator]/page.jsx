@@ -6,6 +6,7 @@ import { getUserDetails } from "@/api/user.api";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import ShareButton from "@/components/ShareButton";
 const BlogPostCard = dynamic(() => import("@/components/BlogPostCard"), {
   ssr: false,
 });
@@ -75,6 +76,9 @@ const Creator = ({ params }) => {
               <p className="text-lg text-gray-600">@{user.username}</p>
             </div>
             <FollowButton userId={user} />
+            <div className="border border-primary px-5 rounded-md hover:bg-primary transition-colors">
+              <ShareButton url={window.location.href} size={24} />
+            </div>
             <MessageForm receiver={user} />
           </div>
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-6 text-gray-600">

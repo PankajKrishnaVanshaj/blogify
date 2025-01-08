@@ -171,12 +171,12 @@ const CreatePost = () => {
           </div>
         </div>
 
-        <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-hidden">
+        <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-visible">
           <ReactQuill
             value={content}
             onChange={setContent}
             placeholder="Write your post content here..."
-            className="h-96 border-none focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
+            className="min-h-[300px] border-none focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
             theme="snow"
           />
         </div>

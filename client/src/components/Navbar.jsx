@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import Button from "./Button";
 import { CiMenuFries } from "react-icons/ci";
-import SearchBar from "./SearchBar";
 import Notifications from "./Notifications";
 import Bookmark from "./Bookmark";
 import MeInfo from "./MeInfo";
+import SearchBar from "./SearchBar";
+import AIChatBar from "./AIChatBar";
 
 const MenuItems = [
   { name: "Home", href: "/" },
@@ -52,7 +53,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="relative flex flex-col md:flex-row w-full pt-3 items-center justify-between gap-4 md:gap-0 border-b-4 border-double px-3 rounded-xl">
+    <nav className="relative flex flex-col md:flex-row w-full pt-3 items-center justify-between gap-4 md:gap-0 border-b-4 border-double px-0.5 rounded-xl">
       <div className="flex items-center justify-between w-full md:w-auto">
         <button
           aria-label="Open menu"
@@ -65,7 +66,11 @@ const Navbar = () => {
           <Logo />
         </div>
         <div className="block md:hidden ml-auto">
-          <SearchBar />
+          <div className="flex items-center gap-1 border border-primary text-primary rounded-full px-0.5 py-1 text-sm font-thin cursor-pointer">
+            <SearchBar />
+            Search/Chat
+            <AIChatBar />
+          </div>{" "}
         </div>
       </div>
 
@@ -80,8 +85,11 @@ const Navbar = () => {
       </div>
 
       <div className="hidden md:flex gap-5 items-center">
-        <SearchBar />
-
+        <div className="flex items-center gap-1 border border-primary text-primary rounded-full px-0.5 py-1 text-sm font-thin cursor-pointer">
+          <SearchBar />
+          Search/Chat
+          <AIChatBar />
+        </div>{" "}
         <div className="flex gap-2 items-center cursor-pointer">
           {token ? (
             <>
