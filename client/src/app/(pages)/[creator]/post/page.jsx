@@ -31,10 +31,10 @@ export async function generateMetadata({ params }) {
   if (!post) return defaultMetadata;
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
     return {
-      title:{absolute: `${post.title} | PK Blogify`},
+      title: { absolute: `${post.title} | PK Blogify` },
       description:
         post.excerpt || post.content.slice(0, 160) || defaultMetadata.description,
       keywords: [...new Set([...post.tags, "PK Blogify", "blogging", "community"])],
@@ -65,8 +65,44 @@ export async function generateMetadata({ params }) {
   }
 }
 
-const PostPage = ({ params }) => {
-  return <ReadPost params={params} />;
+const PostPage = async ({ params }) => {
+  const post = await getPostById(params.creator);
+
+  const jsonLd = post
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        image: [`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner || "/blogify.png"}`],
+        description: post.excerpt || post.content.slice(0, 200),
+        author: {
+          "@type": "Person",
+          name: post.authorName || "PK Blogify Contributor",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "PK Blogify",
+          logo: {
+            "@type": "ImageObject",
+            url: "/blogify.png",
+          },
+        },
+        datePublished: post.createdAt,
+        dateModified: post.updatedAt || post.createdAt,
+      }
+    : null;
+
+  return (
+    <section>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <ReadPost params={params} />
+    </section>
+  );
 };
 
 export default PostPage;

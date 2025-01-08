@@ -127,7 +127,7 @@ const ChatWithAI = () => {
       </div>
 
       <div className="col-span-12 lg:col-span-8 flex flex-col bg-white rounded-md shadow-lg mx-1 h-full">
-        <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 m-2 rounded-lg shadow-inner h-[calc(100vh-200px)]">
+        <div className="flex-grow overflow-y-auto p-2 space-y-4 bg-gray-50 m-2 rounded-lg shadow-inner h-[calc(100vh-200px)]">
           {/* Render User Input */}
           {messages.map((message, index) => (
             <div
@@ -148,7 +148,7 @@ const ChatWithAI = () => {
           ))}
         </div>
 
-        <div className="py-1">
+        <div className="py-1 mb-2">
           <div className="flex items-center gap-2 mx-2">
             <button
               onClick={handleClearInput}
