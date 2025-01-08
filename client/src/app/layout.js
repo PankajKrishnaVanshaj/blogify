@@ -39,7 +39,7 @@ export const metadata = {
       },
     ],
     type: "website",
-    url: "http://blogify.pankri.com",
+    url: "https://blogify.pankri.com",
   },
   twitter: {
     title: "PK Blogify | Explore, Write, and Connect",
@@ -58,7 +58,7 @@ export default function RootLayout({ children }) {
     name: "PK Blogify",
     url: "https://blogify.pankri.com",
     description:
-    "PK Blogify is a dynamic social media blog platform designed to bring creators, writers, and readers together in one engaging space. Share your thoughts, publish compelling articles, and explore diverse topics across various categories. Whether you're here to follow your favorite bloggers, discover trending posts, or engage in meaningful discussions, PK Blogify offers a seamless and interactive experience tailored to the modern storyteller.",
+      "PK Blogify is a dynamic social media blog platform designed to bring creators, writers, and readers together in one engaging space. Share your thoughts, publish compelling articles, and explore diverse topics across various categories. Whether you're here to follow your favorite bloggers, discover trending posts, or engage in meaningful discussions, PK Blogify offers a seamless and interactive experience tailored to the modern storyteller.",
     potentialAction: {
       "@type": "SearchAction",
       target: "https://blogify.pankri.com/search?query={search_term_string}",
@@ -72,6 +72,7 @@ export default function RootLayout({ children }) {
         {/* Global JSON-LD */}
         <script
           type="application/ld+json"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: JSON.stringify(globalJsonLd) }}
         />
       </head>

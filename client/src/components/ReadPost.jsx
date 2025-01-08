@@ -40,7 +40,7 @@ const ReadPost = ({ params }) => {
       const postData = await getPostById(postId); // Use the imported function to get post data
       setPost(postData); // Set the post data from the response
     } catch (error) {
-      console.error("Error fetching post data:", error);
+      // console.error("Error fetching post data:", error);
       setError("Failed to fetch post data");
     }
   };

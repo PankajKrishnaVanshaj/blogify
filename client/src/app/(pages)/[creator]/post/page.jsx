@@ -60,7 +60,7 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (error) {
-    console.error("Error generating metadata:", error);
+    // console.error("Error generating metadata:", error);
     return defaultMetadata;
   }
 }
@@ -78,6 +78,8 @@ const PostPage = async ({ params }) => {
         author: {
           "@type": "Person",
           name: post.authorName || "PK Blogify Contributor",
+          url: `${process.env.NEXT_PUBLIC_BASE_URL}/${post.authorId || "/blogify.png"}`,
+
         },
         publisher: {
           "@type": "Organization",
