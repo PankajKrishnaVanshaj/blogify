@@ -7,11 +7,7 @@ import runChat from "@/utils/ChatGeminiAIModal";
 
 // Create a Suspense boundary only for the search params part
 const SearchParamsWrapper = ({ children }) => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>;
 };
 
 const ChatWithAI = () => {
@@ -52,7 +48,7 @@ const ChatWithAI = () => {
     setLoading(true);
     setInput("");
 
-// Add user input to the message list
+    // Add user input to the message list
     const newMessages = [...messages, { type: "user", text: trimmedInput }];
     setMessages(newMessages);
 
@@ -129,23 +125,42 @@ const ChatWithAI = () => {
       <div className="col-span-12 lg:col-span-8 flex flex-col bg-white rounded-md shadow-lg mx-1 h-full">
         <div className="flex-grow overflow-y-auto p-2 space-y-4 bg-gray-50 m-2 rounded-lg shadow-inner h-[calc(100vh-200px)]">
           {/* Render User Input */}
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`py-1 px-4 rounded-lg shadow-md w-fit ${
-                message.type === "user"
-                  ? "bg-blue-100 text-right ml-auto"
-                  : "bg-white text-left mr-auto"
-              }`}
-            >
-              <p
-                className="text-black "
-                dangerouslySetInnerHTML={{
-                  __html: message.text,
-                }}
-              />
+          {messages && messages.length > 0 ? (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`py-1 px-4 rounded-lg shadow-md w-fit ${
+                  message.type === "user"
+                    ? "bg-blue-100 text-right ml-auto"
+                    : "bg-white text-left mr-auto"
+                }`}
+              >
+                <p
+                  className="text-black"
+                  dangerouslySetInnerHTML={{
+                    __html: message.text,
+                  }}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-gray-600 text-center py-8 px-4">
+              <h3 className="text-xl font-bold mb-4 text-center text-primary">
+                No messages yet
+              </h3>
+              <p className="text-center mb-5 text-lg">
+                It's time to start a conversation! 🤖
+              </p>
+              <p >
+                Chat with AI and ask anything you're curious about. The
+                possibilities are endless!
+              </p>
+              <p className="text-primary mt-2">
+                Try asking, "What's the weather like today?" or "Tell me a fun
+                fact!"
+              </p>
             </div>
-          ))}
+          )}
         </div>
 
         <div className="py-1 mb-2">

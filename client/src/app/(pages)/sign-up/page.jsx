@@ -10,7 +10,7 @@ import { BiImages } from "react-icons/bi";
 import { FcGoogle } from "react-icons/fc";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { toast } from "sonner";
-import { signUp } from "@/api/auth.api";
+import { googleLogin, signUp } from "@/api/auth.api";
 
 const Signup = () => {
   const [showForm, setShowForm] = useState(false);
