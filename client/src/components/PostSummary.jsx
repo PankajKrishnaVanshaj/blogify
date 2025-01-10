@@ -32,7 +32,7 @@ const PostSummary = ({ PostContent }) => {
     <div className="relative z-10">
       {/* Button to open the summary modal */}
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => setIsOpen(true)} aria-label="summary generation ai"
         className="p-2 rounded-full text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary transition duration-150 ease-in-out"
       >
         <PiBrain size={20} />

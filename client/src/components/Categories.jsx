@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-
+import { debounce } from "lodash";
 
 const categories = [
   "All",
@@ -19,7 +19,7 @@ const categories = [
 const Categories = ({ onSelectCategory }) => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [startIndex, setStartIndex] = useState(0);
-  const [categoriesToShow, setCategoriesToShow] = useState(5); // Default to 5 until we can measure
+  const [categoriesToShow, setCategoriesToShow] = useState(5);
 
   // Function to determine how many categories to show based on screen width
   function getCategoriesToShow() {
@@ -50,14 +50,14 @@ const Categories = ({ onSelectCategory }) => {
     }
   };
 
-  // Update categoriesToShow on window resize and component mount
+  // Debounced resize handler
   useEffect(() => {
+    const handleResize = debounce(() => {
+      setCategoriesToShow(getCategoriesToShow());
+    }, 200); // Debounce for 200ms
+
     // Set categories to show when the component mounts
     setCategoriesToShow(getCategoriesToShow());
-
-    const handleResize = () => {
-      setCategoriesToShow(getCategoriesToShow());
-    };
 
     window.addEventListener("resize", handleResize);
 
@@ -87,7 +87,7 @@ const Categories = ({ onSelectCategory }) => {
             <button
               key={category}
               onClick={() => handleCategoryClick(category)}
-              className={`py-2 px-4 rounded-lg transition duration-300 ${
+              className={`py-2 px-4 rounded-lg transition duration-300 min-w-[150px] ${
                 selectedCategory === category
                   ? "bg-pink-800 text-white"
                   : "bg-primary text-white hover:bg-pink-800"

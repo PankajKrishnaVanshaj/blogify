@@ -70,7 +70,7 @@ const SearchBar = () => {
 
   return (
     <div ref={SearchBarRef} className="flex justify-center">
-      <button onClick={toggleSearchBar}>
+      <button onClick={toggleSearchBar} aria-label="Search">
         <TbVirusSearch className="text-2xl" />
       </button>
       {isOpen && (

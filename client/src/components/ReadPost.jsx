@@ -103,6 +103,9 @@ const ReadPost = ({ params }) => {
               width={548}
               height={288}
               priority={true}
+              // loading="lazy"
+              srcSet={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}?w=800 800w, ${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}?w=400 400w`}
+              sizes="(max-width: 768px) 400px, 800px" // Adjust image size based on screen width
               className="object-cover w-full h-full"
             />
           </div>

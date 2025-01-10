@@ -89,12 +89,14 @@ const BlogCarousel = () => {
         />
         <button
           className="absolute top-1/2 left-2 transform -translate-y-1/2 focus:outline-none"
+         aria-label="Previous"
           onClick={prevSlide}
         >
           <FcPrevious size={30} />
         </button>
         <button
           className="absolute top-1/2 right-2 transform -translate-y-1/2 focus:outline-none"
+          aria-label="Next"
           onClick={nextSlide}
         >
           <FcNext size={30} />

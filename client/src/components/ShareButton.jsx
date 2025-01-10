@@ -139,6 +139,7 @@ const ShareButton = ({ url, size }) => {
     <div className="relative" ref={shareButtonRef}>
       <button
         onClick={toggleShareButton}
+        aria-label="Share"
         className="p-2 text-black rounded-full hover:bg-gray-200 transition-colors duration-200 "
       >
         <BiShareAlt size={size} />

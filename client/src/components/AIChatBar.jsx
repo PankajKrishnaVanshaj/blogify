@@ -54,7 +54,7 @@ const AIChatBar = () => {
 
   return (
     <div ref={AIChatBarRef} className="flex justify-center">
-      <button onClick={toggleSearchBar}>
+      <button onClick={toggleSearchBar} aria-label="ai chat ">
         <SiCircuitverse className="text-2xl" />
       </button>
       {isOpen && (

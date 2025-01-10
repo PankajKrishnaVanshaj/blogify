@@ -70,7 +70,7 @@ const Navbar = () => {
             <SearchBar />
             Search/Chat
             <AIChatBar />
-          </div>{" "}
+          </div>
         </div>
       </div>
 
@@ -85,11 +85,14 @@ const Navbar = () => {
       </div>
 
       <div className="hidden md:flex gap-5 items-center">
-        <div className="flex items-center gap-1 border border-primary text-primary rounded-full px-0.5 py-1 text-sm font-thin cursor-pointer">
+        <div
+          className="flex items-center gap-1 border border-primary text-primary rounded-full px-0.5 py-1 text-sm font-thin cursor-pointer"
+          style={{ minWidth: "100px" }} 
+        >
           <SearchBar />
-          Search/Chat
+          <span>Search/Chat</span>
           <AIChatBar />
-        </div>{" "}
+        </div>
         <div className="flex gap-2 items-center cursor-pointer">
           {token ? (
             <>
