@@ -103,7 +103,7 @@ const ReadPost = ({ params }) => {
               width={548}
               height={288}
               priority={true} // Important for LCP image
-              loading="eager" // Load eagerly (same as priority)
+              // loading="eager" // Load eagerly (same as priority)
               srcSet={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}?w=800 800w, ${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}?w=400 400w`}
               sizes="(max-width: 768px) 400px, (max-width: 1200px) 800px, 1200px"
               className="object-cover w-full h-full"

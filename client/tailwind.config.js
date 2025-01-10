@@ -11,15 +11,13 @@ module.exports = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "primary-gradient":
+          "linear-gradient(to right, #c9304b, #0658bd, #fdba74)",
       },
       colors: {
         primary: "#c9304b",
         secondary: "#0658bd",
         tertiary: "#fdba74",
-      },
-      backgroundImage: {
-        "primary-gradient":
-          "linear-gradient(to right, #c9304b, #0658bd, #fdba74)",
       },
     },
   },
