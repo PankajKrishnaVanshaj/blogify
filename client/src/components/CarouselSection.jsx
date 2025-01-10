@@ -6,9 +6,9 @@ const CarouselSection = () => {
       <div className="col-span-2 rounded-lg">
         <BlogCarousel />
       </div>
-      <div className="hidden md:block bg-gray-800 text-gray-100 p-4 rounded-lg">
+      <div className="bg-gray-800 p-4 rounded-lg md:block hidden sm:min-h-[150px] sm:opacity-0 sm:visible md:opacity-100 md:visible">
         <ul>
-          <li>Ads</li>
+          <li className="text-black">Ads</li>
         </ul>
       </div>
     </div>

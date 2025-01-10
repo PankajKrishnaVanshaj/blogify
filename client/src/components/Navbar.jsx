@@ -62,7 +62,7 @@ const Navbar = () => {
         >
           <CiMenuFries />
         </button>
-        <div className="flex justify-center items-center flex-1 md:flex-none">
+        <div className="flex justify-center items-center flex-1 md:flex-none ">
           <Logo />
         </div>
         <div className="block md:hidden ml-auto">
