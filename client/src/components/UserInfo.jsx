@@ -48,7 +48,7 @@ const UserInfo = ({ user, use }) => {
               }
               width={avatarWidth}
               height={avatarHeight}
-              priority={true}
+              loading="lazy" // Lazy loading for non-critical avatars
               className="object-cover w-full h-full"
               alt="User Avatar"
             />

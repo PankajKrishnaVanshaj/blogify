@@ -34,7 +34,7 @@ const BlogPostCard = ({ post }) => {
                 alt={title}
                 width={160}
                 height={160}
-                priority
+                loading="lazy" // Lazy loading for banner image
                 className="object-cover rounded-lg h-28 w-28 hover:scale-105 transition-transform duration-300"
               />
             )}
