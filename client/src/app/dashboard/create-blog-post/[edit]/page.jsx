@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { getPostById, updatePost } from "@/api/blogPost.api"; // Adjust the import path as necessary
+import { getPostById, updatePost } from "@/api/blogPost.api";
 
 const categories = [
   "Technology & Innovation",
@@ -26,6 +26,7 @@ const EditPost = ({ params }) => {
   const [content, setContent] = useState("");
   const [banner, setBanner] = useState(null);
   const [bannerUrl, setBannerUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -54,6 +55,9 @@ const EditPost = ({ params }) => {
   }, [params.edit]);
 
   const handleTagInputChange = (e) => setTagInput(e.target.value);
+  // Calculate words
+  const wordCount =
+    content.trim() === "" ? 0 : content.trim().split(/\s+/).length;
 
   const handleAddTag = (e) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
@@ -88,9 +92,11 @@ const EditPost = ({ params }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!title || !content) {
       toast.error("Title and content are required.");
+      setLoading(false);
       return;
     }
 
@@ -106,8 +112,11 @@ const EditPost = ({ params }) => {
     try {
       await updatePost(params.edit, formData);
       toast.success("Post updated successfully");
+      setLoading(false);
+
     } catch (error) {
       toast.error(error.message);
+      setLoading(false);
     }
   };
 
@@ -139,6 +148,9 @@ const EditPost = ({ params }) => {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="p-3 border border-gray-300 rounded-lg text-lg text-gray-700">
+                {wordCount}
               </div>
               <div className="relative w-1/2">
                 <input
@@ -199,9 +211,14 @@ const EditPost = ({ params }) => {
 
         <button
           type="submit"
-          className="mt-6 w-full py-3 px-4 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-700 focus:outline-none focus:ring-4 focus:ring-pink-300 transition duration-300 ease-in-out"
+          disabled={loading}
+          className={`mt-6 w-full py-3 px-4 font-bold rounded-lg focus:outline-none focus:ring-4 transition duration-300 ease-in-out ${
+            loading
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-pink-500 text-white hover:bg-pink-700 focus:ring-pink-300"
+          }`}
         >
-          Update Post
+          {loading ? "Updating..." : "Update Post"}
         </button>
       </form>
     </div>

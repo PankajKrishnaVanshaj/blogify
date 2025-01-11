@@ -29,8 +29,12 @@ const CreatePost = () => {
   const [content, setContent] = useState("");
   const [banner, setBanner] = useState(null);
   const [bannerUrl, setBannerUrl] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTagInputChange = (e) => setTagInput(e.target.value);
+  // Calculate words
+  const wordCount =
+    content.trim() === "" ? 0 : content.trim().split(/\s+/).length;
 
   const handleAddTag = (e) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
@@ -67,6 +71,7 @@ const CreatePost = () => {
       toast.error("Title and content are required.");
       return;
     }
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append("title", title);
@@ -83,6 +88,7 @@ const CreatePost = () => {
       router.push("/dashboard/all-blog-posts");
     } else {
       toast.error(message);
+      setIsSubmitting(false);
     }
   };
 
@@ -110,8 +116,8 @@ const CreatePost = () => {
                 className="w-full text-gray-700 p-4 border border-gray-300 rounded-lg text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
               />
             </div>
-            <div className="flex justify-between items-center mb-6">
-              <div className="relative w-1/2 pr-2">
+            <div className="flex justify-between items-center mb-6 gap-2">
+              <div className="relative w-1/2">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -123,6 +129,9 @@ const CreatePost = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="p-3 border border-gray-300 rounded-lg text-lg text-gray-700">
+                {wordCount}
               </div>
               <div className="relative w-1/2">
                 <input
@@ -183,9 +192,14 @@ const CreatePost = () => {
 
         <button
           type="submit"
-          className="mt-6 w-full py-3 px-4 bg-pink-500 text-white font-bold rounded-lg hover:bg-pink-700 focus:outline-none focus:ring-4 focus:ring-pink-300 transition duration-300 ease-in-out"
+          disabled={isSubmitting} 
+          className={`mt-6 w-full py-3 px-4 font-bold rounded-lg transition duration-300 ease-in-out ${
+            isSubmitting
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-pink-500 text-white hover:bg-pink-700 focus:ring-4 focus:ring-pink-300"
+          }`}
         >
-          Publish Post
+          {isSubmitting ? "Publishing..." : "Publish Post"}
         </button>
       </form>
     </div>
