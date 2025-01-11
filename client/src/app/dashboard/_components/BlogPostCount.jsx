@@ -38,8 +38,9 @@ const BlogPostCount = () => {
       setComments(totalComments);
       setPosts(fetchedPosts.length);
     } catch (err) {
-      console.error("Fetch Error:", err);
-      setError(err.message || "An error occurred while fetching data.");
+      // console.error("Fetch Error:", err);
+      // setError(err.message || "An error occurred while fetching data.");
+      setError( "Oops! No content available.");
     } finally {
       setLoading(false);
     }
