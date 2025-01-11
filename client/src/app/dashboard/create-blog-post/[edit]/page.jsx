@@ -204,8 +204,8 @@ const EditPost = ({ params }) => {
             value={content}
             onChange={setContent}
             placeholder="Write your post content here..."
-            className="h-96 border-none focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
-            theme="snow" // Ensures proper theme is applied
+            className="min-h-[300px] border-none focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
+            theme="snow"
           />
         </div>
 
