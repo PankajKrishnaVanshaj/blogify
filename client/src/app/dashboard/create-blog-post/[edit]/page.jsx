@@ -199,7 +199,7 @@ const EditPost = ({ params }) => {
           </div>
         </div>
 
-        <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-hidden">
+        <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-visible">
           <ReactQuill
             value={content}
             onChange={setContent}
