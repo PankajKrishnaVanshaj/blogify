@@ -26,17 +26,14 @@ export const createPost = async (req, res) => {
         .json({ message: "Bad Request. Required fields missing." });
     }
     if (!createdBy) {
-      if (bannerFilename) {
-        deleteFile(bannerFilename, "uploads/banner");
-      }
+
       return res.status(401).json({ message: "Unauthorized. User not found." });
     }
     if (!isCreator) {
-      return res
-        .status(403)
-        .json({
-          message: "Forbidden. You are not authorized to create posts.",
-        });
+      deleteFile(bannerFilename, "uploads/banner");
+      return res.status(403).json({
+        message: "Forbidden. You are not authorized to create posts.",
+      });
     }
 
     const newPost = new Posts({
