@@ -135,8 +135,8 @@ const EditPost = ({ params }) => {
                 className="w-full text-gray-700 p-4 border border-gray-300 rounded-lg text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
               />
             </div>
-            <div className="flex justify-between items-center mb-6">
-              <div className="relative w-1/2 pr-2">
+            <div className="flex justify-between items-center mb-6 gap-2">
+              <div className="relative w-1/2">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
