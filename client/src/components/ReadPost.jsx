@@ -9,6 +9,7 @@ import TextToVoice from "@/components/TextToVoice";
 import { getPostById } from "@/api/blogPost.api";
 import { TimeAgo } from "@/components/TimeAgo";
 import ScrollButtons from "./ScrollButtons";
+import Translator from "./Translator";
 
 const ReadPost = ({ params }) => {
   const [post, setPost] = useState(null);
@@ -131,11 +132,12 @@ const ReadPost = ({ params }) => {
         </div>
       </div>
 
-      {/* Text to Voice Component */}
+      {/* Text to Voice and Translator Component */}
       <TextToVoice
         text={selectedText || post.content}
         onStop={handleStopSpeaking}
       />
+      <Translator text={selectedText || post.content} />
 
       <hr className="mt-20 mx-16 border border-primary" />
       <div className="mt-8 px-0 w-full">
