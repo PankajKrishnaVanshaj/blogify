@@ -9,8 +9,7 @@ const TextToVoice = ({ text, onStop }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentChunk, setCurrentChunk] = useState(0);
-  const [isResuming, setIsResuming] = useState(false); // Track resume state
-  const [voices, setVoices] = useState([]); // Define voices state
+  const [voices, setVoices] = useState([]);
   const utteranceRef = useRef(null);
   const textChunksRef = useRef([]);
 
@@ -56,40 +55,46 @@ const TextToVoice = ({ text, onStop }) => {
       chunks.push(chunk.trim());
     }
 
+    // console.log("Text Chunks:", chunks); // Debug log
     return chunks;
   };
 
   const speakChunk = (chunkIndex) => {
     if (chunkIndex >= textChunksRef.current.length) {
+      // console.log("Finished speaking all chunks.");
       setIsSpeaking(false);
       setCurrentChunk(0);
       if (onStop) onStop();
       return;
     }
 
+    // console.log("Speaking chunk:", textChunksRef.current[chunkIndex]);
     const utterance = new SpeechSynthesisUtterance(
       textChunksRef.current[chunkIndex]
     );
     utterance.rate = 0.8;
 
     utterance.onend = () => {
+      // console.log("Chunk finished:", chunkIndex);
       setCurrentChunk(chunkIndex + 1);
-      speakChunk(chunkIndex + 1); // Continue to next chunk
+      speakChunk(chunkIndex + 1);
     };
 
     utterance.onerror = (event) => {
+      // console.error("Speech synthesis error:", event.error);
       setIsSpeaking(false);
       setCurrentChunk(0);
       if (onStop) onStop();
     };
 
     utteranceRef.current = utterance;
-    speechSynthesis.speak(utterance); // Speak the current chunk
+    speechSynthesis.speak(utterance);
   };
 
   const handlePlay = () => {
     const cleanedText = sanitizeText(text);
     if (!cleanedText) {
+      // console.error("No text to speak after sanitization.");
       return;
     }
 
@@ -108,35 +113,28 @@ const TextToVoice = ({ text, onStop }) => {
   };
 
   const handleResume = () => {
-    // Prevent multiple rapid clicks and check if the synthesis is paused
-    if (isResuming || !speechSynthesis.paused) return;
-
-    setIsResuming(true); // Block further clicks during resume process
-
-    try {
-      speechSynthesis.resume(); // Attempt to resume speech
+    if (speechSynthesis.paused && isPaused) {
+      speechSynthesis.resume();
       setIsPaused(false);
-    } catch (error) {
-      console.error("Resume failed, restarting speech:", error);
-      // If resume fails, cancel and restart from the current chunk
-      speechSynthesis.cancel();
-      setTimeout(() => {
-        speakChunk(currentChunk); // Restart speech from the current chunk
-      }, 100); // Give it a moment to cancel before restarting
-    } finally {
-      setTimeout(() => {
-        setIsResuming(false); // Reset the resume flag after a short delay
-      }, 300); // Wait for speech to resume before allowing more clicks
     }
   };
 
-  const handleStop = () => {
-    speechSynthesis.cancel();
-    setIsSpeaking(false);
-    setIsPaused(false);
-    setCurrentChunk(0);
-    if (onStop) onStop();
+ const handleStop = () => {
+    if (speechSynthesis.speaking || speechSynthesis.paused) {
+      speechSynthesis.cancel(); // Stop the speech if it's speaking or paused
+      setIsSpeaking(false); // Update state to reflect stop
+      setIsPaused(false); // Reset paused state
+      setCurrentChunk(0); // Reset chunk index
+
+      if (onStop) onStop(); // Call the onStop callback
+    }
   };
+
+  useEffect(() => {
+    return () => {
+      speechSynthesis.cancel();
+    };
+  }, []);
 
   return (
     <div className="fixed bottom-14 left-2 flex flex-col space-y-2 z-50">
@@ -159,7 +157,7 @@ const TextToVoice = ({ text, onStop }) => {
           <AiOutlinePauseCircle
             onClick={handlePause}
             size={40}
-            className="p-1.5 rounded-xl text-white bg-primary shadow-lg hover:bg-pink-800 transition duration-300 cursor-pointer"
+            className="p-1.5 rounded-xl hidden md:block text-white bg-primary shadow-lg hover:bg-pink-800 transition duration-300 cursor-pointer"
           />
         )}
         {isSpeaking && (
