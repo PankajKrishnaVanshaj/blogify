@@ -8,14 +8,13 @@ import {
   FaSignOutAlt,
   FaEdit,
   FaPlus,
-  FaUserTimes,
-  FaUserCheck,
-  FaUserPlus,
   FaUserEdit,
   FaUserInjured,
 } from "react-icons/fa";
 import { FaUsers } from "react-icons/fa6";
+import { MdOutlineAddToPhotos, MdOutlineWebStories } from "react-icons/md";
 import { RiArticleFill } from "react-icons/ri";
+import { VscFileMedia } from "react-icons/vsc";
 
 const Sidebar = () => {
   const [openSections, setOpenSections] = useState({});
@@ -53,6 +52,11 @@ const Sidebar = () => {
       icon: <RiArticleFill />,
       subItems: [
         {
+          title: "Media",
+          icon: <VscFileMedia />,
+          link: `/dashboard/media`,
+        },
+        {
           title: "All Blog Posts",
           icon: <FaEdit />,
           link: `/dashboard/all-blog-posts`,
@@ -61,6 +65,16 @@ const Sidebar = () => {
           title: "Create Blog Post",
           icon: <FaPlus />,
           link: `/dashboard/create-blog-post`,
+        },
+        {
+          title: "All Web Stories",
+          icon: <MdOutlineWebStories />,
+          link: `/dashboard/all-web-stories`,
+        },
+        {
+          title: "Create Web Story",
+          icon: <MdOutlineAddToPhotos />,
+          link: `/dashboard/create-web-story`,
         },
       ],
     },

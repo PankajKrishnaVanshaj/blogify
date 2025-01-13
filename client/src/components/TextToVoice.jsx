@@ -114,10 +114,20 @@ const TextToVoice = ({ text, onStop }) => {
 
   const handleResume = () => {
     if (speechSynthesis.paused && isPaused) {
-      speechSynthesis.resume();
-      setIsPaused(false);
+      try {
+        speechSynthesis.resume();
+        setIsPaused(false);
+      } catch (error) {
+        // Mobile-specific workaround
+        const currentChunkIndex = currentChunk;
+        speechSynthesis.cancel();
+        setTimeout(() => {
+          speakChunk(currentChunkIndex);
+        }, 0);
+      }
     }
   };
+  
 
   const handleStop = () => {
     speechSynthesis.cancel();
