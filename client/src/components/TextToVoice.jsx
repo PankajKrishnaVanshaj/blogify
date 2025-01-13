@@ -61,35 +61,33 @@ const TextToVoice = ({ text, onStop }) => {
 
   const speakChunk = (chunkIndex) => {
     if (chunkIndex >= textChunksRef.current.length) {
-      // console.log("Finished speaking all chunks.");
+      // Finished speaking all chunks
       setIsSpeaking(false);
       setCurrentChunk(0);
       if (onStop) onStop();
       return;
     }
-
-    // console.log("Speaking chunk:", textChunksRef.current[chunkIndex]);
+  
     const utterance = new SpeechSynthesisUtterance(
       textChunksRef.current[chunkIndex]
     );
     utterance.rate = 0.8;
-
+  
     utterance.onend = () => {
-      // console.log("Chunk finished:", chunkIndex);
       setCurrentChunk(chunkIndex + 1);
-      speakChunk(chunkIndex + 1);
+      speakChunk(chunkIndex + 1); // Continue to the next chunk
     };
-
+  
     utterance.onerror = (event) => {
-      // console.error("Speech synthesis error:", event.error);
       setIsSpeaking(false);
       setCurrentChunk(0);
       if (onStop) onStop();
     };
-
+  
     utteranceRef.current = utterance;
-    speechSynthesis.speak(utterance);
+    speechSynthesis.speak(utterance); // Speak the current chunk
   };
+  
 
   const handlePlay = () => {
     const cleanedText = sanitizeText(text);
@@ -115,18 +113,20 @@ const TextToVoice = ({ text, onStop }) => {
   const handleResume = () => {
     if (speechSynthesis.paused && isPaused) {
       try {
+        // Attempt to resume speech (works on desktop)
         speechSynthesis.resume();
         setIsPaused(false);
       } catch (error) {
         // Mobile-specific workaround
-        const currentChunkIndex = currentChunk;
-        speechSynthesis.cancel();
+        speechSynthesis.cancel(); // Cancel any ongoing speech
         setTimeout(() => {
-          speakChunk(currentChunkIndex);
-        }, 0);
+          speakChunk(currentChunk); // Restart speech from the current chunk
+        }, 100); // Give it a moment to cancel before restarting
       }
     }
   };
+  
+  
   
 
   const handleStop = () => {
