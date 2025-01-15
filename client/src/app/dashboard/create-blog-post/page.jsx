@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import "react-quill/dist/quill.snow.css";
 import { createPostAPI } from "@/api/blogPost.api";
 import dynamic from "next/dynamic";
+import MediaTab from "../media/_components/MediaTab";
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const categories = [
@@ -27,11 +29,20 @@ const CreatePost = () => {
   const [tagInput, setTagInput] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [banner, setBanner] = useState(null);
-  const [bannerUrl, setBannerUrl] = useState(null);
+  const [selectedMedia, setSelectedMedia] = useState(null); // This is the banner text (not a file)
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleSelectMedia = (media) => {
+    setSelectedMedia(media); // Update selected media text here
+  };
+
+  const toggleMediaTab = () => {
+    setIsOpen((prev) => !prev);
+  };
 
   const handleTagInputChange = (e) => setTagInput(e.target.value);
+
   // Calculate words
   const wordCount =
     content.trim() === "" ? 0 : content.trim().split(/\s+/).length;
@@ -51,19 +62,6 @@ const CreatePost = () => {
     setTags((prevTags) => prevTags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleBannerChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (file.size > 2 * 1024 * 1024 || !validTypes.includes(file.type)) {
-        toast.error("Please upload a valid image file (Max size: 2MB)");
-        return;
-      }
-      setBanner(file);
-      setBannerUrl(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -73,21 +71,27 @@ const CreatePost = () => {
     }
     setIsSubmitting(true);
 
+    // Create FormData
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", content);
     formData.append("category", selectedCategory);
     formData.append("tags", JSON.stringify(tags));
-    if (banner) formData.append("banner", banner);
+    formData.append("banner", selectedMedia);
 
-    const { success, message } = await createPostAPI(formData); // Call API
+    try {
+      const { success, message } = await createPostAPI(formData);
 
-    if (success) {
-      toast.success(message);
-      resetForm();
-      router.push("/dashboard/all-blog-posts");
-    } else {
-      toast.error(message);
+      if (success) {
+        toast.success(message);
+        resetForm();
+        router.push("/dashboard/all-blog-posts");
+      } else {
+        toast.error(message);
+      }
+    } catch (error) {
+      toast.error("Failed to create post.");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -97,13 +101,12 @@ const CreatePost = () => {
     setContent("");
     setSelectedCategory(categories[0]);
     setTags([]);
-    setBanner(null);
-    setBannerUrl(null);
+    setSelectedMedia(null); // Reset media here as well
   };
 
   return (
     <div className="p-5 bg-gray-50 shadow-xl rounded-lg border border-gray-200">
-      <form onSubmit={handleSubmit}>
+      <div>
         <div className="flex items-start space-x-6">
           <div className="flex-1">
             <div className="mb-6">
@@ -163,21 +166,33 @@ const CreatePost = () => {
             </div>
           </div>
 
-          <div className="relative w-44 h-44 border border-gray-300 bg-white rounded-lg overflow-hidden">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleBannerChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-            {bannerUrl && (
+          <div
+            onClick={toggleMediaTab}
+            className="relative w-44 h-44 border border-gray-300 bg-white rounded-lg overflow-hidden"
+          >
+            {selectedMedia && (
               <img
-                src={bannerUrl}
+                src={`${process.env.NEXT_PUBLIC_BASE_URL}/${selectedMedia}`}
                 alt="Selected"
                 className="object-cover w-full h-full"
               />
             )}
           </div>
+          {isOpen && (
+            <div className="relative z-10">
+              <div
+                role="dialog"
+                aria-labelledby="upload-form-title"
+                aria-modal="true"
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              >
+                <MediaTab
+                  toggleMediaTab={toggleMediaTab}
+                  onSelectMedia={handleSelectMedia}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-visible">
@@ -191,8 +206,8 @@ const CreatePost = () => {
         </div>
 
         <button
-          type="submit"
-          disabled={isSubmitting} 
+          onClick={handleSubmit}
+          disabled={isSubmitting}
           className={`mt-6 w-full py-3 px-4 font-bold rounded-lg transition duration-300 ease-in-out ${
             isSubmitting
               ? "bg-gray-400 text-gray-700 cursor-not-allowed"
@@ -201,7 +216,7 @@ const CreatePost = () => {
         >
           {isSubmitting ? "Publishing..." : "Publish Post"}
         </button>
-      </form>
+      </div>
     </div>
   );
 };

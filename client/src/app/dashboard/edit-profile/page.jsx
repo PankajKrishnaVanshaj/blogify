@@ -3,54 +3,40 @@ import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { updateProfile } from "@/api/user.api"; // Import API function
+import { updateProfile } from "@/api/user.api"; 
+import MediaTab from "../media/_components/MediaTab";
 
 const EditProfile = () => {
   const { user, setUser } = useAuth();
   const router = useRouter();
-
+  const [selectedMedia, setSelectedMedia] = useState(() =>
+    user?.avatar ? `${user.avatar}` : ""
+  );
   const [name, setName] = useState(user?.name || "");
   const [username, setUsername] = useState(user?.username || "");
   const [bio, setBio] = useState(user?.bio || "");
-  const [avatar, setAvatar] = useState(
-    user?.avatar ? `${process.env.NEXT_PUBLIC_BASE_URL}/${user.avatar}` : ""
-  );
-  const [avatarFile, setAvatarFile] = useState(null); // Store actual file
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Handle avatar change
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
 
-    if (file) {
-      const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (file.size > 2 * 1024 * 1024 || !validTypes.includes(file.type)) {
-        toast.error("Please upload a valid image file (Max size: 2MB)");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatar(reader.result); // Set preview URL
-        setAvatarFile(file); // Store file for submission
-      };
-      reader.readAsDataURL(file); // Convert to base64 for preview
-    }
+  const handleSelectMedia = (media) => {
+    setSelectedMedia(media);
   };
 
-  // Save profile changes
+  const toggleMediaTab = () => {
+    setIsOpen((prev) => !prev);
+  };
+
   const handleSave = async () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("username", username);
     formData.append("bio", bio);
-    if (avatarFile) {
-      formData.append("avatar", avatarFile); // Append the file
-    }
+    formData.append("avatar", selectedMedia);
 
     try {
-      const updatedUser = await updateProfile(formData); // Use API function
-      setUser(updatedUser); // Update context
-      router.push("/dashboard"); // Redirect to dashboard
+      const updatedUser = await updateProfile(formData);
+      setUser(updatedUser);
+      router.push("/dashboard");
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error("Failed to update profile");
@@ -60,19 +46,35 @@ const EditProfile = () => {
   return (
     <div className="w-full mx-auto p-8 bg-white shadow-lg rounded-xl border border-gray-200">
       <div className="flex items-center space-x-8 mb-8">
-        <div className="relative w-40 h-40">
-          <img
-            src={avatar || "/default-avatar.png"}
-            alt="Profile"
-            className="w-full h-full rounded-full object-cover border-4 border-primary"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-          />
+        <div onClick={toggleMediaTab} className="relative w-40 h-40">
+          {selectedMedia ? (
+            <img
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/${selectedMedia}`}
+
+              alt="Profile"
+              className="w-full h-full rounded-full object-cover border-4 border-primary"
+            />
+          ) : (
+            <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+              Upload Avatar
+            </div>
+          )}
         </div>
+        {isOpen && (
+          <div className="relative z-10">
+            <div
+              role="dialog"
+              aria-labelledby="upload-form-title"
+              aria-modal="true"
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            >
+              <MediaTab
+                toggleMediaTab={toggleMediaTab}
+                onSelectMedia={handleSelectMedia}
+              />
+            </div>
+          </div>
+        )}
         <div className="flex-grow">
           <label className="block text-sm font-bold text-gray-700">
             Full Name

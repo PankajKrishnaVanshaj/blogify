@@ -34,7 +34,7 @@ const AllBlogPosts = () => {
     if (!confirmDelete) return;
     try {
       await deletePost(postId);
-      setData(data.filter((post) => post._id !== postId)); // Optimistic UI update
+      setData(data.filter((post) => post._id !== postId)); 
     } catch {
       alert("An error occurred while deleting the post.");
     }

@@ -5,8 +5,7 @@ import {
   hashString,
 } from "../utils/index.js";
 import Users from "../models/user.model.js";
-import path from "path";
-import { deleteFile } from "../utils/Files.js";
+
 
 export const register = async (req, res) => {
   try {
@@ -148,16 +147,10 @@ export const me = async (req, res) => {
 };
 
 export const update = async (req, res) => {
-  const { name, username, bio } = req.body; // Exclude avatar from req.body
-  let avatarFilename; // Declare this outside to handle avatar logic
+  const { name, username, bio, avatar } = req.body; // Exclude avatar from req.body
 
   try {
-    // Ensure the user is authenticated
-    if (!req.user || !req.user._id) {
-      return res
-        .status(401)
-        .json({ error: "Unauthorized: User not authenticated" });
-    }
+    
 
     const userId = req.user._id; // Get the user's ID from the request
 
@@ -185,20 +178,9 @@ export const update = async (req, res) => {
     if (name) user.name = name;
     if (username) user.username = username;
     if (bio) user.bio = bio;
+    if (avatar) user.avatar = avatar;
 
-    // Handle avatar upload
-    if (req.file) {
-      const avatarPath = req.file.path;
-      avatarFilename = path.basename(avatarPath);
-
-      // Handle old avatar file deletion
-      if (user?.avatar) {
-        deleteFile(user.avatar, "uploads/avatar");
-      }
-
-      user.avatar = avatarFilename; // Assign new avatar filename to user
-    }
-
+   
     // Save the updated user data
     await user.save();
 

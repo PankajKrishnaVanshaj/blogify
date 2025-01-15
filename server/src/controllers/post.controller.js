@@ -1,6 +1,4 @@
-import path from "path";
 import { Posts } from "../models/post.model.js";
-import { deleteFile } from "../utils/Files.js";
 import Users from "../models/user.model.js";
 import mongoose from "mongoose";
 import {
@@ -11,14 +9,11 @@ import {
 
 // Create a new post
 export const createPost = async (req, res) => {
-  let bannerFilename = null;
-
   try {
-    const { title, tags, category, content } = req.body;
-    const bannerPath = req.file ? req.file.path : null;
-    bannerFilename = bannerPath ? path.basename(bannerPath) : null;
     const createdBy = req.user ? req.user._id : null;
     const isCreator = req.user ? req.user.isCreator : false;
+    const { title, tags, category, content, banner } = req.body;
+
 
     if (!title || !content) {
       return res
@@ -26,11 +21,10 @@ export const createPost = async (req, res) => {
         .json({ message: "Bad Request. Required fields missing." });
     }
     if (!createdBy) {
-
       return res.status(401).json({ message: "Unauthorized. User not found." });
     }
+
     if (!isCreator) {
-      deleteFile(bannerFilename, "uploads/banner");
       return res.status(403).json({
         message: "Forbidden. You are not authorized to create posts.",
       });
@@ -38,7 +32,7 @@ export const createPost = async (req, res) => {
 
     const newPost = new Posts({
       title,
-      banner: bannerFilename,
+      banner,
       tags: tags ? JSON.parse(tags) : [],
       category,
       content,
@@ -50,10 +44,6 @@ export const createPost = async (req, res) => {
     res.status(201).json(savedPost);
   } catch (err) {
     console.error("Post creation error:", err);
-
-    if (bannerFilename) {
-      deleteFile(bannerFilename, "uploads/banner");
-    }
 
     res.status(500).json({ message: "Error creating post." });
   }
@@ -77,22 +67,11 @@ export const updatePost = async (req, res) => {
         .json({ message: "You are not authorized to update this post." });
     }
 
-    const { title, tags, category, content } = req.body;
-    let bannerFilename = post.banner; // Default to existing banner filename
-
-    if (req.file) {
-      const bannerPath = req.file.path;
-      bannerFilename = path.basename(bannerPath);
-
-      // Handle old banner file
-      if (post.banner) {
-        deleteFile(post.banner, "uploads/banner");
-      }
-    }
+    const { title, tags, category, content, banner } = req.body;
 
     // Update post fields
     post.title = title || post.title;
-    post.banner = bannerFilename;
+    post.banner = banner || post.banner;
     post.tags = tags ? JSON.parse(tags) : post.tags;
     post.category = category || post.category;
     post.content = content || post.content;
@@ -212,11 +191,6 @@ export const deletePost = async (req, res) => {
       return res
         .status(403)
         .json({ message: "You are not authorized to delete this post." });
-    }
-
-    // Delete the banner file if it exists
-    if (post.banner) {
-      deleteFile(post.banner, "uploads/banner");
     }
 
     // Delete the post

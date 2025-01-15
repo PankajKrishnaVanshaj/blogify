@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { getPostById, updatePost } from "@/api/blogPost.api";
+import MediaTab from "../../media/_components/MediaTab";
 
 const categories = [
   "Technology & Innovation",
@@ -24,9 +25,9 @@ const EditPost = ({ params }) => {
   const [tagInput, setTagInput] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [banner, setBanner] = useState(null);
-  const [bannerUrl, setBannerUrl] = useState(null);
+  const [selectedMedia, setSelectedMedia] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -40,7 +41,7 @@ const EditPost = ({ params }) => {
         );
         setSelectedCategory(post.category);
         setTags(post.tags);
-        setBannerUrl(`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`);
+        setSelectedMedia(`${post.banner}`);
       } catch (error) {
         console.error("Error fetching post data:", error);
         toast.error("Failed to fetch post data.");
@@ -74,20 +75,12 @@ const EditPost = ({ params }) => {
     setTags((prevTags) => prevTags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleBannerChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+  const handleSelectMedia = (media) => {
+    setSelectedMedia(media); // Update selected media text here
+  };
 
-      // File validation: 2MB max size and image types
-      const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (file.size > 2 * 1024 * 1024 || !validTypes.includes(file.type)) {
-        toast.error("Please upload a valid image file (Max size: 2MB)");
-        return;
-      }
-
-      setBanner(file);
-      setBannerUrl(URL.createObjectURL(file));
-    }
+  const toggleMediaTab = () => {
+    setIsOpen((prev) => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -105,15 +98,12 @@ const EditPost = ({ params }) => {
     formData.append("content", content);
     formData.append("category", selectedCategory);
     formData.append("tags", JSON.stringify(tags));
-    if (banner) {
-      formData.append("banner", banner);
-    }
+    formData.append("banner", selectedMedia);
 
     try {
       await updatePost(params.edit, formData);
       toast.success("Post updated successfully");
       setLoading(false);
-
     } catch (error) {
       toast.error(error.message);
       setLoading(false);
@@ -122,7 +112,7 @@ const EditPost = ({ params }) => {
 
   return (
     <div className="p-5 bg-gray-50 shadow-xl rounded-lg border border-gray-200">
-      <form onSubmit={handleSubmit}>
+      <div>
         <div className="flex items-start space-x-6">
           <div className="flex-1">
             <div className="mb-6">
@@ -182,21 +172,33 @@ const EditPost = ({ params }) => {
             </div>
           </div>
 
-          <div className="relative w-44 h-44 border border-gray-300 bg-white rounded-lg overflow-hidden">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleBannerChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-            {bannerUrl && (
+          <div
+            onClick={toggleMediaTab}
+            className="relative w-44 h-44 border border-gray-300 bg-white rounded-lg overflow-hidden"
+          >
+            {selectedMedia && (
               <img
-                src={bannerUrl}
+                src={`${process.env.NEXT_PUBLIC_BASE_URL}/${selectedMedia}`}
                 alt="Selected"
                 className="object-cover w-full h-full"
               />
             )}
           </div>
+          {isOpen && (
+            <div className="relative z-10">
+              <div
+                role="dialog"
+                aria-labelledby="upload-form-title"
+                aria-modal="true"
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              >
+                <MediaTab
+                  toggleMediaTab={toggleMediaTab}
+                  onSelectMedia={handleSelectMedia}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-visible">
@@ -210,7 +212,7 @@ const EditPost = ({ params }) => {
         </div>
 
         <button
-          type="submit"
+          onClick={handleSubmit}
           disabled={loading}
           className={`mt-6 w-full py-3 px-4 font-bold rounded-lg focus:outline-none focus:ring-4 transition duration-300 ease-in-out ${
             loading
@@ -220,7 +222,7 @@ const EditPost = ({ params }) => {
         >
           {loading ? "Updating..." : "Update Post"}
         </button>
-      </form>
+      </div>
     </div>
   );
 };

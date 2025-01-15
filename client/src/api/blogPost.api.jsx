@@ -67,7 +67,7 @@ export const createPostAPI = async (formData) => {
     const response = await axiosInstance.post("/create-post", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     });
 
@@ -99,7 +99,7 @@ export const updatePost = async (postId, formData) => {
     const response = await axiosInstance.put(`/edit-post/${postId}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
       },
     });
     return response.data;

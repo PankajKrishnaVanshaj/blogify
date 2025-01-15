@@ -23,22 +23,11 @@ const mediaSchema = new Schema(
         message: "A maximum of 10 tags are allowed.",
       },
     },
-    altText: {
-      type: String,
-      trim: true,
-      maxlength: 125,
-    },
+
     media: {
       type: String,
       required: true,
       trim: true,
-      validate: {
-        validator: function (v) {
-          const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
-          return urlRegex.test(v);
-        },
-        message: "Invalid URL format.",
-      },
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -51,11 +40,11 @@ const mediaSchema = new Schema(
         return {
           "@context": "https://schema.org",
           "@type": "MediaObject",
-          "uploadDate": new Date().toISOString(),
-          "creator": "Anonymous",
-          "keywords": [],
-          "description": "",
-          "contentUrl": "",
+          uploadDate: new Date().toISOString(),
+          creator: "Anonymous",
+          keywords: [],
+          description: "",
+          contentUrl: "",
         };
       },
     },
@@ -102,7 +91,10 @@ mediaSchema.pre("updateOne", function (next) {
 });
 
 // Text index with weights for search optimization
-mediaSchema.index({ title: "text", description: "text", tags: "text" }, { weights: { title: 5, description: 2, tags: 1 } });
+mediaSchema.index(
+  { title: "text", description: "text", tags: "text" },
+  { weights: { title: 5, description: 2, tags: 1 } }
+);
 
 // Unique index for media URL to avoid duplicates
 mediaSchema.index({ media: 1 }, { unique: true });

@@ -66,7 +66,7 @@ export const updateProfile = async (formData) => {
     const response = await axios.put(`${API_URL}/auth/update`, formData, {
       headers: {
         ...getAuthHeaders(),
-        "Content-Type": "multipart/form-data", // Handle file upload
+        "Content-Type": "application/json",
       },
     });
     return response.data; // Return updated user data

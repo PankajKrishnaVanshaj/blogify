@@ -8,11 +8,13 @@ import searchRoute from "./search.route.js";
 import bookMarkRouter from "./bookMark.router.js";
 import messageRouter from "./message.routes.js";
 import conversationRouter from "./conversation.routes.js";
+import mediaRoute from "./media.route.js";
 
 const router = Router();
 
 router.use("/auth", authRoute);
 router.use("/posts", postRoute);
+router.use("/medias", mediaRoute);
 router.use("/users", userRoute);
 router.use("/comments", commentRouter);
 router.use("/search", searchRoute);

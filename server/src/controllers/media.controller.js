@@ -1,117 +1,191 @@
-import { Medias } from "../models/media.model";
-
+import { Medias } from "../models/media.model.js";
+import { deleteFile } from "../utils/Files.js";
+import path from "path";
 
 // Create a new media entry
-export const createMedia = async (req, res) => {
-  try {
-    const { title, description, tags, altText, media, createdBy } = req.body;
+const uploadMedia = async (req, res) => {
+  let mediaFilename = null;
 
-    // Create a new media document
+  try {
+    const { title, tags, description } = req.body;
+    const mediaPath = req.file ? req.file.path : null;
+    mediaFilename = mediaPath ? path.basename(mediaPath) : null;
+    const createdBy = req.user ? req.user._id : null;
+    const isCreator = req.user ? req.user.isCreator : false;
+
+    if (!title || !tags || !description) {
+      return res
+        .status(400)
+        .json({ message: "Bad Request. Required fields missing." });
+    }
+
+    if (!createdBy) {
+      return res.status(401).json({ message: "Unauthorized. User not found." });
+    }
+
+    if (!isCreator) {
+      if (mediaFilename) {
+        deleteFile(mediaFilename, "uploads");
+      }
+      return res.status(403).json({
+        message: "Forbidden. You are not authorized to upload media.",
+      });
+    }
+
     const newMedia = new Medias({
       title,
+      media: mediaFilename,
+      tags: tags ? JSON.parse(tags) : [],
       description,
-      tags,
-      altText,
-      media,
       createdBy,
     });
 
-    // Save the media document to the database
     const savedMedia = await newMedia.save();
-    res.status(201).json({ message: "Media created successfully", media: savedMedia });
+    res.status(201).json(savedMedia); // Ensure response with saved data
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error creating media", error: error.message });
-  }
-};
+    console.error("media upload error:", error.message);
 
-// Update an existing media entry
-export const updateMedia = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, description, tags, altText, media } = req.body;
-
-    const updatedMedia = await Medias.findByIdAndUpdate(
-      id,
-      { title, description, tags, altText, media },
-      { new: true }
-    );
-
-    if (!updatedMedia) {
-      return res.status(404).json({ message: "Media not found" });
+    if (mediaFilename) {
+      deleteFile(mediaFilename, "uploads");
     }
 
-    res.status(200).json({ message: "Media updated successfully", media: updatedMedia });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error updating media", error: error.message });
+    res.status(500).json({ message: "Error uploading media." });
   }
 };
 
-// Get all media entries
-export const getAllMedia = async (req, res) => {
-  try {
-    const mediaList = await Medias.find().sort({ createdAt: -1 }); // Sorting by createdAt (descending)
-    res.status(200).json({ media: mediaList });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching media", error: error.message });
-  }
-};
+// Update media
+const updateMedia = async (req, res) => {
+  const mediaId = req.params.id;
+  const createdBy = req.user ? req.user._id : null;
 
-// Get media by ID
-export const getMediaById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const media = await Medias.findById(id);
+    const media = await Medias.findById(mediaId);
 
     if (!media) {
-      return res.status(404).json({ message: "Media not found" });
+      return res.status(404).json({ message: "Media not found." });
     }
 
-    res.status(200).json({ media });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching media", error: error.message });
+    if (media.createdBy.toString() !== createdBy.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to update this media." });
+    }
+
+    const { title, tags, description } = req.body;
+    let mediaFilename = media.media;
+
+    if (req.file) {
+      const mediaPath = req.file.path;
+      mediaFilename = path.basename(mediaPath);
+
+      // Handle old media file
+      if (media.media) {
+        deleteFile(media.media, "uploads");
+      }
+    }
+
+    // Update media fields
+    media.title = title || media.title;
+    media.media = mediaFilename || media.media;
+    media.description = description || media.description;
+    media.tags = tags ? JSON.parse(tags) : media.tags;
+
+    const updatedMedia = await media.save();
+
+    // Explicitly include a clear response structure
+    res.status(200).json({
+      status: "success",
+      message: "Media updated successfully.",
+      data: updatedMedia,
+    });
+  } catch (err) {
+    console.error("Media update error:", err.message);
+    res
+      .status(500)
+      .json({
+        status: "error",
+        message: "Error updating media.",
+        error: err.message,
+      });
   }
 };
 
-// Delete media entry by ID
-export const deleteMedia = async (req, res) => {
+// Get medias by user
+const getMediasByCreator = async (req, res) => {
   try {
-    const { id } = req.params;
+    const createdBy = req.user._id;
 
-    const deletedMedia = await Medias.findByIdAndDelete(id);
+    // Fetch medias sorted by createdAt in descending order
+    const medias = await Medias.find({ createdBy }).sort({ createdAt: -1 });
 
-    if (!deletedMedia) {
-      return res.status(404).json({ message: "Media not found" });
+    if (!medias.length) {
+      return res
+        .status(404)
+        .json({ message: "No medias found for this user." });
     }
 
-    res.status(200).json({ message: "Media deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error deleting media", error: error.message });
+    res.status(200).json(medias);
+  } catch (err) {
+    console.error("Error fetching medias by user:", err);
+    res.status(500).json({ message: "Error fetching medias." });
   }
 };
 
-// Search media entries (example of text search using the index)
-export const searchMedia = async (req, res) => {
+const getMediaById = async (req, res) => {
   try {
-    const { query } = req.query; // query passed via the URL
-    if (!query) {
-      return res.status(400).json({ message: "Query parameter is required" });
+    const mediaId = req.params.id;
+
+    const media = await Medias.findByIdAndUpdate(mediaId);
+
+    if (!media) {
+      return res.status(404).json({ message: "Media not found." }); // Updated to "Media"
     }
 
-    const mediaResults = await Medias.find(
-      { $text: { $search: query } },
-      { score: { $meta: "textScore" } }
-    )
-      .sort({ score: { $meta: "textScore" } })
-      .limit(10); // Limiting results for optimization
-
-    res.status(200).json({ media: mediaResults });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error searching media", error: error.message });
+    res.status(200).json(media);
+  } catch (err) {
+    console.error("Error fetching media by ID:", err); // Updated error message for clarity
+    res.status(500).json({ message: "Error fetching media." });
   }
+};
+
+// Delete media
+const deleteMedia = async (req, res) => {
+  try {
+    const mediaId = req.params.id;
+    const userId = req.user._id;
+
+    const media = await Medias.findById(mediaId);
+
+    if (!media) {
+      return res.status(404).json({ message: "media not found." });
+    }
+
+    if (media.createdBy.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this media." });
+    }
+
+    // Delete the media file if it exists
+    if (media.media) {
+      deleteFile(media.media, "uploads");
+    }
+
+    await Medias.findByIdAndDelete(mediaId);
+
+    res.status(200).json({ message: "media deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting media:", err.message);
+    res
+      .status(500)
+      .json({ message: "Error deleting media.", error: err.message });
+  }
+};
+
+export default {
+  uploadMedia,
+  updateMedia,
+  getMediasByCreator,
+  getMediaById,
+  deleteMedia,
 };
