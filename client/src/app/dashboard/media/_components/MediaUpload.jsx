@@ -144,7 +144,7 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
  
 
   return (
-    <div className="relative bg-white rounded-lg w-full max-w-xl p-6 shadow-2xl transform transition-all duration-300 ease-in-out">
+    <div className="relative rounded-lg w-full max-w-xl p-6 shadow-2xl transform transition-all duration-300 ease-in-out">
       {fetchError && (
         <div className="text-red-600 mb-4">
           <p>Failed to fetch media data. Please try again later.</p>
@@ -153,7 +153,7 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
 
       <div className="flex justify-center items-center gap-2 p-2">
         {/* Left Section */}
-        <div className="p-2 rounded-lg shadow-lg text-primary">
+        <div className="p-2 rounded-lg shadow-lg text-primary bg-white">
           <label htmlFor="media" className="block text-sm font-semibold">
             Media
           </label>
@@ -176,7 +176,7 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
         </div>
 
         {/* Right Section */}
-        <div className="p-2 rounded-lg shadow-lg text-primary">
+        <div className="p-2 rounded-lg shadow-lg text-primary bg-white">
           <div className="mb-2">
             <label htmlFor="title" className="block text-sm font-semibold">
               Title
@@ -185,6 +185,7 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
               id="title"
               type="text"
               value={title}
+              maxLength={100}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full mt-1 p-2 rounded-md bg-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -229,6 +230,8 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
             </label>
             <textarea
               id="description"
+              rows={3}
+              maxLength={300}
               value={description}
               onChange={handleDescriptionChange}
               className="w-full mt-1 p-2 rounded-md bg-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"

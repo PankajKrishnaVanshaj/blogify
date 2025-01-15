@@ -30,13 +30,14 @@ const MediaTab = ({ toggleMediaTab, onSelectMedia }) => {
         </button>
       </div>
 
-      <div className="w-full mt-2">
-        {activeTab === "upload" ? (
-          <MediaUpload toggleMediaUpload={toggleMediaTab} />
-        ) : (
-          <MediaView onSelectMedia={onSelectMedia} />
-        )}
-      </div>
+      <div className="w-full max-w-[58.5rem] max-h-[31rem] overflow-auto mt-2 border border-gray-300 rounded-lg">
+  {activeTab === "upload" ? (
+    <MediaUpload toggleMediaUpload={toggleMediaTab} />
+  ) : (
+    <MediaView onSelectMedia={onSelectMedia} />
+  )}
+</div>
+
     </div>
   );
 };
