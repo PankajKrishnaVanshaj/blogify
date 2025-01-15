@@ -67,6 +67,15 @@ export const fetchCreatorMediaAPI = async () => {
   }
 };
 
+export const fetchAllMedias = async () => {
+  try {
+    const response = await axiosInstance.get("/get-all-medias");
+    return response.data.posts || [];
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to fetch posts");
+  }
+};
+
 export const getMediaById = async (mediaId) => {
   try {
     const response = await axiosInstance.get(`/media/${mediaId}`);

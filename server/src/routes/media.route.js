@@ -24,6 +24,8 @@ mediaRoute.get(
   mediaController.getMediasByCreator
 );
 mediaRoute.get("/media/:id", mediaController.getMediaById);
+mediaRoute.get("/get-all-medias", mediaController.getAllMedias);
+
 
 // Route for deleting media
 mediaRoute.delete("/media/:id", authMiddleware, mediaController.deleteMedia); // Handle deleting a media

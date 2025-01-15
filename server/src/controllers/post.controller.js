@@ -151,7 +151,7 @@ export const getAllPosts = async (req, res) => {
       .limit(Number(limit))
       .populate({
         path: "createdBy",
-        select: "-password -email -following -followers -notifications",
+        select:  "_id name username avatar",
       });
 
     if (!posts.length) {

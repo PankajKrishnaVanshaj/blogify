@@ -100,13 +100,11 @@ const updateMedia = async (req, res) => {
     });
   } catch (err) {
     console.error("Media update error:", err.message);
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Error updating media.",
-        error: err.message,
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Error updating media.",
+      error: err.message,
+    });
   }
 };
 
@@ -128,6 +126,28 @@ const getMediasByCreator = async (req, res) => {
   } catch (err) {
     console.error("Error fetching medias by user:", err);
     res.status(500).json({ message: "Error fetching medias." });
+  }
+};
+
+const getAllMedias = async (req, res) => {
+  try {
+    // Fetch all media records and populate the `createdBy` field
+    const medias = await Medias.find().populate({
+      path: "createdBy", // The reference field in the Medias model
+      select: "_id name username avatar", // Exclude sensitive fields from the populated User
+    });
+
+    // If no media found, return a 404 status with a message
+    if (!medias.length) {
+      return res.status(404).json({ message: "No media found" });
+    }
+
+    // Return the media data with a 200 status code
+    return res.status(200).json(medias);
+  } catch (error) {
+    // Handle any errors that might occur during the database query
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -188,4 +208,5 @@ export default {
   getMediasByCreator,
   getMediaById,
   deleteMedia,
+  getAllMedias,
 };
