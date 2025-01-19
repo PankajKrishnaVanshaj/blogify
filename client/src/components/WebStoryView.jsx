@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import { toast } from "sonner";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { LuRefreshCcwDot } from "react-icons/lu";
 import { FaPause, FaPlay } from "react-icons/fa";
 import WebStorySuggestion from "./WebStorySuggestion";
+import { getWebStoryById } from "@/api/webStory.api";
 
 const WebStoryView = ({ params }) => {
   const [story, setStory] = useState({
@@ -28,10 +28,8 @@ const WebStoryView = ({ params }) => {
   useEffect(() => {
     const fetchWebStory = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:55555/api/v1/web-stories/${params.creator}`
-        );
-        const webStory = response.data;
+        
+        const webStory = await getWebStoryById(params.creator)
 
         if (webStory) {
           setStory({
