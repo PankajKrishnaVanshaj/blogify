@@ -153,7 +153,8 @@ const WebStoryView = ({ params }) => {
               <button
                 onClick={togglePause}
                 className="p-2 bg-opacity-60 text-primary rounded-full shadow-lg hover:bg-primary hover:text-white transition"
-              >
+             aria-label="pause"
+             >
                 {isPaused ? <FaPlay size={20} /> : <FaPause size={20} />}
               </button>
             </div>

@@ -84,14 +84,16 @@ const WebStory = async ({ params }) => {
     image: `${baseUrl}/${webStory.coverImage || "blogify.png"}`,
     author: {
       "@type": "Person",
-      name: webStory.createdBy.name,
+      name: webStory.createdBy.name || "PK Blogify Contributor",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/${webStory.createdBy || "blogify.png"}`,
+
     },
     publisher: {
       "@type": "Organization",
       name: "PK Blogify",
       logo: {
         "@type": "ImageObject",
-        url: `${"https://blogify.pankri.com"}/blogify.png`,
+        url: `/blogify.png`,
       },
     },
     datePublished: new Date(webStory.createdAt).toISOString(),
@@ -100,7 +102,7 @@ const WebStory = async ({ params }) => {
     ).toISOString(),
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${"https://blogify.pankri.com"}/${webStory._id}/web-story`,
+      "@id": `/${webStory._id}/web-story`,
     },
   };
 

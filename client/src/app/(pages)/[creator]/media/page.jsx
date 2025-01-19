@@ -2,6 +2,50 @@ import { getMediaById } from "@/api/media.api";
 import Image from "next/image";
 import Head from "next/head";
 
+export async function generateMetadata({ params }) {
+  try {
+    const media = await getMediaById(params.creator);
+
+    if (!media || !media.media) {
+      return {
+        title: "Media Not Found",
+        description: "The requested media content is not available.",
+      };
+    }
+
+    const tags = Array.isArray(media.tags)
+      ? media.tags
+      : typeof media.tags === "string"
+      ? media.tags.split(",")
+      : [];
+
+    return {
+      title: media.title || "Media",
+      description: media.description || "Media content",
+      keywords: tags.join(", "),
+      openGraph: {
+        title: media.title || "Media",
+        description: media.description || "Media content",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`,
+        images: [
+          {
+            url: `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`,
+            alt: media.title || "Media Image",
+            width: 600,
+            height: 400,
+          },
+        ],
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Error",
+      description: "An error occurred while fetching metadata.",
+    };
+  }
+}
+
 const Media = async ({ params }) => {
   try {
     const media = await getMediaById(params.creator);
@@ -28,9 +72,11 @@ const Media = async ({ params }) => {
       "description": media.description || "",
       "contentUrl": `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`,
       "uploadDate": media.uploadDate || new Date().toISOString(),
-      "author": {
+      author: {
         "@type": "Person",
-        "name": media.creatorName || "Unknown"
+        name: media.createdBy || "PK Blogify Contributor",
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media || "blogify.png"}`,
+
       },
       "keywords": tags.join(", "),
     };
