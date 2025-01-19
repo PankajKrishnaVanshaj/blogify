@@ -59,6 +59,7 @@ const WebStoriesGrid = () => {
           onClick={prevPage}
           disabled={currentPage === 1}
           className="py-1.5 px-6 rounded-lg bg-primary text-white hover:bg-pink-800"
+          aria-label="left"
         >
           <FaChevronLeft size={23} />
         </button>
@@ -67,6 +68,7 @@ const WebStoriesGrid = () => {
           onClick={nextPage}
           disabled={currentPage === totalPages}
           className="py-1.5 px-6 rounded-lg bg-primary text-white hover:bg-pink-800"
+          aria-label="right"
         >
           <FaChevronRight size={23} />
         </button>

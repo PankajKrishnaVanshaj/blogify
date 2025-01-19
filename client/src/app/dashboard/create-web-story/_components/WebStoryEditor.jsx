@@ -117,7 +117,7 @@ const WebStoryEditor = ({ story, setStory }) => {
             className="w-full border border-gray-300 p-2 rounded"
           />
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-pink-600"
             onClick={toggleMediaTab}
           >
             <TbImageInPicture className="inline-block mr-2" />
@@ -128,7 +128,7 @@ const WebStoryEditor = ({ story, setStory }) => {
             tags.map((tag) => (
               <span
                 key={tag}
-                className="bg-blue-100 text-blue-800 py-1 px-3 rounded-lg flex items-center"
+                className="bg-blue-100 text-tertiary py-1 px-3 rounded-lg flex items-center"
               >
                 {tag}
                 <button

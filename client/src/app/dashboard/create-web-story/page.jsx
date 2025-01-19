@@ -73,39 +73,50 @@ const CreateWebStory = () => {
     <div className="flex h-screen flex-wrap">
       {isSlideEditing ? (
         <>
-          <div className="w-full md:w-1/2 p-4">
-            <WebStorySlideEditor
-              slides={slides}
-              setSlides={setSlides}
-              currentIndex={currentIndex}
-              setCurrentIndex={setCurrentIndex}
-            />
-          </div>
-          <div className="w-full md:w-1/2 p-4">
-            <WebStorySlidePreview slides={slides} currentIndex={currentIndex} />
+          <div className="w-full md:w-1/2 flex flex-col p-4">
             <button
-              className="mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+              className="mb-4 bg-primary text-white py-2 px-4 rounded hover:bg-pink-600 self-start"
               onClick={handleSubmit}
               aria-label="Submit Web Story"
             >
               Submit Web Story
             </button>
+            <div className="flex-1 flex flex-col">
+              <WebStorySlideEditor
+                slides={slides}
+                setSlides={setSlides}
+                currentIndex={currentIndex}
+                setCurrentIndex={setCurrentIndex}
+              />
+            </div>
+          </div>
+          <div className="w-full md:w-1/2 flex flex-col p-4">
+            <div className="flex-1 flex flex-col">
+              <WebStorySlidePreview
+                slides={slides}
+                currentIndex={currentIndex}
+              />
+            </div>
           </div>
         </>
       ) : (
         <>
           <div className="w-full md:w-1/2 flex flex-col p-4">
-            <WebStoryEditor story={story} setStory={setStory} />
             <button
-              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 self-start"
+              className="mb-4 bg-secondary text-white py-2 px-4 rounded hover:bg-blue-600 self-start"
               onClick={handleNext}
               aria-label="Proceed to Edit Slides"
             >
               Next
             </button>
+            <div className="flex-1 flex flex-col">
+              <WebStoryEditor story={story} setStory={setStory} />
+            </div>
           </div>
-          <div className="w-full md:w-1/2 p-4">
-            <WebStoryPreview story={story} />
+          <div className="w-full md:w-1/2 flex flex-col p-4">
+            <div className="flex-1 flex flex-col">
+              <WebStoryPreview story={story} />
+            </div>
           </div>
         </>
       )}
