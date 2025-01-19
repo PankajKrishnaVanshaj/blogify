@@ -3,7 +3,6 @@ import Script from "next/script";
 import { getWebStoryById } from "@/api/webStory.api";
 import WebStoryView from "@/components/WebStoryView";
 
-export const config = { amp: true };
 
 export async function generateMetadata({ params }) {
   const webStory = await getWebStoryById(params.creator);
