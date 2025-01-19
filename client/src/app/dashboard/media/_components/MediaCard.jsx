@@ -4,6 +4,8 @@ import { BiEdit, BiSelectMultiple } from "react-icons/bi";
 import { MdDeleteOutline } from "react-icons/md";
 import MediaUpload from "./MediaUpload";
 import { deleteMedia } from "@/api/media.api";
+import { FaArrowsToEye } from "react-icons/fa6";
+import Link from "next/link";
 
 const MediaCard = ({ media, onSelectMedia, onDeleteMedia }) => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
@@ -61,27 +63,35 @@ const MediaCard = ({ media, onSelectMedia, onDeleteMedia }) => {
         )}
 
         {isActionsOpen && (
-          <div className="absolute top-1 right-2 flex space-x-2 bg-black bg-opacity-40 rounded-full p-1">
+          <div className="absolute top-1 right-1.5 flex space-x-2 bg-black bg-opacity-40 rounded-full p-1">
+            <Link
+              href={`/${media._id}/media`}
+              target="_blank"
+              className="p-1 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
+              aria-label="view"
+            >
+              <FaArrowsToEye size={20} />
+            </Link>
             <button
               onClick={() => handleDelete(media._id)}
-              className="p-2 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
+              className="p-1 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
               aria-label="Delete"
             >
-              <MdDeleteOutline size={24} />
+              <MdDeleteOutline size={20} />
             </button>
             <button
-              onClick={() => handleEditMedia(media._id)} 
-              className="p-2 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
+              onClick={() => handleEditMedia(media._id)}
+              className="p-1 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
               aria-label="Edit"
             >
-              <BiEdit size={24} />
+              <BiEdit size={20} />
             </button>
             <button
               onClick={handleSelectedMedia}
-              className="p-2 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
+              className="p-1 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
               aria-label="Select Multiple"
             >
-              <BiSelectMultiple size={24} />
+              <BiSelectMultiple size={20} />
             </button>
           </div>
         )}

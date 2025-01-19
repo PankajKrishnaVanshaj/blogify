@@ -1,15 +1,14 @@
 import BlogCarousel from "./carousel/BlogCarousel";
+import WebStoriesGrid from "./WebStoriesGrid";
 
 const CarouselSection = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 py-4 ">
       <div className="col-span-2 rounded-lg">
         <BlogCarousel />
       </div>
-      <div className="bg-gray-800 p-4 rounded-lg md:block hidden sm:visible sm:min-h-[150px] visibility-hidden sm:opacity-0">
-        <ul>
-          <li className="text-black">Ads</li>
-        </ul>
+      <div className="rounded-lg">
+        <WebStoriesGrid/>
       </div>
     </div>
   );

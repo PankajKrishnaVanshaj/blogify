@@ -1,53 +1,114 @@
-'use client'
-import { useState } from "react";
-import WebStorySidebar from "./_components/WebStorySidebar";
-import WebStoryPreview from "./_components/WebStoryPreview";
+"use client";
+import React, { useState } from "react";
 import WebStoryEditor from "./_components/WebStoryEditor";
-
+import WebStoryPreview from "./_components/WebStoryPreview";
+import WebStorySlideEditor from "./_components/WebStorySlideEditor";
+import WebStorySlidePreview from "./_components/WebStorySlidePreview";
+import { createWebStory } from "@/api/webStory.api";
+import { toast } from "sonner";
 
 const CreateWebStory = () => {
-  const [pages, setPages] = useState([]);
-  const [selectedPageIndex, setSelectedPageIndex] = useState(null);
+  const [story, setStory] = useState({
+    title: "",
+    description: "",
+    coverImage: "",
+    category: "",
+    tags: [],
+  });
 
-  const addPage = (title) => {
-    const newPage = { title, content: "" };
-    setPages([...pages, newPage]);
-    setSelectedPageIndex(pages.length); // Select the newly added page
+  const [slides, setSlides] = useState([
+    { content: "", media: "", duration: 5 },
+  ]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSlideEditing, setIsSlideEditing] = useState(false);
+
+  const validateStoryDetails = () => {
+    if (!story.title.trim()) return "Title is required.";
+    if (!story.description.trim()) return "Description is required.";
+    if (story.tags.length === 0) return "At least one tag is required.";
+    if (!story.category.trim()) return "Category is required.";
+    return null;
   };
 
-  const editPage = (updatedPage) => {
-    const updatedPages = [...pages];
-    updatedPages[selectedPageIndex] = updatedPage;
-    setPages(updatedPages);
+  const handleNext = () => {
+    const errorMessage = validateStoryDetails();
+    if (errorMessage) {
+      toast.error(errorMessage);
+      return;
+    }
+    setIsSlideEditing(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!slides.length) {
+      toast.error("Please add at least one slide to your story.");
+      return;
+    }
+
+    const webStory = {
+      ...story,
+      slides,
+    };
+
+    const formData = new FormData();
+    formData.append("title", webStory.title);
+    formData.append("description", webStory.description);
+    formData.append("coverImage", webStory.coverImage); // Ensure this is a file or valid URL.
+    formData.append("category", webStory.category);
+    formData.append("tags", JSON.stringify(webStory.tags));
+    formData.append("storySlides", JSON.stringify(webStory.slides));
+
+    try {
+      const response = await createWebStory(formData);
+      toast.success("Web Story submitted successfully!");
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Error submitting web story:", error);
+      toast.error("An error occurred while submitting the web story.");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 grid grid-cols-7 gap-1 ">
-      {/* Sidebar */}
-      <div className="col-span-2 bg-white p-4 rounded shadow">
-        <WebStorySidebar onAddPage={addPage} />
-      </div>
-
-      {/* Preview */}
-      <div className="col-span-3 bg-white p-6 rounded shadow">
-        {selectedPageIndex !== null ? (
-          <WebStoryPreview page={pages[selectedPageIndex]} />
-        ) : (
-          <div className="text-center">Select or Add a Page to Preview</div>
-        )}
-      </div>
-
-      {/* Editor */}
-      <div className="col-span-2 bg-white p-4 rounded shadow">
-        {selectedPageIndex !== null ? (
-          <WebStoryEditor
-            page={pages[selectedPageIndex]}
-            onEditPage={editPage}
-          />
-        ) : (
-          <div className="text-center">Select or Add a Page to Edit</div>
-        )}
-      </div>
+    <div className="flex h-screen flex-wrap">
+      {isSlideEditing ? (
+        <>
+          <div className="w-full md:w-1/2 p-4">
+            <WebStorySlideEditor
+              slides={slides}
+              setSlides={setSlides}
+              currentIndex={currentIndex}
+              setCurrentIndex={setCurrentIndex}
+            />
+          </div>
+          <div className="w-full md:w-1/2 p-4">
+            <WebStorySlidePreview slides={slides} currentIndex={currentIndex} />
+            <button
+              className="mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+              onClick={handleSubmit}
+              aria-label="Submit Web Story"
+            >
+              Submit Web Story
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="w-full md:w-1/2 flex flex-col p-4">
+            <WebStoryEditor story={story} setStory={setStory} />
+            <button
+              className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 self-start"
+              onClick={handleNext}
+              aria-label="Proceed to Edit Slides"
+            >
+              Next
+            </button>
+          </div>
+          <div className="w-full md:w-1/2 p-4">
+            <WebStoryPreview story={story} />
+          </div>
+        </>
+      )}
     </div>
   );
 };
