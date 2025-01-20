@@ -164,6 +164,21 @@ export const getWebStoryByCreator = async (req, res) => {
   }
 };
 
+export const getSitemapWebStories = async (req, res) => {
+  try {
+    const webStories = await WebStory.find().sort({ createdAt: -1 }).lean();
+    if (!webStories.length) {
+      return res.status(404).json({ message: "No web-stories found." });
+    }
+
+    return res.status(200).json(webStories);
+  } catch (error) {
+    console.error("Error fetching web-stories for sitemap:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
+  }
+};
 
 // Update a Web Story
 export const updateWebStory = async (req, res) => {

@@ -29,14 +29,14 @@ const Dashboard = () => {
         </div>
 
         {/* Post Count */}
-        <div>
+        {/* <div>
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
             Post Stats
           </h2>
           <div className="bg-white rounded-xl shadow-md p-2">
             <BlogPostCount />
           </div>
-        </div>
+        </div> */}
         {/* Web Stories Count */}
         {/* <div>
           <h2 className="text-xl font-semibold mb-4 text-gray-800">

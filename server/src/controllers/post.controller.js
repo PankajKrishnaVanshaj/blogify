@@ -94,6 +94,7 @@ export const getPostsByUser = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const posts = await Posts.find({ createdBy })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -114,8 +115,6 @@ export const getPostsByUser = async (req, res) => {
     res.status(500).json({ message: "Error fetching posts." });
   }
 };
-
-
 
 // Get post by ID with user details
 export const getPostById = async (req, res) => {
@@ -146,21 +145,21 @@ export const getPostById = async (req, res) => {
   }
 };
 
-
 export const getSitemapPosts = async (req, res) => {
   try {
-    const posts = await Posts.find().sort({ createdAt: -1 }).lean(); 
+    const posts = await Posts.find().sort({ createdAt: -1 }).lean();
     if (!posts.length) {
       return res.status(404).json({ message: "No posts found." });
     }
 
-    return res.status(200).json( posts ); 
+    return res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts for sitemap:", error);
-    return res.status(500).json({ success: false, message: "Internal server error." });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error." });
   }
 };
-
 
 // Get all posts with user details, pagination, and category filtering
 export const getAllPosts = async (req, res) => {

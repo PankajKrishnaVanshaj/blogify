@@ -6,7 +6,7 @@ import {
   AiOutlineFileText,
 } from "react-icons/ai";
 import { FiHeart } from "react-icons/fi";
-import { fetchCreatorPosts } from "@/api/blogPost.api";
+import { fetchSitemapPosts } from "@/api/blogPost.api";
 
 const BlogPostCount = () => {
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const BlogPostCount = () => {
 
   const fetchData = async () => {
     try {
-      const fetchedPosts = await fetchCreatorPosts();
+      const fetchedPosts = await fetchSitemapPosts();
 
       const totalViews = fetchedPosts.reduce(
         (acc, post) => acc + post.views,

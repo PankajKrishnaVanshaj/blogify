@@ -94,10 +94,7 @@ const AllBlogPosts = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {Array.isArray(data) && data.length > 0 ? (
-              data
-                .slice()
-                .reverse()
-                .map((post) => (
+              data.map((post) => (
                   <tr key={post._id} className="hover:bg-gray-50">
                     <td className="px-6 py-2 whitespace-nowrap text-sm">
                       {post.banner ? (

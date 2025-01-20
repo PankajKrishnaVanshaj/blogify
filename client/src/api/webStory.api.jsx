@@ -19,6 +19,18 @@ const setAuthHeader = () => {
   return { Authorization: `Bearer ${token}` };
 };
 
+export const fetchSitemapWebStories =async ()=>{
+  try {
+    const response = await axiosInstance.get("/sitemap-web-stories");
+    return response.data
+  } catch (error) {
+    console.error("Error fetching sitemap web-stories:", error);
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch web-stories"
+    );
+  }
+}
+
 // Fetch paginated web stories for creator
 export const fetchCreatorWebStories = async (page = 1, limit = 10) => {
   try {
