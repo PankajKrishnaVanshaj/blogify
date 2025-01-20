@@ -38,7 +38,7 @@ export const fetchFilterPosts = async (page, category) => {
 };
 
 // Fetch all posts for the creator
-export const fetchCreatorPosts = async () => {
+export const fetchCreatorPosts = async (page = 1, limit = 10) => {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -49,12 +49,14 @@ export const fetchCreatorPosts = async () => {
   try {
     const { data } = await axiosInstance.get("/all-posts-of-creator", {
       headers: { Authorization: `Bearer ${token}` },
+      params: { page, limit }, // Sending page and limit as query params
     });
-    return Array.isArray(data) ? data : data.posts;
+    return data;
   } catch (error) {
     throw new Error("Failed to fetch posts.");
   }
 };
+
 
 // Fetch a post by ID
 export const getPostById = async (postId) => {

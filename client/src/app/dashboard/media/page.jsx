@@ -25,7 +25,7 @@ const Media = () => {
   </button>
 </div>
 
-      <div className="overflow-x-auto w-full shadow-lg rounded-lg">
+      <div className="overflow-x-auto w-full h-screen shadow-lg rounded-lg">
         {/* MediaUpload Modal */}
         {isOpen && (
           <div className="relative z-10">

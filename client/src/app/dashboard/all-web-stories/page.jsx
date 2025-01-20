@@ -1,22 +1,36 @@
-'use client'
+"use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { deleteWebStory, fetchCreatorWebStories } from "@/api/webStory.api";
+import { GrNext, GrPrevious } from "react-icons/gr";
 
 const AllWebStories = () => {
   const router = useRouter();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    limit: 10,
+  });
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const webStories = await fetchCreatorWebStories();
-      setData(webStories.data || []);
+      const { data, totalPages, page } = await fetchCreatorWebStories(
+        pagination.page,
+        pagination.limit
+      );
+      setData(data || []);
+      setPagination((prev) => ({
+        ...prev,
+        totalPages,
+        page,
+      }));
     } catch (err) {
       console.error("Error fetching web stories:", err);
       setError(err.response?.data?.message || "Failed to fetch web stories.");
@@ -27,7 +41,7 @@ const AllWebStories = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [pagination.page]);
 
   const handleDelete = async (webStoryId) => {
     if (confirm("Are you sure you want to delete this web story?")) {
@@ -47,6 +61,16 @@ const AllWebStories = () => {
     if (confirm("Are you sure you want to edit this web story?")) {
       router.push(`/dashboard/create-web-story/${webStoryId}`);
     }
+  };
+
+  const handlePageChange = (direction) => {
+    setPagination((prev) => {
+      const newPage = prev.page + direction;
+      if (newPage > 0 && newPage <= prev.totalPages) {
+        return { ...prev, page: newPage };
+      }
+      return prev;
+    });
   };
 
   if (loading) return <div className="spinner">Loading...</div>;
@@ -132,14 +156,12 @@ const AllWebStories = () => {
                     <button
                       onClick={() => handleEdit(webStory._id)}
                       className="text-indigo-600 hover:text-indigo-800"
-                      aria-label="Edit Web Story"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => handleDelete(webStory._id)}
                       className="text-red-600 hover:text-red-800"
-                      aria-label="Delete Web Story"
                     >
                       <FaTrash />
                     </button>
@@ -155,6 +177,26 @@ const AllWebStories = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => handlePageChange(-1)}
+          disabled={pagination.page <= 1}
+          className="px-4 py-2 bg-gray-200 text-primary rounded-l-md"
+        >
+          <GrPrevious /> 
+        </button>
+        <span>
+          <span className="px-4 py-2">{`${pagination.page} of ${pagination.totalPages}`}</span>
+        </span>
+        <button
+          onClick={() => handlePageChange(1)}
+          disabled={pagination.page >= pagination.totalPages}
+          className="px-4 py-2 bg-gray-200 text-primary rounded-r-md"
+        >
+         <GrNext />
+        </button>
       </div>
     </div>
   );

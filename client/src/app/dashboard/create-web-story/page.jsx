@@ -6,8 +6,11 @@ import WebStorySlideEditor from "./_components/WebStorySlideEditor";
 import WebStorySlidePreview from "./_components/WebStorySlidePreview";
 import { createWebStory } from "@/api/webStory.api";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const CreateWebStory = () => {
+  const router = useRouter();
+
   const [story, setStory] = useState({
     title: "",
     description: "",
@@ -62,9 +65,11 @@ const CreateWebStory = () => {
     try {
       const response = await createWebStory(formData);
       toast.success("Web Story submitted successfully!");
-      console.log("Response:", response.data);
+      router.push("/dashboard/all-web-stories");
+
+      // console.log("Response:", response.data);
     } catch (error) {
-      console.error("Error submitting web story:", error);
+      // console.error("Error submitting web story:", error);
       toast.error("An error occurred while submitting the web story.");
     }
   };

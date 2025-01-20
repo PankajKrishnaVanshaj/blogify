@@ -89,19 +89,33 @@ export const updatePost = async (req, res) => {
 export const getPostsByUser = async (req, res) => {
   try {
     const createdBy = req.user._id;
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 posts per page
+    const skip = (page - 1) * limit;
 
-    const posts = await Posts.find({ createdBy });
+    const posts = await Posts.find({ createdBy })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPosts = await Posts.countDocuments({ createdBy });
 
     if (!posts.length) {
       return res.status(404).json({ message: "No posts found for this user." });
     }
 
-    res.status(200).json(posts);
+    res.status(200).json({
+      posts,
+      totalPosts,
+      totalPages: Math.ceil(totalPosts / limit),
+      currentPage: page,
+    });
   } catch (err) {
     console.error("Error fetching posts by user:", err);
     res.status(500).json({ message: "Error fetching posts." });
   }
 };
+
+
 
 // Get post by ID with user details
 export const getPostById = async (req, res) => {

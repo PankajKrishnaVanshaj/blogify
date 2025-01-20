@@ -50,7 +50,7 @@ export const uploadMediaAPI = async (formData) => {
   }
 };
 
-export const fetchCreatorMediaAPI = async () => {
+export const fetchCreatorMediaAPI = async (page = 1, limit = 10) => {
   const token = getToken();
 
   if (!token) {
@@ -59,13 +59,15 @@ export const fetchCreatorMediaAPI = async () => {
 
   try {
     const { data } = await axiosInstance.get("/all-medias-of-creator", {
+      params: { page, limit },
       headers: { Authorization: `Bearer ${token}` },
     });
-    return Array.isArray(data) ? data : data.medias;
+    return data;
   } catch (error) {
     throw new Error("Failed to fetch medias.");
   }
 };
+
 
 export const fetchAllMedias = async () => {
   try {

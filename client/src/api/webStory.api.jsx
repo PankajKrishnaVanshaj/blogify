@@ -19,11 +19,12 @@ const setAuthHeader = () => {
   return { Authorization: `Bearer ${token}` };
 };
 
-// Fetch web stories for creator
-export const fetchCreatorWebStories = async () => {
+// Fetch paginated web stories for creator
+export const fetchCreatorWebStories = async (page = 1, limit = 10) => {
   try {
     const response = await axiosInstance.get("/", {
       headers: setAuthHeader(),
+      params: { page, limit },  // Add pagination params
     });
     return response.data;
   } catch (error) {

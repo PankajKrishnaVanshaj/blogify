@@ -114,6 +114,7 @@ export const getWebStoryById = async (req, res) => {
 // Get Web Stories by Creator
 export const getWebStoryByCreator = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.user._id);
+  const { page = 1, limit = 10 } = req.query;  // default to page 1 and limit 10
 
   if (!userId) {
     return res.status(400).json({
@@ -123,8 +124,16 @@ export const getWebStoryByCreator = async (req, res) => {
   }
 
   try {
-    // Query the database for web stories created by the user
-    const webStories = await WebStory.find({ createdBy: userId }).lean();
+    // Query the database for web stories created by the user with pagination
+    const webStories = await WebStory.find({ createdBy: userId })
+    .skip((page - 1) * limit)  // Skip the previous pages
+    .limit(parseInt(limit))    // Limit the number of results per page
+    .sort({ createdAt: -1 })   // Sort by createdAt in descending order
+    .lean();
+  
+
+    // Get the total count of web stories for pagination
+    const totalCount = await WebStory.countDocuments({ createdBy: userId });
 
     // If no web stories are found, return a 404 response
     if (!webStories || webStories.length === 0) {
@@ -134,27 +143,27 @@ export const getWebStoryByCreator = async (req, res) => {
       });
     }
 
-    // Return the fetched web stories
+    // Return the fetched web stories and pagination info
     return res.status(200).json({
       success: true,
       message: "Web stories retrieved successfully.",
       data: webStories,
+      totalCount,  // Send total count for pagination
+      page: parseInt(page),
+      totalPages: Math.ceil(totalCount / limit),  // Calculate the total number of pages
     });
   } catch (error) {
     console.error("Error in getWebStoryByCreator:", error);
 
-    // Log the stack trace for better debugging
-    console.error(error.stack);
-
-    // Return a 500 error with details for debugging
     return res.status(500).json({
       success: false,
       message: "Internal server error in fetching web stories.",
       error: error.message,
-      stack: error.stack, // Optionally include the stack trace in the response (for debugging purposes)
+      stack: error.stack,
     });
   }
 };
+
 
 // Update a Web Story
 export const updateWebStory = async (req, res) => {

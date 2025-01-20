@@ -5,17 +5,22 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { deletePost, fetchCreatorPosts } from "@/api/blogPost.api";
+import { GrNext, GrPrevious } from "react-icons/gr";
 
 const AllBlogPosts = () => {
   const router = useRouter();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1) => {
     try {
-      const posts = await fetchCreatorPosts();
-      setData(posts);
+      const posts = await fetchCreatorPosts(page);
+      setData(posts.posts);
+      setTotalPages(posts.totalPages);
+      setCurrentPage(posts.currentPage);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -24,8 +29,8 @@ const AllBlogPosts = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
 
   const handleDelete = async (postId) => {
     const confirmDelete = window.confirm(
@@ -34,7 +39,7 @@ const AllBlogPosts = () => {
     if (!confirmDelete) return;
     try {
       await deletePost(postId);
-      setData(data.filter((post) => post._id !== postId)); 
+      setData(data.filter((post) => post._id !== postId));
     } catch {
       alert("An error occurred while deleting the post.");
     }
@@ -45,6 +50,11 @@ const AllBlogPosts = () => {
       "Are you sure you want to edit this post?"
     );
     if (confirmEdit) router.push(`/dashboard/create-blog-post/${postId}`);
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
   };
 
   if (loading) return <div className="spinner">Loading...</div>;
@@ -164,6 +174,25 @@ const AllBlogPosts = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination controls */}
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-200 text-primary rounded-l-md"
+        >
+          <GrPrevious />
+        </button>
+        <span className="px-4 py-2">{`${currentPage} of ${totalPages}`}</span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-200 text-primary rounded-r-md"
+        >
+          <GrNext />
+        </button>
       </div>
     </div>
   );

@@ -63,8 +63,8 @@ const MediaCard = ({ media, onSelectMedia, onDeleteMedia }) => {
         )}
 
         {isActionsOpen && (
-          <div className="absolute top-1 right-1.5 flex space-x-2 bg-black bg-opacity-40 rounded-full p-1">
-            <Link
+          <div className="absolute top-1 left-1/2 transform -translate-x-1/2 flex space-x-2 bg-black bg-opacity-40 rounded-full p-1">
+          <Link
               href={`/${media._id}/media`}
               target="_blank"
               className="p-1 text-primary rounded-full shadow shadow-tertiary hover:bg-primary hover:text-white transition-all"
