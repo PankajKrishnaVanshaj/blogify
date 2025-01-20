@@ -14,7 +14,6 @@ export const createPost = async (req, res) => {
     const isCreator = req.user ? req.user.isCreator : false;
     const { title, tags, category, content, banner } = req.body;
 
-
     if (!title || !content) {
       return res
         .status(400)
@@ -133,6 +132,22 @@ export const getPostById = async (req, res) => {
   }
 };
 
+
+export const getSitemapPosts = async (req, res) => {
+  try {
+    const posts = await Posts.find().sort({ createdAt: -1 }).lean(); 
+    if (!posts.length) {
+      return res.status(404).json({ message: "No posts found." });
+    }
+
+    return res.status(200).json( posts ); 
+  } catch (error) {
+    console.error("Error fetching posts for sitemap:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+
 // Get all posts with user details, pagination, and category filtering
 export const getAllPosts = async (req, res) => {
   try {
@@ -151,7 +166,7 @@ export const getAllPosts = async (req, res) => {
       .limit(Number(limit))
       .populate({
         path: "createdBy",
-        select:  "_id name username avatar",
+        select: "_id name username avatar",
       });
 
     if (!posts.length) {

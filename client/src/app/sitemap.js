@@ -1,7 +1,7 @@
-import { fetchAllPosts } from "@/api/blogPost.api";
+import { fetchSitemapPosts } from "@/api/blogPost.api";
 
 export default async function sitemap() {
-  const posts = await fetchAllPosts();
+  const posts = await fetchSitemapPosts();
   const postUrls = posts.map((post) => ({
     url: `${"https://blogify.pankri.com"}/${post._id.toString()}/post`, // Constructing the post URL
     lastModified: new Date(), // Use the post's last modified date

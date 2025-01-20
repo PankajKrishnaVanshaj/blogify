@@ -7,6 +7,18 @@ const axiosInstance = axios.create({
   baseURL: API_URL,
 });
 
+export const fetchSitemapPosts = async () => {
+  try {
+    const response = await axiosInstance.get("/sitemap-posts");
+    return response.data
+  } catch (error) {
+    console.error("Error fetching sitemap posts:", error);
+    throw new Error(
+      error.response?.data?.message || "Failed to fetch posts"
+    );
+  }
+};
+
 export const fetchAllPosts = async () => {
   try {
     const response = await axiosInstance.get("/get-all-posts");
