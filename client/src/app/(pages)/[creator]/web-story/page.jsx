@@ -80,11 +80,11 @@ const WebStory = async ({ params }) => {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: webStory.title,
-    description: webStory.description.slice(0, 200),
+    description: webStory.description,
     image: `${baseUrl}/${webStory.coverImage || "blogify.png"}`,
     author: {
       "@type": "Person",
-      name: webStory.createdBy.name || "PK Blogify Contributor",
+      name: webStory.createdBy || "PK Blogify Contributor",
       url: `${process.env.NEXT_PUBLIC_BASE_URL}/${webStory.createdBy || "blogify.png"}`,
 
     },
@@ -96,10 +96,10 @@ const WebStory = async ({ params }) => {
         url: `/blogify.png`,
       },
     },
-    datePublished: new Date(webStory.createdAt).toISOString(),
+    datePublished: new Date(webStory.createdAt),
     dateModified: new Date(
       webStory.updatedAt || webStory.createdAt
-    ).toISOString(),
+    ),
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `/${webStory._id}/web-story`,
