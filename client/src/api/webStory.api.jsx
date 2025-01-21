@@ -21,7 +21,7 @@ const setAuthHeader = () => {
 
 export const fetchSitemapWebStories =async ()=>{
   try {
-    const response = await axiosInstance.get("/sitemap-web-stories");
+    const response = await axiosInstance.get("/web-stories");
     return response.data
   } catch (error) {
     console.error("Error fetching sitemap web-stories:", error);
@@ -60,7 +60,7 @@ export const deleteWebStory = async (webStoryId) => {
 // Fetch a web story by ID
 export const getWebStoryById = async (webStoryId) => {
   try {
-    const response = await axiosInstance.get(`/${webStoryId}`);
+    const response = await axiosInstance.get(`/${webStoryId}/stories`);
     return response.data;
   } catch (error) {
     console.error("Error fetching web story by ID:", error.response?.data || error.message);
