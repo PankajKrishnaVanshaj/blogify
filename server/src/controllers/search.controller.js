@@ -98,7 +98,9 @@ export const suggestionPostsByCategory = async (req, res, next) => {
     const posts = await Posts.find(query)
       .populate("createdBy", "name username avatar _id") // Populate with creator details
       .sort({ createdAt: -1 })
-      .select("-likes -comments"); // Exclude likes and comments
+      .select("-likes -comments") // Exclude likes and comments
+      .limit(6); // Limit to 6 posts
+
 
     // Log the fetched posts for debugging
     // console.log("Fetched posts:", posts);
