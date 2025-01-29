@@ -4,7 +4,7 @@ import MediaView from "./MediaView";
 import MediaUpload from "./MediaUpload";
 
 const MediaTab = ({ toggleMediaTab, onSelectMedia }) => {
-  const [activeTab, setActiveTab] = useState("view");
+  const [activeTab, setActiveTab] = useState("upload");
 
   return (
     <div className="relative">
@@ -31,13 +31,12 @@ const MediaTab = ({ toggleMediaTab, onSelectMedia }) => {
       </div>
 
       <div className="w-full max-w-[58.5rem] max-h-[31rem] overflow-auto mt-2 border border-gray-300 rounded-lg">
-  {activeTab === "upload" ? (
-    <MediaUpload toggleMediaUpload={toggleMediaTab} />
-  ) : (
-    <MediaView onSelectMedia={onSelectMedia} />
-  )}
-</div>
-
+        {activeTab === "upload" ? (
+          <MediaUpload toggleMediaUpload={toggleMediaTab} />
+        ) : (
+          <MediaView onSelectMedia={onSelectMedia} />
+        )}
+      </div>
     </div>
   );
 };
