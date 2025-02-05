@@ -4,7 +4,7 @@ import {
   createPost,
   deletePost,
   getAllPosts,
-  getPostById,
+  getPostByIdOrSlug,
   getPostsByUser,
   getSitemapPosts,
   LikesStatus,
@@ -15,7 +15,7 @@ import {
 
 const postRoute = express.Router();
 
-postRoute.get("/post/:id", getPostById);
+postRoute.get("/post/:identifier", getPostByIdOrSlug);
 postRoute.get("/get-all-posts", getAllPosts);
 postRoute.get("/sitemap-posts", getSitemapPosts);
 postRoute.delete("/post/:id", authMiddleware, deletePost);

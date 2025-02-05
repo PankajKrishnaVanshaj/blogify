@@ -1,6 +1,5 @@
 import "./globals.css";
 
-
 export const metadata = {
   manifest: "/manifest.json",
   metadataBase: new URL("https://blogify.pankri.com"),
@@ -13,6 +12,9 @@ export const metadata = {
   keywords: [
     "PK Blogify",
     "blogify",
+    "blogify pk ",
+    "pankri blogify",
+    "blogify pankri",
     "pankri",
     "pk",
     "blog platform",
@@ -74,7 +76,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body >{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

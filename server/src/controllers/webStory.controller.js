@@ -87,12 +87,20 @@ export const getAllWebStories = async (req, res) => {
   }
 };
 
-// Get a single Web Story by ID
-export const getWebStoryById = async (req, res) => {
+// Get a single Web Story by ID or Slug
+export const getWebStoryByIdOrSlug = async (req, res) => {
   try {
-    const webStoryId = req.params.id;
-    const webStory = await WebStory.findByIdAndUpdate(
-      webStoryId,
+    const { identifier } = req.params;
+
+    // Validate if identifier is a valid MongoDB ObjectId
+    const isObjectId = mongoose.Types.ObjectId.isValid(identifier);
+
+    // Construct query based on identifier type
+    const query = isObjectId ? { _id: identifier } : { slug: identifier };
+
+    // Use findOneAndUpdate to increment views
+    const webStory = await WebStory.findOneAndUpdate(
+      query,
       { $inc: { views: 1 } },
       { new: true }
     );
@@ -103,6 +111,7 @@ export const getWebStoryById = async (req, res) => {
 
     res.status(200).json(webStory);
   } catch (error) {
+    console.error("Error fetching web story:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve web story",
@@ -114,7 +123,7 @@ export const getWebStoryById = async (req, res) => {
 // Get Web Stories by Creator
 export const getWebStoryByCreator = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.user._id);
-  const { page = 1, limit = 10 } = req.query;  // default to page 1 and limit 10
+  const { page = 1, limit = 10 } = req.query; // default to page 1 and limit 10
 
   if (!userId) {
     return res.status(400).json({
@@ -126,11 +135,10 @@ export const getWebStoryByCreator = async (req, res) => {
   try {
     // Query the database for web stories created by the user with pagination
     const webStories = await WebStory.find({ createdBy: userId })
-    .skip((page - 1) * limit)  // Skip the previous pages
-    .limit(parseInt(limit))    // Limit the number of results per page
-    .sort({ createdAt: -1 })   // Sort by createdAt in descending order
-    .lean();
-  
+      .skip((page - 1) * limit) // Skip the previous pages
+      .limit(parseInt(limit)) // Limit the number of results per page
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .lean();
 
     // Get the total count of web stories for pagination
     const totalCount = await WebStory.countDocuments({ createdBy: userId });
@@ -148,9 +156,9 @@ export const getWebStoryByCreator = async (req, res) => {
       success: true,
       message: "Web stories retrieved successfully.",
       data: webStories,
-      totalCount,  // Send total count for pagination
+      totalCount, // Send total count for pagination
       page: parseInt(page),
-      totalPages: Math.ceil(totalCount / limit),  // Calculate the total number of pages
+      totalPages: Math.ceil(totalCount / limit), // Calculate the total number of pages
     });
   } catch (error) {
     console.error("Error in getWebStoryByCreator:", error);

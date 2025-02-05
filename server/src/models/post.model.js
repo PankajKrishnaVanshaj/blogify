@@ -7,6 +7,11 @@ const postSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      trim: true,
+    },
     banner: {
       type: String,
       trim: true,
@@ -50,5 +55,36 @@ const postSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Custom function to generate a slug
+const generateSlug = async (title) => {
+  let slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric characters with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+
+  let slugExists = await Posts.findOne({ slug });
+  let counter = 1;
+
+  while (slugExists) {
+    const newSlug = `${slug}-${counter}`;
+    slugExists = await Posts.findOne({ slug: newSlug });
+    if (!slugExists) {
+      slug = newSlug;
+      break;
+    }
+    counter++;
+  }
+
+  return slug;
+};
+
+// Middleware to generate a unique slug before saving
+postSchema.pre("save", async function (next) {
+  if (!this.slug && this.title) {
+    this.slug = await generateSlug(this.title);
+  }
+  next();
+});
 
 export const Posts = mongoose.model("Posts", postSchema);

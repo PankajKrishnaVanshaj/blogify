@@ -6,14 +6,14 @@ const generateUrls = (items, pathPrefix, options) => {
   return items
     .map((item) => {
       // Validate required fields
-      if (!item?._id || (!item.updatedAt && !item.createdAt)) return null;
+      if (!item?.slug || (!item.updatedAt && !item.createdAt)) return null;
 
       // Parse last modified date
       const lastModified = new Date(item.updatedAt || item.createdAt);
       if (isNaN(lastModified)) return null;
 
       return {
-        url: `https://blogify.pankri.com/${item._id.toString()}/${pathPrefix}`,
+        url: `https://blogify.pankri.com/${item.slug.toString()}/${pathPrefix}`,
         lastModified,
         ...options,
       };

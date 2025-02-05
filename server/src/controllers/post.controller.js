@@ -117,15 +117,23 @@ export const getPostsByUser = async (req, res) => {
 };
 
 // Get post by ID with user details
-export const getPostById = async (req, res) => {
+export const getPostByIdOrSlug = async (req, res) => {
   try {
-    const postId = req.params.id;
+    const { identifier } = req.params;
 
-    // Use findByIdAndUpdate to atomically increment the views count and retrieve the post
-    const post = await Posts.findByIdAndUpdate(
-      postId,
-      { $inc: { views: 1 } },
-      { new: true }
+    // Validate if identifier is a valid MongoDB ObjectId
+    const isObjectId = mongoose.Types.ObjectId.isValid(identifier);
+
+    // Construct query based on identifier type
+    const query = isObjectId
+      ? { _id: new mongoose.Types.ObjectId(identifier) }
+      : { slug: identifier };
+
+    // Find post and increment views in one query
+    const post = await Posts.findOneAndUpdate(
+      query,
+      { $inc: { views: 1 } }, // Increment views
+      { new: true } // Return updated document
     );
 
     if (!post) {
@@ -133,17 +141,16 @@ export const getPostById = async (req, res) => {
     }
 
     // Fetch user details for the post creator
-    const user = await Users.findById(post.createdBy).select(
-      "-password -email"
-    );
+    const user = await Users.findById(post.createdBy).select("-password -email");
 
     // Return the post with user details
     res.status(200).json({ ...post.toObject(), user });
   } catch (err) {
-    console.error("Error fetching post by ID:", err);
+    console.error("Error fetching post by ID or slug:", err);
     res.status(500).json({ message: "Error fetching post." });
   }
 };
+
 
 export const getSitemapPosts = async (req, res) => {
   try {
