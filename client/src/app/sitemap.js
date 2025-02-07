@@ -12,7 +12,7 @@ const generateUrls = (items, pathPrefix, options) => {
       if (!lastModified) return null;
 
       return {
-        url: `https://blogify.pankri.com/${pathPrefix}/${item.slug.toString()}`,
+        url: `https://blogify.pankri.com/${item.slug.toString()}/${pathPrefix}`,
         lastModified: new Date(lastModified).toISOString(),
         ...options,
       };
