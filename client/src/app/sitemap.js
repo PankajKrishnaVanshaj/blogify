@@ -5,20 +5,19 @@ import { fetchSitemapWebStories } from "@/api/webStory.api";
 const generateUrls = (items, pathPrefix, options) => {
   return items
     .map((item) => {
-      // Validate required fields
-      if (!item?.slug || (!item.updatedAt && !item.createdAt)) return null;
+      if (!item?.slug) return null;
 
       // Parse last modified date
-      const lastModified = new Date(item.updatedAt || item.createdAt);
-      if (isNaN(lastModified)) return null;
+      const lastModified = item.updatedAt || item.createdAt;
+      if (!lastModified) return null;
 
       return {
-        url: `https://blogify.pankri.com/${item.slug.toString()}/${pathPrefix}`,
-        lastModified,
+        url: `https://blogify.pankri.com/${pathPrefix}/${item.slug.toString()}`,
+        lastModified: new Date(lastModified).toISOString(),
         ...options,
       };
     })
-    .filter(Boolean); // Remove null entries
+    .filter(Boolean);
 };
 
 export default async function sitemap() {
