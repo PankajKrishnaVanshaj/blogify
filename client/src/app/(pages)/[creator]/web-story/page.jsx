@@ -6,7 +6,6 @@ const WebStoryView = dynamic(() => import("@/components/WebStoryView"), {
   ssr: false,
 });
 
-export const config = { amp: true };
 
 export async function generateMetadata({ params }) {
   let webStory;

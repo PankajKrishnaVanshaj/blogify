@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getWebStoryById } from "@/api/webStory.api";
+export const config = { amp: true };
+
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
