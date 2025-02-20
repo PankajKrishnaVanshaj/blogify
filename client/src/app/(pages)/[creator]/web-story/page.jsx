@@ -1,30 +1,34 @@
-import React from "react";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import { getWebStoryById } from "@/api/webStory.api";
-import WebStoryView from "@/components/WebStoryView";
 
+const WebStoryView = dynamic(() => import("@/components/WebStoryView"), {
+  ssr: false,
+});
 
 export async function generateMetadata({ params }) {
-  const webStory = await getWebStoryById(params.creator);
+  let webStory;
+  try {
+    webStory = await getWebStoryById(params.creator);
+  } catch (error) {
+    console.error("Failed to fetch web story for metadata:", error);
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+  const defaultImage = "blogify.png";
 
   const defaultMetadata = {
     title: "PK Blogify | Unleash Your Creativity Through Blogging",
-    description:
-      "Discover engaging blogs and articles on PK Blogify. Write, explore, and connect with a dynamic community of creators and readers.",
-    keywords: ["PK Blogify", "social blogging", "creative writing", "pankri"],
+    description: "Discover engaging blogs and articles on PK Blogify...",
+    keywords: ["PK Blogify", "pankri Blogify", "social blogging", "creative writing", "pankri"],
     openGraph: {
       title: "PK Blogify | Unleash Your Creativity Through Blogging",
-      description:
-        "Engage with an innovative blogging platform that connects writers and readers in a vibrant community.",
-      images: [{ url: "/blogify.png" }],
-      url: "https://blogify.pankri.com",
+      description: "Engage with an innovative blogging platform...",
+      images: [{ url: `${baseUrl}/${defaultImage}` }],
+      url: baseUrl,
       type: "website",
     },
     twitter: {
-      title: "PK Blogify | Unleash Your Creativity Through Blogging",
-      description:
-        "Explore creative articles and connect with like-minded individuals on PK Blogify.",
-      images: [{ url: "/blogify.png" }],
       card: "summary_large_image",
       creator: "@pankri",
     },
@@ -32,92 +36,100 @@ export async function generateMetadata({ params }) {
 
   if (!webStory) return defaultMetadata;
 
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const storyImage = `${baseUrl}/${webStory.coverImage || defaultImage}`;
+  const storyDescription =
+    webStory.excerpt || webStory.description?.slice(0, 160) || defaultMetadata.description;
 
-    return {
-      title: { absolute: `${webStory.title} | PK Blogify` },
-      description:
-        webStory.excerpt ||
-        webStory.description.slice(0, 160) ||
-        defaultMetadata.description,
-      keywords: [
-        ...new Set([...webStory.tags, "PK Blogify", "blogging", "community"]),
-      ],
-      openGraph: {
-        title: webStory.title,
-        description:
-          webStory.excerpt ||
-          webStory.description.slice(0, 200) ||
-          defaultMetadata.openGraph.description,
-        images: [{ url: `${baseUrl}/${webStory.coverImage || "blogify.png"}` }],
-        url: `/${webStory._id}/web-story`,
-        type: "article",
-      },
-      twitter: {
-        title: webStory.title,
-        description:
-          webStory.excerpt ||
-          webStory.description.slice(0, 200) ||
-          defaultMetadata.twitter.description,
-        images: [{ url: `${baseUrl}/${webStory.coverImage || "blogify.png"}` }],
-        card: "summary_large_image",
-        creator: webStory?.authorTwitter || "@pankri",
-      },
-    };
-  } catch (error) {
-    return defaultMetadata;
-  }
+  return {
+    title: `${webStory.title} | PK Blogify`,
+    description: storyDescription,
+    keywords: [...new Set([...(webStory.tags || []), "PK Blogify", "blogging"])],
+    openGraph: {
+      title: webStory.title,
+      description: storyDescription,
+      images: [{ url: storyImage }],
+      url: `${baseUrl}/${webStory._id}/web-story`,
+      type: "website", // Changed to "website" to match WebPage schema
+    },
+    twitter: {
+      title: webStory.title,
+      description: storyDescription,
+      images: [{ url: storyImage }],
+      card: "summary_large_image",
+      creator: webStory.authorTwitter || "@pankri",
+    },
+  };
 }
 
-const WebStory = async ({ params }) => {
-  const webStory = await getWebStoryById(params.creator);
-  if (!webStory) return null;
+export default async function WebStory({ params }) {
+  let webStory;
+  try {
+    webStory = await getWebStoryById(params.creator);
+  } catch (error) {
+    console.error("Failed to fetch web story:", error);
+    return <div>Web Story not found</div>;
+  }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (!webStory) {
+    return <div>Web Story not found</div>;
+  }
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "Article",
-    headline: webStory.title,
-    description: webStory.description,
-    image: `${baseUrl}/${webStory.coverImage || "blogify.png"}`,
-    author: {
-      "@type": "Person",
-      name: webStory.createdBy || "PK Blogify Contributor",
-      url: `${process.env.NEXT_PUBLIC_BASE_URL}/${webStory.createdBy || "blogify.png"}`,
-
-    },
-    publisher: {
+    "@type": "WebPage",
+    "name": webStory.title,
+    "description": webStory.description || "A story from PK Blogify",
+    "url": `${baseUrl}/${webStory._id}/web-story`,
+    "image": `${baseUrl}/${webStory.coverImage || "blogify.png"}`,
+    "publisher": {
       "@type": "Organization",
-      name: "PK Blogify",
-      logo: {
+      "name": "PK Blogify",
+      "logo": {
         "@type": "ImageObject",
-        url: `/blogify.png`,
-      },
+        "url": `${baseUrl}/blogify.png`,
+        "width": 96, // Adjust to actual dimensions if different
+        "height": 96
+      }
     },
-    datePublished: new Date(webStory.createdAt),
-    dateModified: new Date(
-      webStory.updatedAt || webStory.createdAt
-    ),
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `/${webStory._id}/web-story`,
+    "author": {
+      "@type": "Person",
+      "name": webStory.createdBy || "PK Blogify Contributor"
     },
+    "datePublished": new Date(webStory.createdAt).toISOString(),
+    "dateModified": new Date(webStory.updatedAt || webStory.createdAt).toISOString(),
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": webStory.storySlides.map((slide, index) => ({
+        "@type": "WebPageElement",
+        "position": index + 1,
+        "name": slide.content ? slide.content.replace(/<[^>]+>/g, "").slice(0, 60) : `Slide ${index + 1}`,
+        "image": slide.media ? `${baseUrl}/${slide.media}` : `${baseUrl}/${webStory.coverImage || "blogify.png"}`
+      }))
+    },
+    "potentialAction": {
+      "@type": "ReadAction",
+      "target": `${baseUrl}/${webStory._id}/web-story`
+    }
   };
 
   return (
-    <div>
-      {/* Structured Data */}
+    <>
+      <link rel="preload" href="https://cdn.ampproject.org/v0.js" as="script" />
+      <link rel="preload" href="https://cdn.ampproject.org/v0/amp-story-1.0.js" as="script" />
+      <Script src="https://cdn.ampproject.org/v0.js" async strategy="beforeInteractive" />
+      <Script
+        src="https://cdn.ampproject.org/v0/amp-story-1.0.js"
+        async
+        custom-element="amp-story"
+        strategy="beforeInteractive"
+      />
       <Script
         id="structured-data"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      {/* Web Story View */}
-      <WebStoryView params={params} />
-    </div>
+      <WebStoryView params={params} webStory={webStory} />
+    </>
   );
-};
-
-export default WebStory;
+}
