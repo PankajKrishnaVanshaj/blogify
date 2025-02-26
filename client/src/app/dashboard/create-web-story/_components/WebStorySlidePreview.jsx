@@ -17,7 +17,12 @@ const WebStorySlidePreview = ({ slides, currentIndex }) => {
             />
           </div>
         )}
-        <p className="my-2">{currentSlide.content || "No content"}</p>
+        <p
+          className="my-2"
+          dangerouslySetInnerHTML={{
+            __html: currentSlide.content || "No content",
+          }}
+        />
         <p className="my-2">
           <strong>Duration:</strong> {currentSlide.duration || 5} seconds
         </p>

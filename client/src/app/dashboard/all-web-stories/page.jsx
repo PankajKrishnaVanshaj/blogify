@@ -130,7 +130,13 @@ const AllWebStories = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-[28ch]">
                     <Link
-                      href={`/${webStory._id}/web-story`}
+                      href={`/${
+                        webStory.slug &&
+                        typeof webStory.slug === "string" &&
+                        webStory.slug.length > 0
+                          ? webStory.slug
+                          : webStory._id
+                      }/web-story`}
                       target="_blank"
                       className="block w-full"
                     >
@@ -185,7 +191,7 @@ const AllWebStories = () => {
           disabled={pagination.page <= 1}
           className="px-4 py-2 bg-gray-200 text-primary rounded-l-md"
         >
-          <GrPrevious /> 
+          <GrPrevious />
         </button>
         <span>
           <span className="px-4 py-2">{`${pagination.page} of ${pagination.totalPages}`}</span>
@@ -195,7 +201,7 @@ const AllWebStories = () => {
           disabled={pagination.page >= pagination.totalPages}
           className="px-4 py-2 bg-gray-200 text-primary rounded-r-md"
         >
-         <GrNext />
+          <GrNext />
         </button>
       </div>
     </div>

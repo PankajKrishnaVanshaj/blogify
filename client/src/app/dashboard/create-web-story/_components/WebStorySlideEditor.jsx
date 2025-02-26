@@ -1,16 +1,25 @@
+"use client";
 import React, { useState } from "react";
 import MediaTab from "../../media/_components/MediaTab";
 import { TbImageInPicture } from "react-icons/tb";
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
-const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex }) => {
+const WebStorySlideEditor = ({
+  slides,
+  setSlides,
+  currentIndex,
+  setCurrentIndex,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const currentSlide = slides[currentIndex] || {};
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  // Handle changes from React-Quill
+  const handleInputChange = (value) => {
     const updatedSlides = [...slides];
-    updatedSlides[currentIndex] = { ...currentSlide, [name]: value };
+    updatedSlides[currentIndex] = { ...currentSlide, content: value };
     setSlides(updatedSlides);
   };
 
@@ -39,7 +48,6 @@ const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex 
     }
   };
 
-  // Slide Navigation Handlers
   const goToNextSlide = () => {
     if (currentIndex < slides.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -51,6 +59,29 @@ const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex 
       setCurrentIndex((prevIndex) => prevIndex - 1);
     }
   };
+
+  // Define toolbar options for React-Quill
+  const modules = {
+    toolbar: [
+      // [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      // ["link", "image"],
+      ["clean"], // Remove formatting button
+    ],
+  };
+
+  const formats = [
+    // "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    // "link",
+    // "image",
+  ];
 
   return (
     <div className="p-4 bg-gray-100 h-full">
@@ -65,14 +96,22 @@ const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex 
       {/* Slide Navigation */}
       <div className="flex justify-between mb-4">
         <button
-          className={`px-4 py-2 rounded ${currentIndex === 0 ? "bg-gray-300 text-gray-500" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+          className={`px-4 py-2 rounded ${
+            currentIndex === 0
+              ? "bg-gray-300 text-gray-500"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
           onClick={goToPreviousSlide}
           disabled={currentIndex === 0}
         >
           Previous Slide
         </button>
         <button
-          className={`px-4 py-2 rounded ${currentIndex === slides.length - 1 ? "bg-gray-300 text-gray-500" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+          className={`px-4 py-2 rounded ${
+            currentIndex === slides.length - 1
+              ? "bg-gray-300 text-gray-500"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
           onClick={goToNextSlide}
           disabled={currentIndex === slides.length - 1}
         >
@@ -80,15 +119,16 @@ const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex 
         </button>
       </div>
 
-      {/* Slide Content Input */}
+      {/* Slide Content Input with React-Quill */}
       <div className="mb-4">
         <label className="block font-medium mb-1">Slide Content</label>
-        <textarea
-          name="content"
+        <ReactQuill
           value={currentSlide.content || ""}
           onChange={handleInputChange}
           placeholder="Enter slide content"
-          className="w-full border border-gray-300 p-2 rounded"
+          modules={modules}
+          formats={formats}
+          className="bg-white border border-gray-300 rounded"
         />
       </div>
 
@@ -99,7 +139,11 @@ const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex 
           type="number"
           name="duration"
           value={currentSlide.duration || 5}
-          onChange={handleInputChange}
+          onChange={(e) =>
+            handleInputChange({
+              target: { name: "duration", value: e.target.value },
+            })
+          }
           className="w-full border border-gray-300 p-2 rounded"
         />
       </div>
@@ -122,7 +166,7 @@ const WebStorySlideEditor = ({ slides, setSlides, currentIndex, setCurrentIndex 
         <button
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           onClick={removeSlide}
-          disabled={slides.length === 1} // Prevent removing the last slide
+          disabled={slides.length === 1}
         >
           Remove Slide
         </button>

@@ -48,6 +48,7 @@ const MediaCard = ({ media, onSelectMedia, onDeleteMedia }) => {
       <div
         className="relative border border-dashed shadow-sm shadow-primary hover:shadow-primary rounded-lg hover:scale-105 hover:shadow-md cursor-pointer transition-all overflow-hidden w-full h-full"
         onClick={toggleActions}
+        onDoubleClick={handleSelectedMedia}
       >
         {media ? (
           <Image

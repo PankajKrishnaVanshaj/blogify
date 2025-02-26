@@ -22,6 +22,52 @@ const categories = [
   "Business & Entrepreneurship",
 ];
 
+// Comprehensive toolbar options
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ font: [] }],
+    [{ size: ["small", false, "large", "huge"] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    [{ script: "sub" }, { script: "super" }],
+    [{ indent: "-1" }, { indent: "+1" }],
+    [{ direction: "rtl" }],
+    [{ color: [] }, { background: [] }],
+    [{ align: [] }],
+    [
+      "link",
+      // "image",
+      // "video",
+    ],
+    ["code-block"],
+    ["clean"],
+  ],
+};
+// All possible Quill formats
+const formats = [
+  "header",
+  "font",
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "script",
+  "indent",
+  "direction",
+  "color",
+  "background",
+  "align",
+  "link",
+  // "image",
+  // "video",
+  "code-block",
+];
+
 const CreatePost = () => {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
@@ -195,20 +241,22 @@ const CreatePost = () => {
           )}
         </div>
 
-        <div className="mt-5 border border-gray-300 rounded-lg shadow-sm overflow-visible">
+        <div className="mt-5">
           <ReactQuill
             value={content}
             onChange={setContent}
             placeholder="Write your post content here..."
-            className="min-h-[300px] border-none focus:outline-none focus:ring-2 focus:ring-pink-600 transition duration-300 ease-in-out"
+            className="h-96 border-none"
             theme="snow"
+            formats={formats}
+            modules={modules}
           />
         </div>
 
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className={`mt-6 w-full py-3 px-4 font-bold rounded-lg transition duration-300 ease-in-out ${
+          className={`mt-20 w-full py-3 px-4 font-bold rounded-lg transition duration-300 ease-in-out ${
             isSubmitting
               ? "bg-gray-400 text-gray-700 cursor-not-allowed"
               : "bg-pink-500 text-white hover:bg-pink-700 focus:ring-4 focus:ring-pink-300"

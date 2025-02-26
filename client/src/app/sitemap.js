@@ -1,49 +1,79 @@
 import { fetchSitemapPosts } from "@/api/blogPost.api";
 import { fetchSitemapWebStories } from "@/api/webStory.api";
 
+const BASE_URL = "https://blogify.pankri.com";
+const DEFAULT_CHANGE_FREQ = "daily";
+const POST_PRIORITY = 0.8;
+const STORY_PRIORITY = 1.0;
+
 export default async function sitemap() {
-  const baseUrl = "https://blogify.pankri.com";
-  let sitemapEntries = [];
-
-  try {
-    // Fetch posts
-    const posts = await fetchSitemapPosts();
-    if (!Array.isArray(posts)) {
-      throw new Error("Invalid posts data format: Expected an array");
+  // Utility function to get valid identifier
+  const getIdentifier = (item) => {
+    if (item.slug && typeof item.slug === "string" && item.slug.length > 0) {
+      return item.slug;
     }
+    if (item._id && typeof item._id === "string" && item._id.length > 0) {
+      return item._id;
+    }
+    console.warn("Item missing valid slug or _id:", item);
+    return null;
+  };
 
-    // Map posts to sitemap entries
-    const postEntries = posts.map((item) => ({
-      url: `${baseUrl}/${item.slug}/post`,
+  // Utility function to format sitemap entry
+  const createEntry = (item, priority, path) => {
+    const identifier = getIdentifier(item);
+    if (!identifier) return null;
+    return {
+      url: `${BASE_URL}/${identifier}/${path}`,
       lastModified: item.updatedAt ? new Date(item.updatedAt).toISOString() : new Date().toISOString(),
-      changeFrequency: "daily",
-      priority: 0.8,
-    }));
+      changeFrequency: DEFAULT_CHANGE_FREQ,
+      priority,
+    };
+  };
 
-    sitemapEntries = sitemapEntries.concat(postEntries);
-  } catch (error) {
-    console.error("Error fetching posts for sitemap:", error);
-  }
+  // Fetch data with Promise.all for parallel execution
+  const fetchData = async () => {
+    const results = await Promise.allSettled([
+      fetchSitemapPosts(),
+      fetchSitemapWebStories(),
+    ]);
+
+    return {
+      posts: results[0].status === "fulfilled" ? results[0].value : [],
+      webStories: results[1].status === "fulfilled" ? results[1].value : [],
+    };
+  };
 
   try {
-    // Fetch Web Stories
-    const webStories = await fetchSitemapWebStories();
+    let { posts, webStories } = await fetchData(); // Changed from const to let
+
+    // Validate data types
+    if (!Array.isArray(posts)) {
+      console.warn("Posts data is not an array, skipping post entries");
+      posts = [];
+    }
     if (!Array.isArray(webStories)) {
-      throw new Error("Invalid Web Stories data format: Expected an array");
+      console.warn("Web Stories data is not an array, skipping story entries");
+      webStories = [];
     }
 
-    // Map Web Stories to sitemap entries
-    const webStoryEntries = webStories.map((story) => ({
-      url: `${baseUrl}/${story.slug}/web-story`,
-      lastModified: story.updatedAt ? new Date(story.updatedAt).toISOString() : new Date().toISOString(),
-      changeFrequency: "daily",
-      priority: 1.0, // Higher priority for Web Stories
-    }));
+    // Map entries with filtering for invalid items
+    const postEntries = posts.length
+      ? posts
+          .map((item) => createEntry(item, POST_PRIORITY, "post"))
+          .filter(Boolean)
+      : [];
 
-    sitemapEntries = sitemapEntries.concat(webStoryEntries);
+    const webStoryEntries = webStories.length
+      ? webStories
+          .map((story) => createEntry(story, STORY_PRIORITY, "web-story"))
+          .filter(Boolean)
+      : [];
+
+    return [...postEntries, ...webStoryEntries];
+
   } catch (error) {
-    console.error("Error fetching Web Stories for sitemap:", error);
+    console.error("Sitemap generation failed:", error);
+    return [];
   }
-
-  return sitemapEntries;
 }

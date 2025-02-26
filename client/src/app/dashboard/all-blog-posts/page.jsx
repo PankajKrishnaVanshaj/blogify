@@ -95,70 +95,74 @@ const AllBlogPosts = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {Array.isArray(data) && data.length > 0 ? (
               data.map((post) => (
-                  <tr key={post._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-2 whitespace-nowrap text-sm">
-                      {post.banner ? (
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`}
-                          width={100}
-                          height={100}
-                          alt={post.title}
-                          className="h-10 w-10 object-cover rounded-full"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          No Image
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-[28ch] cursor-pointer relative group">
-                      <Link
-                        href={`/${post._id}/post`}
-                        target="_blank"
-                        className="block w-full h-full"
-                      >
-                        {post.title}
-                      </Link>
-                    </td>
+                <tr key={post._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-2 whitespace-nowrap text-sm">
+                    {post.banner ? (
+                      <Image
+                        src={`${process.env.NEXT_PUBLIC_BASE_URL}/${post.banner}`}
+                        width={100}
+                        height={100}
+                        alt={post.title}
+                        className="h-10 w-10 object-cover rounded-full"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                        No Image
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-[28ch] cursor-pointer relative group">
+                    <Link
+                      href={`/${
+                        post.slug &&
+                        typeof post.slug === "string" &&
+                        post.slug.length > 0
+                          ? post.slug
+                          : post._id
+                      }/post`}
+                      target="_blank"
+                      className="block w-full h-full"
+                    >
+                      {post.title}
+                    </Link>
+                  </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-[14ch] cursor-pointer relative group">
-                      {post.category}
-                    </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-[14ch] cursor-pointer relative group">
+                    {post.category}
+                  </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {post.views}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {Array.isArray(post.likes)
-                        ? post.likes.length
-                        : "No Likes"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {Array.isArray(post.comments)
-                        ? post.comments.length
-                        : "No Comments"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right text-sm font-medium flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(post._id)}
-                        className="text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 transition duration-300 ease-in-out"
-                      >
-                        <FaEdit />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(post._id)}
-                        className="text-red-600 hover:text-red-800 flex items-center space-x-1 transition duration-300 ease-in-out"
-                      >
-                        <FaTrash />
-                        <span>Delete</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {post.views}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {Array.isArray(post.likes) ? post.likes.length : "No Likes"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {Array.isArray(post.comments)
+                      ? post.comments.length
+                      : "No Comments"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-right text-sm font-medium flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(post._id)}
+                      className="text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 transition duration-300 ease-in-out"
+                    >
+                      <FaEdit />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(post._id)}
+                      className="text-red-600 hover:text-red-800 flex items-center space-x-1 transition duration-300 ease-in-out"
+                    >
+                      <FaTrash />
+                      <span>Delete</span>
+                    </button>
+                  </td>
+                </tr>
+              ))
             ) : (
               <tr>
                 <td
