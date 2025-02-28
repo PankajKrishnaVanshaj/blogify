@@ -5,30 +5,69 @@ const BASE_URL = "https://blogify.pankri.com";
 const DEFAULT_CHANGE_FREQ = "daily";
 const POST_PRIORITY = 0.8;
 const STORY_PRIORITY = 1.0;
+const MIN_POSTS = 50;
+const FALLBACK_IMAGE = "blogify.png";
 
 export default async function sitemap() {
   // Utility function to get valid identifier
   const getIdentifier = (item) => {
-    if (item.slug && typeof item.slug === "string" && item.slug.length > 0) {
-      return item.slug;
+    if (
+      item.slug &&
+      typeof item.slug === "string" &&
+      item.slug.trim().length > 0
+    ) {
+      return item.slug.trim();
     }
-    if (item._id && typeof item._id === "string" && item._id.length > 0) {
-      return item._id;
+    if (
+      item._id &&
+      typeof item._id === "string" &&
+      item._id.trim().length > 0
+    ) {
+      return item._id.trim();
     }
-    console.warn("Item missing valid slug or _id:", item);
+    // console.warn("Item missing valid slug or _id:", item);
     return null;
   };
 
-  // Utility function to format sitemap entry
+  // Utility function to determine change frequency based on recency
+  const getChangeFrequency = (lastModified) => {
+    const now = new Date();
+    const modified = new Date(lastModified);
+    const diffDays = (now - modified) / (1000 * 60 * 60 * 24);
+    if (diffDays <= 7) return "daily";
+    if (diffDays <= 30) return "weekly";
+    return "monthly";
+  };
+
+  // Utility function to create sitemap entry with image support
   const createEntry = (item, priority, path) => {
     const identifier = getIdentifier(item);
     if (!identifier) return null;
-    return {
-      url: `${BASE_URL}/${identifier}/${path}`,
-      lastModified: item.updatedAt ? new Date(item.updatedAt).toISOString() : new Date().toISOString(),
-      changeFrequency: DEFAULT_CHANGE_FREQ,
+
+    const lastModified = item.updatedAt || item.createdAt || new Date();
+    const url = `${BASE_URL}/${identifier}/${path}`;
+    const imageUrl = item.banner || item.coverImage || FALLBACK_IMAGE;
+
+    const entry = {
+      url,
+      lastModified: new Date(lastModified).toISOString(),
+      changeFrequency: getChangeFrequency(lastModified),
       priority,
+      image: [
+        {
+          loc: `${process.env.NEXT_PUBLIC_BASE_URL}/${imageUrl}`,
+          title: item.title || `Untitled ${path}`,
+          caption:
+            item.excerpt ||
+            item.description ||
+            item.content?.replace(/<[^>]+>/g, "").slice(0, 100) ||
+            "No description available",
+        },
+      ],
     };
+
+    // console.log(`Created ${path} entry:`, JSON.stringify(entry, null, 2)); // Debug each entry
+    return entry;
   };
 
   // Fetch data with Promise.all for parallel execution
@@ -38,42 +77,84 @@ export default async function sitemap() {
       fetchSitemapWebStories(),
     ]);
 
-    return {
-      posts: results[0].status === "fulfilled" ? results[0].value : [],
-      webStories: results[1].status === "fulfilled" ? results[1].value : [],
-    };
+    const posts = results[0].status === "fulfilled" ? results[0].value : [];
+    const webStories =
+      results[1].status === "fulfilled" ? results[1].value : [];
+
+    // console.log("Raw Posts Data:", JSON.stringify(posts, null, 2)); // Debug raw posts
+    // console.log("Raw Web Stories Data:", JSON.stringify(webStories, null, 2)); // Debug raw stories
+
+    return { posts, webStories };
   };
 
   try {
-    let { posts, webStories } = await fetchData(); // Changed from const to let
+    let { posts, webStories } = await fetchData();
 
-    // Validate data types
-    if (!Array.isArray(posts)) {
-      console.warn("Posts data is not an array, skipping post entries");
-      posts = [];
+    // Validate and sanitize data
+    posts = Array.isArray(posts) ? posts : [];
+    webStories = Array.isArray(webStories) ? webStories : [];
+
+    if (posts.length === 0) {
+      console.warn("No posts retrieved for sitemap");
     }
-    if (!Array.isArray(webStories)) {
-      console.warn("Web Stories data is not an array, skipping story entries");
-      webStories = [];
+    if (webStories.length === 0) {
+      console.warn("No web stories retrieved for sitemap");
     }
 
-    // Map entries with filtering for invalid items
-    const postEntries = posts.length
-      ? posts
-          .map((item) => createEntry(item, POST_PRIORITY, "post"))
-          .filter(Boolean)
-      : [];
+    // Map entries with image support
+    const postEntries = posts
+      .map((item) => createEntry(item, POST_PRIORITY, "post"))
+      .filter(Boolean);
 
-    const webStoryEntries = webStories.length
-      ? webStories
-          .map((story) => createEntry(story, STORY_PRIORITY, "web-story"))
-          .filter(Boolean)
-      : [];
+    const webStoryEntries = webStories
+      .map((story) => createEntry(story, STORY_PRIORITY, "web-story"))
+      .filter(Boolean);
 
-    return [...postEntries, ...webStoryEntries];
+    // Static pages for completeness
+    const staticEntries = [
+      {
+        url: BASE_URL,
+        lastModified: new Date().toISOString(),
+        changeFrequency: "weekly",
+        priority: 1.0,
+      },
+      // {
+      //   url: `${BASE_URL}/posts`,
+      //   lastModified: new Date().toISOString(),
+      //   changeFrequency: "daily",
+      //   priority: 0.9,
+      // },
+      // {
+      //   url: `${BASE_URL}/web-stories`,
+      //   lastModified: new Date().toISOString(),
+      //   changeFrequency: "daily",
+      //   priority: 0.9,
+      // },
+    ];
 
+    const allEntries = [...staticEntries, ...postEntries, ...webStoryEntries];
+
+    // console.log("All Sitemap Entries:", JSON.stringify(allEntries, null, 2)); // Debug final output
+
+    if (allEntries.length < MIN_POSTS) {
+      console.warn(
+        "Sitemap has fewer than expected entries:",
+        allEntries.length
+      );
+    }
+
+    return allEntries;
   } catch (error) {
     console.error("Sitemap generation failed:", error);
-    return [];
+    return [
+      {
+        url: BASE_URL,
+        lastModified: new Date().toISOString(),
+        changeFrequency: "weekly",
+        priority: 1.0,
+      },
+    ];
   }
 }
+
+export const revalidate = 86400; // Revalidate every 24 hours

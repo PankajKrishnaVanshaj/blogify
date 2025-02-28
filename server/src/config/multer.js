@@ -1,6 +1,6 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises"; // Use promises for cleaner async handling
 import { fileURLToPath } from "url";
 
 // Get the current directory name
@@ -8,42 +8,47 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Base upload directory in the root
-const uploadDirectory = path.join(__dirname, "..", "..", "uploads");
+const uploadDirectory = path.resolve(__dirname, "..", "..", "uploads");
 
-// Ensure the base upload directory exists
-try {
-  if (!fs.existsSync(uploadDirectory)) {
-    fs.mkdirSync(uploadDirectory, { recursive: true });
+// Ensure the base upload directory exists (async)
+const ensureUploadDirectory = async () => {
+  try {
+    await fs.mkdir(uploadDirectory, { recursive: true });
     console.log("Created base upload directory:", uploadDirectory);
+  } catch (error) {
+    if (error.code !== "EEXIST") { // Ignore if directory already exists
+      console.error("Error creating base upload directory:", error.message);
+      throw error; // Rethrow to handle in the app
+    }
   }
-} catch (error) {
-  console.error("Error creating base upload directory:", error.message);
-}
+};
 
 // Multer storage configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDirectory);
+  destination: async (req, file, cb) => {
+    try {
+      await ensureUploadDirectory(); // Ensure directory exists before upload
+      cb(null, uploadDirectory);
+    } catch (error) {
+      cb(error);
+    }
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const filename = `${uniqueSuffix}${path.extname(file.originalname)}`;
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const filename = `${uniqueSuffix}${path.extname(file.originalname).toLowerCase()}`; // Normalize extension
     cb(null, filename);
   },
 });
 
 const fileFilter = (req, file, cb) => {
-  // Allow only images with specified MIME types
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
   
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true); // Accept the file
   } else {
-    const error = new Error(
-      "Invalid file type. Only JPEG, PNG, and GIF are allowed."
-    );
-    error.code = "INVALID_FILE_TYPE"; // Add a custom error code
-    cb(error, false); // Reject the file with the error
+    const error = new Error("Invalid file type. Only JPEG, PNG, and GIF are allowed.");
+    error.code = "INVALID_FILE_TYPE";
+    cb(error, false); // Reject the file
   }
 };
 
@@ -54,4 +59,9 @@ export const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5 MB file size limit
   },
+});
+
+// Initialize directory on module load (optional, depending on your setup)
+ensureUploadDirectory().catch((err) => {
+  console.error("Failed to initialize upload directory:", err.message);
 });

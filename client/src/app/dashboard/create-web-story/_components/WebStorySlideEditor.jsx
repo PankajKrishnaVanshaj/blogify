@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MediaTab from "../../media/_components/MediaTab";
 import { TbImageInPicture } from "react-icons/tb";
 import dynamic from "next/dynamic";
@@ -13,20 +13,35 @@ const WebStorySlideEditor = ({
   setCurrentIndex,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(slides[currentIndex] || {});
 
-  const currentSlide = slides[currentIndex] || {};
+  // Sync currentSlide with slides[currentIndex] when index or slides change
+  useEffect(() => {
+    setCurrentSlide(slides[currentIndex] || { content: "", duration: 5, media: null });
+  }, [currentIndex, slides]);
 
   // Handle changes from React-Quill
-  const handleInputChange = (value) => {
+  const handleContentChange = (value) => {
     const updatedSlides = [...slides];
     updatedSlides[currentIndex] = { ...currentSlide, content: value };
     setSlides(updatedSlides);
+    setCurrentSlide({ ...currentSlide, content: value }); // Keep local state in sync
+  };
+
+  // Handle duration input change
+  const handleDurationChange = (e) => {
+    const value = parseInt(e.target.value, 10) || 5; // Default to 5 if invalid
+    const updatedSlides = [...slides];
+    updatedSlides[currentIndex] = { ...currentSlide, duration: value };
+    setSlides(updatedSlides);
+    setCurrentSlide({ ...currentSlide, duration: value });
   };
 
   const handleSelectMedia = (media) => {
     const updatedSlides = [...slides];
     updatedSlides[currentIndex] = { ...currentSlide, media };
     setSlides(updatedSlides);
+    setCurrentSlide({ ...currentSlide, media });
     setIsOpen(false);
   };
 
@@ -36,8 +51,9 @@ const WebStorySlideEditor = ({
 
   const addSlide = () => {
     const newSlide = { content: "", duration: 5, media: null };
-    setSlides((prev) => [...prev, newSlide]);
-    setCurrentIndex(slides.length); // Navigate to the new slide
+    const updatedSlides = [...slides, newSlide];
+    setSlides(updatedSlides);
+    setCurrentIndex(updatedSlides.length - 1); // Navigate to new slide
   };
 
   const removeSlide = () => {
@@ -60,32 +76,18 @@ const WebStorySlideEditor = ({
     }
   };
 
-  // Define toolbar options for React-Quill
   const modules = {
     toolbar: [
-      // [{ header: [1, 2, false] }],
       ["bold", "italic", "underline", "strike"],
       [{ list: "ordered" }, { list: "bullet" }],
-      // ["link", "image"],
-      ["clean"], // Remove formatting button
+      ["clean"],
     ],
   };
 
-  const formats = [
-    // "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    // "link",
-    // "image",
-  ];
+  const formats = ["bold", "italic", "underline", "strike", "list", "bullet"];
 
   return (
     <div className="p-4 bg-gray-100 h-full">
-      {/* Slide Count and Current Index */}
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-xl font-bold">Web Story Slide Editor</h2>
         <p className="text-gray-700">
@@ -93,7 +95,6 @@ const WebStorySlideEditor = ({
         </p>
       </div>
 
-      {/* Slide Navigation */}
       <div className="flex justify-between mb-4">
         <button
           className={`px-4 py-2 rounded ${
@@ -119,12 +120,11 @@ const WebStorySlideEditor = ({
         </button>
       </div>
 
-      {/* Slide Content Input with React-Quill */}
       <div className="mb-4">
         <label className="block font-medium mb-1">Slide Content</label>
         <ReactQuill
           value={currentSlide.content || ""}
-          onChange={handleInputChange}
+          onChange={handleContentChange}
           placeholder="Enter slide content"
           modules={modules}
           formats={formats}
@@ -132,23 +132,18 @@ const WebStorySlideEditor = ({
         />
       </div>
 
-      {/* Slide Duration Input */}
       <div className="mb-4">
         <label className="block font-medium mb-1">Duration (seconds)</label>
         <input
           type="number"
           name="duration"
           value={currentSlide.duration || 5}
-          onChange={(e) =>
-            handleInputChange({
-              target: { name: "duration", value: e.target.value },
-            })
-          }
+          onChange={handleDurationChange}
+          min="1"
           className="w-full border border-gray-300 p-2 rounded"
         />
       </div>
 
-      {/* Buttons for Media, Add, Remove */}
       <div className="flex space-x-2 mb-4">
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -172,7 +167,6 @@ const WebStorySlideEditor = ({
         </button>
       </div>
 
-      {/* Media Tab */}
       {isOpen && (
         <div className="relative z-10">
           <div

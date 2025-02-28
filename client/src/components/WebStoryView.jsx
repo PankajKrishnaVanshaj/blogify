@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getWebStoryById } from "@/api/webStory.api";
+import sanitizeHtml from "sanitize-html"; // Import sanitize-html
 export const config = { amp: true };
-
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
@@ -31,6 +31,29 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
 
   console.log("WebStoryView rendered on client"); // Debug log
 
+  // Sanitization options for AMP compatibility
+  const sanitizeOptions = {
+    allowedTags: [
+      "h1",
+      "h2",
+      "h3",
+      "p",
+      "ul",
+      "ol",
+      "li",
+      "strong",
+      "em",
+      "a",
+      "img",
+      "blockquote",
+    ],
+    allowedAttributes: {
+      a: ["href", "target", "rel"],
+      img: ["src", "alt", "width", "height"],
+    },
+    allowedIframeHostnames: [], // No iframes in AMP stories
+  };
+
   return (
     <amp-story
       standalone
@@ -53,6 +76,7 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
             ? slide.media
             : serverStory?.coverImage || DEFAULT_IMAGE;
         const isLastSlide = index === slides.length - 1;
+        const sanitizedContent = sanitizeHtml(slide.content || "", sanitizeOptions);
 
         return (
           <amp-story-page
@@ -82,9 +106,10 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
             <amp-story-grid-layer template="vertical">
               <div className="absolute bottom-0.5 w-full text-center">
                 <div className="bg-white bg-opacity-60 p-2 rounded-md">
-                  <p
+                  {/* Use q tag instead of article for AMP compatibility */}
+                  <q
                     className="text-primary font-semibold"
-                    dangerouslySetInnerHTML={{ __html: slide.content || "" }}
+                    dangerouslySetInnerHTML={{ __html: sanitizedContent }}
                   />
                   {isLastSlide && slide.link && (
                     <a
