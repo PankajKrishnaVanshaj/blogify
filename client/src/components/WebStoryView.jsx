@@ -1,11 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getWebStoryById } from "@/api/webStory.api";
-import sanitizeHtml from "sanitize-html"; // Import sanitize-html
 export const config = { amp: true };
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
 const DEFAULT_IMAGE = "blogify.png";
 const DEFAULT_TITLE = "PK Blogify Story";
 const DEFAULT_DURATION = 5;
@@ -29,58 +27,47 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
 
   const storyTitle = serverStory?.title || DEFAULT_TITLE;
 
-  console.log("WebStoryView rendered on client"); // Debug log
-
-  // Sanitization options for AMP compatibility
-  const sanitizeOptions = {
-    allowedTags: [
-      "h1",
-      "h2",
-      "h3",
-      "p",
-      "ul",
-      "ol",
-      "li",
-      "strong",
-      "em",
-      "a",
-      "img",
-      "blockquote",
-    ],
-    allowedAttributes: {
-      a: ["href", "target", "rel"],
-      img: ["src", "alt", "width", "height"],
-    },
-    allowedIframeHostnames: [], // No iframes in AMP stories
-  };
+  if (!slides.length) {
+    return (
+      <amp-story
+        standalone=""
+        title={storyTitle}
+        publisher="PK Blogify"
+        publisher-logo-src={`${BASE_URL}/blogify.png`}
+        poster-portrait-src={`${BASE_URL}/${DEFAULT_IMAGE}`}
+      >
+        <amp-story-page id="page-0">
+          <amp-story-grid-layer template="fill">
+            <amp-img
+              src={`${BASE_URL}/${DEFAULT_IMAGE}`}
+              width="720"
+              height="1280"
+              layout="responsive"
+              alt="Default slide"
+            ></amp-img>
+          </amp-story-grid-layer>
+        </amp-story-page>
+      </amp-story>
+    );
+  }
 
   return (
     <amp-story
-      standalone
+      standalone=""
       title={storyTitle}
       publisher="PK Blogify"
       publisher-logo-src={`${BASE_URL}/blogify.png`}
-      poster-portrait-src={`${BASE_URL}/${
-        serverStory?.coverImage || DEFAULT_IMAGE
-      }`}
-      poster-square-src={`${BASE_URL}/${
-        serverStory?.coverImage || DEFAULT_IMAGE
-      }`}
-      poster-landscape-src={`${BASE_URL}/${
-        serverStory?.coverImage || DEFAULT_IMAGE
-      }`}
+      poster-portrait-src={`${BASE_URL}/${serverStory?.coverImage || DEFAULT_IMAGE}`}
+      poster-square-src={`${BASE_URL}/${serverStory?.coverImage || DEFAULT_IMAGE}`}
+      poster-landscape-src={`${BASE_URL}/${serverStory?.coverImage || DEFAULT_IMAGE}`}
     >
       {slides.map((slide, index) => {
-        const slideImage =
-          slide.media !== undefined && slide.media !== null
-            ? slide.media
-            : serverStory?.coverImage || DEFAULT_IMAGE;
+        const slideImage = slide.media ?? serverStory?.coverImage ?? DEFAULT_IMAGE;
         const isLastSlide = index === slides.length - 1;
-        const sanitizedContent = sanitizeHtml(slide.content || "", sanitizeOptions);
 
         return (
           <amp-story-page
-            key={index}
+            key={`page-${index}`}
             id={`page-${index}`}
             auto-advance-after={`${slide.duration || DEFAULT_DURATION}s`}
           >
@@ -91,25 +78,26 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
                 height="1280"
                 layout="responsive"
                 alt={`Slide ${index + 1}`}
-              />
+              ></amp-img>
             </amp-story-grid-layer>
-            <amp-story-grid-layer template="fill">
-              <amp-img
-                src={`${BASE_URL}/${slideImage}`}
-                width="720"
-                height="1280"
-                layout="responsive"
-                alt={`Slide ${index + 1} blurred`}
-                className="blur-overlay"
-              />
-            </amp-story-grid-layer>
+            {slideImage && (
+              <amp-story-grid-layer template="fill">
+                <amp-img
+                  src={`${BASE_URL}/${slideImage}`}
+                  width="720"
+                  height="1280"
+                  layout="responsive"
+                  alt={`Slide ${index + 1} blurred`}
+                  className="blur-overlay" // Keep className for React
+                ></amp-img>
+              </amp-story-grid-layer>
+            )}
             <amp-story-grid-layer template="vertical">
               <div className="absolute bottom-0.5 w-full text-center">
                 <div className="bg-white bg-opacity-60 p-2 rounded-md">
-                  {/* Use q tag instead of article for AMP compatibility */}
-                  <q
+                  <p
                     className="text-primary font-semibold"
-                    dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+                    dangerouslySetInnerHTML={{ __html: slide.content || " " }}
                   />
                   {isLastSlide && slide.link && (
                     <a
@@ -127,7 +115,6 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
           </amp-story-page>
         );
       })}
-      {/* <amp-story-bookend src="/api/bookend" layout="nodisplay" /> */}
     </amp-story>
   );
 };
