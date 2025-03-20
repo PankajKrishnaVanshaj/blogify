@@ -1,8 +1,6 @@
-"use client";
 import React from "react";
-export const config = { amp: true };
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://server.logify.pankri.com";
 const DEFAULT_IMAGE = "blogify.png";
 const DEFAULT_TITLE = "PK Blogify Story";
 const DEFAULT_DURATION = 5;
@@ -17,18 +15,18 @@ const WebStoryView = ({ webStory }) => {
         standalone=""
         title={storyTitle}
         publisher="PK Blogify"
-        publisher-logo-src={`${BASE_URL}/blogify.png`}
-        poster-portrait-src={`${BASE_URL}/${DEFAULT_IMAGE}`}
+        publisher-logo-src={`/${DEFAULT_IMAGE}`}
+        poster-portrait-src={`/${DEFAULT_IMAGE}`}
       >
         <amp-story-page id="page-0">
           <amp-story-grid-layer template="fill">
             <amp-img
-              src={`${BASE_URL}/${DEFAULT_IMAGE}`}
+              src={`/${DEFAULT_IMAGE}`}
               width="720"
               height="1280"
               layout="responsive"
               alt="Default slide"
-              crossorigin="anonymous" // Add this
+              crossorigin="anonymous"
             />
           </amp-story-grid-layer>
         </amp-story-page>
@@ -41,13 +39,14 @@ const WebStoryView = ({ webStory }) => {
       standalone=""
       title={storyTitle}
       publisher="PK Blogify"
-      publisher-logo-src={`${BASE_URL}/blogify.png`}
+      publisher-logo-src={`/blogify.png`}
       poster-portrait-src={`${BASE_URL}/${webStory?.coverImage || DEFAULT_IMAGE}`}
       poster-square-src={`${BASE_URL}/${webStory?.coverImage || DEFAULT_IMAGE}`}
       poster-landscape-src={`${BASE_URL}/${webStory?.coverImage || DEFAULT_IMAGE}`}
     >
       {slides.map((slide, index) => {
-        const slideImage = slide.media ?? webStory?.coverImage ?? DEFAULT_IMAGE;
+        // Fallback chain: slide.media -> webStory.coverImage -> DEFAULT_IMAGE
+        const slideImage = slide.media || webStory?.coverImage || DEFAULT_IMAGE;
         const isLastSlide = index === slides.length - 1;
 
         return (
@@ -63,7 +62,7 @@ const WebStoryView = ({ webStory }) => {
                 height="1280"
                 layout="responsive"
                 alt={`Slide ${index + 1}`}
-                crossorigin="anonymous" // Add this
+                crossorigin="anonymous"
               />
             </amp-story-grid-layer>
             <amp-story-grid-layer template="vertical">
@@ -71,7 +70,6 @@ const WebStoryView = ({ webStory }) => {
                 <div
                   animate-in="fly-in-bottom"
                   animate-in-duration="0.5s"
-                  // Removed className as AMP doesn't fully support it here; use inline styles or AMP attributes
                   style={{ background: "rgba(255, 255, 255, 0.6)", padding: "8px", borderRadius: "4px" }}
                 >
                   <p dangerouslySetInnerHTML={{ __html: slide.content || " " }} />
