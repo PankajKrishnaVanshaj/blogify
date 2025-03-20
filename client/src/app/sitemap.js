@@ -4,32 +4,24 @@ import { fetchSitemapWebStories } from "@/api/webStory.api";
 const BASE_URL = "https://blogify.pankri.com";
 const DEFAULT_CHANGE_FREQ = "daily";
 const POST_PRIORITY = 0.8;
-const STORY_PRIORITY = 1.0;
+const STORY_PRIORITY = 1.0; // Higher priority for web stories to encourage indexing
 const MIN_POSTS = 50;
 const FALLBACK_IMAGE = "blogify.png";
 
 export default async function sitemap() {
-  // Utility function to get valid identifier
+  // Utility to get valid identifier
   const getIdentifier = (item) => {
-    if (
-      item.slug &&
-      typeof item.slug === "string" &&
-      item.slug.trim().length > 0
-    ) {
+    if (item.slug && typeof item.slug === "string" && item.slug.trim().length > 0) {
       return item.slug.trim();
     }
-    if (
-      item._id &&
-      typeof item._id === "string" &&
-      item._id.trim().length > 0
-    ) {
+    if (item._id && typeof item._id === "string" && item._id.trim().length > 0) {
       return item._id.trim();
     }
-    // console.warn("Item missing valid slug or _id:", item);
+    console.warn("Item missing valid slug or _id:", item);
     return null;
   };
 
-  // Utility function to determine change frequency based on recency
+  // Utility to determine change frequency based on recency
   const getChangeFrequency = (lastModified) => {
     const now = new Date();
     const modified = new Date(lastModified);
@@ -39,7 +31,7 @@ export default async function sitemap() {
     return "monthly";
   };
 
-  // Utility function to create sitemap entry with image support
+  // Utility to create sitemap entry with image support
   const createEntry = (item, priority, path) => {
     const identifier = getIdentifier(item);
     if (!identifier) return null;
@@ -55,7 +47,7 @@ export default async function sitemap() {
       priority,
       image: [
         {
-          loc: `${process.env.NEXT_PUBLIC_BASE_URL}/${imageUrl}`,
+          loc: `https://server.blogify.pankri.com/${imageUrl}`, // Consistent with BASE_URL
           title: item.title || `Untitled ${path}`,
           caption:
             item.excerpt ||
@@ -66,7 +58,6 @@ export default async function sitemap() {
       ],
     };
 
-    // console.log(`Created ${path} entry:`, JSON.stringify(entry, null, 2)); // Debug each entry
     return entry;
   };
 
@@ -78,11 +69,7 @@ export default async function sitemap() {
     ]);
 
     const posts = results[0].status === "fulfilled" ? results[0].value : [];
-    const webStories =
-      results[1].status === "fulfilled" ? results[1].value : [];
-
-    // console.log("Raw Posts Data:", JSON.stringify(posts, null, 2)); // Debug raw posts
-    // console.log("Raw Web Stories Data:", JSON.stringify(webStories, null, 2)); // Debug raw stories
+    const webStories = results[1].status === "fulfilled" ? results[1].value : [];
 
     return { posts, webStories };
   };
@@ -118,29 +105,13 @@ export default async function sitemap() {
         changeFrequency: "weekly",
         priority: 1.0,
       },
-      // {
-      //   url: `${BASE_URL}/posts`,
-      //   lastModified: new Date().toISOString(),
-      //   changeFrequency: "daily",
-      //   priority: 0.9,
-      // },
-      // {
-      //   url: `${BASE_URL}/web-stories`,
-      //   lastModified: new Date().toISOString(),
-      //   changeFrequency: "daily",
-      //   priority: 0.9,
-      // },
+      
     ];
 
     const allEntries = [...staticEntries, ...postEntries, ...webStoryEntries];
 
-    // console.log("All Sitemap Entries:", JSON.stringify(allEntries, null, 2)); // Debug final output
-
     if (allEntries.length < MIN_POSTS) {
-      console.warn(
-        "Sitemap has fewer than expected entries:",
-        allEntries.length
-      );
+      console.warn("Sitemap has fewer than expected entries:", allEntries.length);
     }
 
     return allEntries;

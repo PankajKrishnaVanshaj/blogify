@@ -1,6 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { getWebStoryById } from "@/api/webStory.api";
+import React from "react";
 export const config = { amp: true };
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
@@ -8,24 +7,9 @@ const DEFAULT_IMAGE = "blogify.png";
 const DEFAULT_TITLE = "PK Blogify Story";
 const DEFAULT_DURATION = 5;
 
-const WebStoryView = ({ params, webStory: serverStory }) => {
-  const [slides, setSlides] = useState(serverStory?.storySlides || []);
-
-  useEffect(() => {
-    if (!serverStory && params?.creator) {
-      async function fetchWebStory() {
-        try {
-          const webStory = await getWebStoryById(params.creator);
-          setSlides(webStory?.storySlides || []);
-        } catch (error) {
-          console.error("Failed to fetch web story:", error);
-        }
-      }
-      fetchWebStory();
-    }
-  }, [params?.creator, serverStory]);
-
-  const storyTitle = serverStory?.title || DEFAULT_TITLE;
+const WebStoryView = ({ webStory }) => {
+  const slides = webStory?.storySlides || [];
+  const storyTitle = webStory?.title || DEFAULT_TITLE;
 
   if (!slides.length) {
     return (
@@ -44,7 +28,8 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
               height="1280"
               layout="responsive"
               alt="Default slide"
-            ></amp-img>
+              crossorigin="anonymous" // Add this
+            />
           </amp-story-grid-layer>
         </amp-story-page>
       </amp-story>
@@ -57,12 +42,12 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
       title={storyTitle}
       publisher="PK Blogify"
       publisher-logo-src={`${BASE_URL}/blogify.png`}
-      poster-portrait-src={`${BASE_URL}/${serverStory?.coverImage || DEFAULT_IMAGE}`}
-      poster-square-src={`${BASE_URL}/${serverStory?.coverImage || DEFAULT_IMAGE}`}
-      poster-landscape-src={`${BASE_URL}/${serverStory?.coverImage || DEFAULT_IMAGE}`}
+      poster-portrait-src={`${BASE_URL}/${webStory?.coverImage || DEFAULT_IMAGE}`}
+      poster-square-src={`${BASE_URL}/${webStory?.coverImage || DEFAULT_IMAGE}`}
+      poster-landscape-src={`${BASE_URL}/${webStory?.coverImage || DEFAULT_IMAGE}`}
     >
       {slides.map((slide, index) => {
-        const slideImage = slide.media ?? serverStory?.coverImage ?? DEFAULT_IMAGE;
+        const slideImage = slide.media ?? webStory?.coverImage ?? DEFAULT_IMAGE;
         const isLastSlide = index === slides.length - 1;
 
         return (
@@ -78,34 +63,20 @@ const WebStoryView = ({ params, webStory: serverStory }) => {
                 height="1280"
                 layout="responsive"
                 alt={`Slide ${index + 1}`}
-              ></amp-img>
+                crossorigin="anonymous" // Add this
+              />
             </amp-story-grid-layer>
-            {slideImage && (
-              <amp-story-grid-layer template="fill">
-                <amp-img
-                  src={`${BASE_URL}/${slideImage}`}
-                  width="720"
-                  height="1280"
-                  layout="responsive"
-                  alt={`Slide ${index + 1} blurred`}
-                  className="blur-overlay" // Keep className for React
-                ></amp-img>
-              </amp-story-grid-layer>
-            )}
             <amp-story-grid-layer template="vertical">
-              <div className="absolute bottom-0.5 w-full text-center">
-                <div className="bg-white bg-opacity-60 p-2 rounded-md">
-                  <p
-                    className="text-primary font-semibold"
-                    dangerouslySetInnerHTML={{ __html: slide.content || " " }}
-                  />
+              <div>
+                <div
+                  animate-in="fly-in-bottom"
+                  animate-in-duration="0.5s"
+                  // Removed className as AMP doesn't fully support it here; use inline styles or AMP attributes
+                  style={{ background: "rgba(255, 255, 255, 0.6)", padding: "8px", borderRadius: "4px" }}
+                >
+                  <p dangerouslySetInnerHTML={{ __html: slide.content || " " }} />
                   {isLastSlide && slide.link && (
-                    <a
-                      href={slide.link}
-                      className="inline-block mt-2 bg-primary text-white font-semibold py-2 px-4 rounded-full shadow-lg hover:bg-pink-700 transition"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={slide.link} target="_blank" rel="noopener noreferrer">
                       Swipe Up to Learn More
                     </a>
                   )}
