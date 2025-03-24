@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
     console.error("Failed to fetch web story for metadata:", error);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ;
   const defaultImage = "blogify.png";
 
   const defaultMetadata = {
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: "PK Blogify | Discover Trending Web Stories",
       description: "Dive into captivating web stories on PK Blogify, designed for mobile-first storytelling.",
-      images: [{ url: `${baseUrl}/${defaultImage}`, width: 1200, height: 675 }],
+      images: [{ url: `/${defaultImage}`, width: 1200, height: 675 }],
       url: baseUrl,
       type: "website",
       site_name: "PK Blogify",
@@ -83,12 +83,12 @@ export default async function WebStory({ params }) {
     return <div className="p-4 text-red-500">Web Story not found</div>;
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    "@id": `${baseUrl}/${webStory._id}/web-story`,
-    url: `${baseUrl}/${webStory._id}/web-story`,
+    "@id": `${"https://blogify.pankri.com"}/${webStory._id}/web-story`,
+    url: `${'https://blogify.pankri.com'}/${webStory._id}/web-story`,
     headline: webStory.title,
     description: webStory.excerpt || webStory.description || "A trending web story from PK Blogify",
     inLanguage: "en-US",
@@ -108,7 +108,7 @@ export default async function WebStory({ params }) {
       "@type": "Organization",
       name: "PK Blogify",
       url: baseUrl,
-      logo: { "@type": "ImageObject", url: `${baseUrl}/blogify.png`, width: 96, height: 96 },
+      logo: { "@type": "ImageObject", url: `/blogify.png`, width: 96, height: 96 },
     },
     author: {
       "@type": "Person",
@@ -119,9 +119,9 @@ export default async function WebStory({ params }) {
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
-        { "@type": "ListItem", position: 2, name: "Web Stories", item: `${baseUrl}/web-stories` },
-        { "@type": "ListItem", position: 3, name: webStory.title, item: `${baseUrl}/${webStory._id}/web-story` },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://blogify.pankri.com" },
+        { "@type": "ListItem", position: 2, name: "Web Stories", item: `${"https://blogify.pankri.com"}/web-stories` },
+        { "@type": "ListItem", position: 3, name: webStory.title, item: `${"https://blogify.pankri.com"}/${webStory._id}/web-story` },
       ],
     },
     mainEntity: {
@@ -137,7 +137,7 @@ export default async function WebStory({ params }) {
     },
     potentialAction: {
       "@type": "ReadAction",
-      target: `${baseUrl}/${webStory._id}/web-story`,
+      target: `${"https://blogify.pankri.com"}/${webStory._id}/web-story`,
     },
     articleSection: webStory.category || "Stories",
     speaksAbout: webStory.tags || [],
