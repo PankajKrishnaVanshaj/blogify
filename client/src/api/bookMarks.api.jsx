@@ -1,30 +1,27 @@
-import axios from "axios";
+import { apiClient } from "./client";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/bookmark";
 
-const getToken = () =>
-  typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
 export const fetchBookmarks = async () => {
-  const token = getToken();
-  if (!token) throw new Error("No token found");
-
-  const response = await axios.get(BASE_URL, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data.bookMarks;
+ // console.log("Fetching bookmarks");
+  try {
+    const response = await apiClient.get(BASE_URL);
+   // console.log("Bookmarks fetched:", response.data.bookMarks);
+    return response.data.bookMarks;
+  } catch (error) {
+   // console.error("Error fetching bookmarks:", error.message);
+    throw new Error("Failed to fetch bookmarks");
+  }
 };
 
 export const toggleBookmark = async (postId) => {
-  const token = getToken();
-  if (!token) throw new Error("Please log in first");
-
-  const response = await axios.post(
-    `${BASE_URL}/${postId}`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-  return response.data;
+ // console.log(`Toggling bookmark for post: ${postId}`);
+  try {
+    const response = await apiClient.post(`${BASE_URL}/${postId}`, {});
+   // console.log("Bookmark toggled:", response.data);
+    return response.data;
+  } catch (error) {
+   // console.error("Error toggling bookmark:", error.message);
+    throw new Error("Failed to toggle bookmark");
+  }
 };

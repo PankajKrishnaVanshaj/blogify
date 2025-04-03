@@ -1,23 +1,28 @@
+import jwt from "jsonwebtoken"; 
 import {
   compareString,
-  createJWT,
+  createAccessToken,
+  createRefreshToken,
   generateUniqueUsername,
   hashString,
 } from "../utils/index.js";
 import Users from "../models/user.model.js";
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+};
 
 export const register = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    // Validate fields
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: "Provide Required Fields!" });
     }
 
     const userExist = await Users.findOne({ email });
-
     if (userExist) {
       return res
         .status(400)
@@ -25,7 +30,6 @@ export const register = async (req, res) => {
     }
 
     const hashedPassword = await hashString(password);
-
     const defaultUsername = email.split("@")[0];
     const uniqueUsername = await generateUniqueUsername(defaultUsername);
 
@@ -36,19 +40,29 @@ export const register = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Exclude password from the response
+    const accessToken = createAccessToken(user._id);
+    const refreshToken = createRefreshToken(user._id);
+
+    user.refreshToken = [refreshToken];
+    await user.save();
+
+    res.cookie("accessToken", accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     user.password = undefined;
-
-    // Generate token
-    const token = createJWT(user._id);
-
     res.status(201).json({
       success: true,
       message: "Account created successfully",
-      token, // Include token in response
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -57,116 +71,172 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate fields
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Please Provide User Credentials" });
     }
 
-    // Find user by email
     const user = await Users.findOne({ email }).select("+password");
-
-    if (!user) {
+    if (!user || !(await compareString(password, user.password))) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // Compare password
-    const isMatch = await compareString(password, user.password);
+    const accessToken = createAccessToken(user._id);
+    const refreshToken = createRefreshToken(user._id);
 
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
+    user.refreshToken = [refreshToken];
+    await user.save();
 
-    // Exclude password from the response
+    res.cookie("accessToken", accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     user.password = undefined;
-
-    const token = createJWT(user._id);
-
     res.status(200).json({
       success: true,
       message: "Login successful",
-      token,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    // Clear the token cookie
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: true,
-    });
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      const user = await Users.findOne({ refreshToken });
+      if (user) {
+        user.refreshToken = [];
+        await user.save();
+      }
+    }
+
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
 
     res.status(200).json({
       success: true,
       message: "Logout successful",
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// logged-in user
-export const me = async (req, res) => {
+export const refreshToken = async (req, res) => {
   try {
-    if (!req.user || !req.user._id) {
-      return res
-        .status(401)
-        .json({ error: "Unauthorized: User not authenticated" });
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: "No token provided. Please log in " });
     }
 
-    const userId = req.user._id; // Get the user's ID from the request
+    const user = await Users.findOne({ refreshToken });
+    if (!user) {
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
+      return res.status(403).json({ success: false, message: "Invalid refresh token" });
+    }
 
-    // Retrieve user data without the password field, populate relationships
-    const user = await Users.findById(userId)
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      const newAccessToken = createAccessToken(user._id);
+
+      res.cookie("accessToken", newAccessToken, {
+        ...cookieOptions,
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Token refreshed successfully",
+      });
+    } catch (error) {
+      user.refreshToken = [];
+      await user.save();
+      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie("refreshToken", cookieOptions);
+      return res.status(403).json({ success: false, message: "Refresh token expired or invalid" });
+    }
+  } catch (error) {
+    // console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const me = async (req, res) => {
+  try {
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: No access token provided" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
+    } catch (error) {
+      return res.status(401).json({ error: "Invalid or expired access token" });
+    }
+
+    const user = await Users.findById(decoded.userId)
       .select("-password")
       .populate({
         path: "blockedUsers.user following.user followers.user",
-        select: "_id name username avatar", // Select specific fields
+        select: "_id name username avatar",
       })
       .populate({
         path: "bookMarks.postId",
-        select: "_id title", // For bookmarks, you can adjust post fields as necessary
+        select: "_id title",
       });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    return res.status(200).json(user);
+    res.status(200).json(user)
   } catch (error) {
-    console.error(`Error in 'me' route: ${error.message}`, error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    // console.error(`Error in 'me' route: ${error.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const update = async (req, res) => {
-  const { name, username, bio, avatar } = req.body; // Exclude avatar from req.body
+  const { name, username, bio, avatar } = req.body;
 
   try {
-    
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized: No access token provided" });
+    }
 
-    const userId = req.user._id; // Get the user's ID from the request
+    let decoded;
+    try {
+      decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
+    } catch (error) {
+      return res.status(401).json({ error: "Invalid or expired access token" });
+    }
 
-    // Find the user by ID
-    const user = await Users.findById(userId);
-
-    // Check if the user exists
+    const user = await Users.findById(decoded.userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Check if the username is provided and it's different from the current one
     if (username && username !== user.username) {
-      // Check if the new username already exists in the database
       const usernameExists = await Users.findOne({ username });
-
       if (usernameExists) {
         return res.status(400).json({
           error: "Username already taken. Please choose another one.",
@@ -174,22 +244,21 @@ export const update = async (req, res) => {
       }
     }
 
-    // Update user fields only if new values are provided
     if (name) user.name = name;
     if (username) user.username = username;
     if (bio) user.bio = bio;
     if (avatar) user.avatar = avatar;
 
-   
-    // Save the updated user data
     await user.save();
 
-    // Return the updated user data (excluding password)
-    const updatedUser = await Users.findById(userId).select("-password");
+    const updatedUser = await Users.findById(decoded.userId).select("-password");
 
-    return res.status(200).json(updatedUser);
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
   } catch (error) {
-    console.error(`Error in update route: ${error.message}`);
-    return res.status(500).json({ error: "Internal Server Error" });
+    // console.error(`Error in update route: ${error.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

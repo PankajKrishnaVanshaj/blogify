@@ -1,167 +1,131 @@
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/posts";
-
-// Create an axios instance with default settings
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-});
+import { apiClient, handleApiCall } from "./client";
 
 export const fetchSitemapPosts = async () => {
+ // console.log("Fetching sitemap posts");
   try {
-    const response = await axiosInstance.get("/sitemap-posts");
-    return response.data
+    const response = await apiClient.get("/posts/sitemap-posts");
+   // console.log("Sitemap posts fetched:", response.data);
+    return response.data;
   } catch (error) {
-    console.error("Error fetching sitemap posts:", error);
-    throw new Error(
-      error.response?.data?.message || "Failed to fetch posts"
-    );
+   // console.error("Error fetching sitemap posts:", error.message);
+    throw new Error(error.response?.data?.message || "Failed to fetch posts");
   }
 };
 
 export const fetchAllPosts = async () => {
+ // console.log("Fetching all posts");
   try {
-    const response = await axiosInstance.get("/get-all-posts");
+    const response = await apiClient.get("/posts/get-all-posts");
+   // console.log("All posts fetched:", response.data.posts);
     return response.data.posts || [];
   } catch (error) {
+   // console.error("Error fetching all posts:", error.message);
     throw new Error(error.response?.data?.message || "Failed to fetch posts");
   }
 };
 
 export const fetchFilterPosts = async (page, category) => {
-  const categoryParam =
-    category === "All" ? "" : `&category=${encodeURIComponent(category)}`;
-  const response = await axios.get(
-    `${API_URL}/get-all-posts?page=${page}&limit=10${categoryParam}`
-  );
-  return response.data;
+  const categoryParam = category === "All" ? "" : `&category=${encodeURIComponent(category)}`;
+ // console.log(`Fetching filtered posts, page: ${page}, category: ${category}`);
+  try {
+    const response = await apiClient.get(`/posts/get-all-posts?page=${page}&limit=10${categoryParam}`);
+   // console.log("Filtered posts fetched:", response.data);
+    return response.data;
+  } catch (error) {
+   // console.error("Error fetching filtered posts:", error.message);
+    throw new Error(error.response?.data?.message || "Failed to fetch posts");
+  }
 };
 
-// Fetch all posts for the creator
 export const fetchCreatorPosts = async (page = 1, limit = 10) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-  if (!token) {
-    throw new Error("No user found. Please log in.");
-  }
-
+ // console.log(`Fetching creator posts, page: ${page}, limit: ${limit}`);
   try {
-    const { data } = await axiosInstance.get("/all-posts-of-creator", {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { page, limit }, // Sending page and limit as query params
+    const response = await apiClient.get("/posts/all-posts-of-creator", {
+      params: { page, limit },
     });
-    return data;
+   // console.log("Creator posts fetched:", response.data);
+    return response.data;
   } catch (error) {
+   // console.error("Error fetching creator posts:", error.message);
     throw new Error("Failed to fetch posts.");
   }
 };
 
-
-// Fetch a post by ID
 export const getPostById = async (postId) => {
+ // console.log(`Fetching post with ID: ${postId}`);
   try {
-    const response = await axiosInstance.get(`/post/${postId}`);
+    const response = await apiClient.get(`/posts/post/${postId}`);
+   // console.log("Post data:", response.data);
     return response.data;
   } catch (error) {
+   // console.error("Error fetching post:", error.message);
     throw new Error("Failed to fetch post data.");
   }
 };
 
-// Create a new post
 export const createPostAPI = async (formData) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-  if (!token) {
-    throw new Error("You must be logged in to create a post.");
-  }
-
+ // console.log("Creating post with data:", Object.fromEntries(formData));
   try {
-    const response = await axiosInstance.post("/create-post", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const promise = apiClient.post("/posts/create-post", formData, {
+      // Remove Content-Type header; FormData sets it automatically
     });
-
-    if (response.status === 201) {
-      return { success: true, message: "Post submitted successfully" };
+    const response = await handleApiCall(promise);
+    if (response.success) {
+     // console.log("Post submitted successfully:", response.data);
+      return { success: true, message: "Post submitted successfully", data: response.data };
     } else {
-      return { success: false, message: "Error submitting post" };
+      throw new Error(response.message);
     }
   } catch (error) {
+   // console.error("Error creating post:", error.message);
     return {
       success: false,
-      message: error.response
-        ? error.response.data.message
-        : "An unexpected error occurred",
+      message: error.response?.data?.message || "An unexpected error occurred",
     };
   }
 };
 
-// Update a post
 export const updatePost = async (postId, formData) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-  if (!token) {
-    throw new Error("You must be logged in to update a post.");
-  }
-
+ // console.log(`Updating post with ID: ${postId}, data:`, Object.fromEntries(formData));
   try {
-    const response = await axiosInstance.put(`/edit-post/${postId}`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const promise = apiClient.put(`/posts/edit-post/${postId}`, formData, {
+      // Let FormData set the Content-Type automatically
     });
-    return response.data;
+    const response = await handleApiCall(promise);
+    if (response.success) {
+     // console.log("Post updated successfully:", response.data);
+      return { success: true, message: "Post updated successfully", data: response.data };
+    } else {
+      throw new Error(response.message);
+    }
   } catch (error) {
-    throw new Error(
-      error.response
-        ? error.response.data.message
-        : "An unexpected error occurred"
-    );
+   // console.error("Error updating post:", error.message);
+    return {
+      success: false,
+      message: error.response?.data?.message || "Failed to update post",
+    };
   }
 };
 
-// Delete a post
 export const deletePost = async (postId) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-  if (!token) {
-    throw new Error("You must be logged in to delete posts.");
-  }
-
+ // console.log(`Deleting post with ID: ${postId}`);
   try {
-    await axiosInstance.delete(`/post/${postId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await apiClient.delete(`/posts/post/${postId}`);
+   // console.log("Post deleted successfully");
   } catch (error) {
+   // console.error("Error deleting post:", error.message);
     throw new Error("Failed to delete post.");
   }
 };
 
-// Toggle like/dislike for a post
 export const toggleLikeDislike = async (postId) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  if (!token) throw new Error("Login required.");
-
+ // console.log(`Toggling like/dislike for post: ${postId}`);
   try {
-    const { data } = await axiosInstance.post(
-      `/${postId}/toggle-like-dislike`,
-      {}, // Empty body
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    return data; // Return relevant data
+    const response = await apiClient.post(`/posts/${postId}/toggle-like-dislike`, {});
+   // console.log("Like/dislike toggled:", response.data);
+    return response.data;
   } catch (error) {
-    throw new Error(
-      error.response?.data?.message || "Failed to toggle like/dislike"
-    );
+   // console.error("Error toggling like/dislike:", error.message);
+    throw new Error(error.response?.data?.message || "Failed to toggle like/dislike");
   }
 };

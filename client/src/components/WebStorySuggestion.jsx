@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import WebStoryCard from "./WebStoryCard";
 import { useParams } from "next/navigation";
-import axios from "axios"; // Import axios
 
 const WebStorySuggestion = ({ category }) => {
   const { creator: webStoryId } = useParams();

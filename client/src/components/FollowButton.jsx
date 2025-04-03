@@ -8,8 +8,6 @@ const FollowButton = ({ userId }) => {
   const { user } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
   const [followers, setFollowers] = useState(userId?.followers?.length || 0);
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   // Check follow status on component mount or when user/userId changes
   useEffect(() => {
@@ -23,21 +21,23 @@ const FollowButton = ({ userId }) => {
 
   const toggleFollowUnfollow = async () => {
     try {
-      if (!token) {
-        toast.error("Please log in first");
-        return;
-      }
-
       // Call the service function to toggle follow/unfollow
       const response = await toggleFollowingUnfollowing(userId._id);
 
-      if (response) {
+      if (response.success) {
         setIsFollowing((prev) => !prev); // Toggle follow status
         setFollowers((prev) => (isFollowing ? prev - 1 : prev + 1)); // Update follower count
-        toast(`You ${isFollowing ? "unfollowed" : "followed"} ${userId.name}`);
+        // Use the API-provided message or fallback to a dynamic one
+        const successMessage = response.message || `You ${isFollowing ? "unfollowed" : "followed"} ${userId.name}`;
+        toast.success(successMessage);
+      } else {
+        // Show error message from API if success is false
+        toast.error(response.message || "Failed to toggle follow/unfollow");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred");
+      // Handle unexpected errors (e.g., network issues)
+      console.error("Unexpected error toggling follow/unfollow:", error);
+      toast.error("An unexpected error occurred while toggling follow/unfollow");
     }
   };
 

@@ -5,11 +5,16 @@ import { FaTachometerAlt } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { logout } from "@/api/auth.api";
 
 const MeInfo = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev);
@@ -19,9 +24,19 @@ const MeInfo = () => {
     setIsOpen(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/sign-in";
+  const handleLogout = async () => {
+    try {
+      const { success, message } = await logout();
+      if (success) {
+        toast.success("Logged out successfully!");
+        router.push("/sign-in"); // Redirect to sign-in page after logout
+      } else {
+        toast.error(message || "Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("An error occurred during logout. Please try again.");
+    }
   };
 
   useEffect(() => {

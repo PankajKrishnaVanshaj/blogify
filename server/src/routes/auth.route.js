@@ -3,6 +3,7 @@ import {
   login,
   logout,
   me,
+  refreshToken,
   register,
   update,
 } from "../controllers/auth.controller.js";
@@ -17,6 +18,7 @@ authRoute.post("/login", login);
 authRoute.post("/logout", logout);
 authRoute.get("/me", authMiddleware, me);
 authRoute.put("/update", authMiddleware,  update);
+authRoute.post("/refresh-token", refreshToken);
 
 // Route for initiating Google OAuth
 authRoute.get(
@@ -35,12 +37,23 @@ authRoute.get(
     failureRedirect: `${process.env.CLIENT_HOST}`,
   }),
   (req, res) => {
-    if (req.user && req.user.token) {
-      const { token } = req.user;
-      // Redirect to client with token as a query parameter
-      res.redirect(`${process.env.CLIENT_HOST}/auth?token=${token}`);
+    if (req.user && req.user.accessToken && req.user.refreshToken) {
+      res.cookie('accessToken', req.user.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000
+      });
+      
+      res.cookie('refreshToken', req.user.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
+      res.redirect(`${process.env.CLIENT_HOST}/dashboard`);
     } else {
-      // Redirect to client if no token
       res.redirect(`${process.env.CLIENT_HOST}`);
     }
   }

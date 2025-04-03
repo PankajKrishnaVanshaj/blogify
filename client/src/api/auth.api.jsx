@@ -1,88 +1,76 @@
-import axios from "axios";
-import { toast } from "sonner";
+import { apiClient, handleApiCall } from "./client";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
 
-const apiClient = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
-
-// Function to handle API calls
-const handleApiCall = async (promise) => {
+// Adjusted refreshAccessToken to not expect data in response
+export const refreshAccessToken = async () => {
+ // console.log("Calling refreshAccessToken");
+  const promise = apiClient.post("/auth/refresh-token");
   try {
-    const response = await promise;
-    if (response.data.success) {
-      return { success: true, data: response.data };
+    const response = await handleApiCall(promise);
+    if (response.success) {
+     // console.log("Refresh token successful, new access token set in cookie");
+      return { success: true }; // No data expected since token is in cookie
     } else {
-      throw new Error(response.data.message);
+      throw new Error(response.message);
     }
   } catch (error) {
-    console.error("API Error:", error);
-    const errorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "An error occurred. Please try again.";
-    toast.error(errorMessage);
-    return { success: false, message: errorMessage };
-  }
-};
-
-// Function to get the current user
-export const getCurrentUser = async () => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-  if (!token) {
-    console.log("No token found");
-    return null;
-  }
-
-  try {
-    const response = await axios.get(`${API_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching user:", error);
+   // console.error("Refresh token failed:", error.message);
     throw error;
   }
 };
 
-// Sign-in function
+export const getCurrentUser = async () => {
+ // console.log("Fetching current user");
+  try {
+    const response = await apiClient.get("/auth/me");
+   // console.log("Current user data:", response.data);
+    return response.data;
+  } catch (error) {
+   // console.error("Error fetching user:", error.message);
+    throw error;
+  }
+};
+
 export const signIn = async (email, password) => {
+ // console.log("Attempting sign in for:", email);
   const payload = { email, password };
   const promise = apiClient.post("/auth/login", payload);
-  const result = await handleApiCall(promise);
-
-  if (result.success) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("token", result.data.token);
-    }
-    return { success: true, message: result.data.message };
-  }
-  return result;
+  return await handleApiCall(promise);
 };
 
-// Sign-up function
 export const signUp = async (firstName, lastName, email, password) => {
+ // console.log("Attempting sign up for:", email);
   const payload = { firstName, lastName, email, password };
   const promise = apiClient.post("/auth/register", payload);
-  const result = await handleApiCall(promise);
-
-  if (result.success) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("token", result.data.token);
-    }
-    return { success: true, message: result.data.message };
-  }
-  return result;
+  return await handleApiCall(promise);
 };
 
-// Google login function
 export const googleLogin = () => {
+ // console.log("Initiating Google login");
   window.open(`${API_URL}/auth/google`, "_self");
+};
+
+export const logout = async () => {
+ // console.log("Attempting logout");
+  try {
+    await apiClient.post("/auth/logout");
+   // console.log("Logout successful");
+    return { success: true };
+  } catch (error) {
+   // console.error("Logout error:", error.message);
+    return { success: false, message: error.message };
+  }
+};
+
+export const isAuthenticated = async () => {
+ // console.log("Checking authentication status");
+  try {
+    await getCurrentUser();
+   // console.log("User is authenticated");
+    return true;
+  } catch (error) {
+   // console.log("User is not authenticated:", error.message);
+    return false;
+  }
 };

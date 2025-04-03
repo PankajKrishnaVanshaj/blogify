@@ -29,7 +29,7 @@ export const searchSuggestion = async (req, res) => {
 
     res.status(200).json(suggestions); // Directly return the array
   } catch (error) {
-    console.error("Error during search:", error);
+    // console.error("Error during search:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -59,7 +59,7 @@ export const searchPost = async (req, res) => {
 
     res.status(200).json({ success: true, posts });
   } catch (error) {
-    console.error("Error during search:", error);
+    // console.error("Error during search:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -111,7 +111,7 @@ export const suggestionPostsByCategory = async (req, res, next) => {
       posts,
     });
   } catch (err) {
-    console.error("Error finding posts by category:", err);
+    // console.error("Error finding posts by category:", err);
     // Create and pass an error to the next middleware
     const error = new Error(
       "Error finding posts by category: " + (err.message || "Unknown error")

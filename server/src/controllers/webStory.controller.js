@@ -111,7 +111,7 @@ export const getWebStoryByIdOrSlug = async (req, res) => {
 
     res.status(200).json(webStory);
   } catch (error) {
-    console.error("Error fetching web story:", error);
+    // console.error("Error fetching web story:", error);
     res.status(500).json({
       success: false,
       message: "Failed to retrieve web story",
@@ -161,7 +161,7 @@ export const getWebStoryByCreator = async (req, res) => {
       totalPages: Math.ceil(totalCount / limit), // Calculate the total number of pages
     });
   } catch (error) {
-    console.error("Error in getWebStoryByCreator:", error);
+    // console.error("Error in getWebStoryByCreator:", error);
 
     return res.status(500).json({
       success: false,
@@ -181,7 +181,7 @@ export const getSitemapWebStories = async (req, res) => {
 
     return res.status(200).json(webStories);
   } catch (error) {
-    console.error("Error fetching web-stories for sitemap:", error);
+    // console.error("Error fetching web-stories for sitemap:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error." });

@@ -15,22 +15,19 @@ const WebStorySlideEditor = ({
   const [isOpen, setIsOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(slides[currentIndex] || {});
 
-  // Sync currentSlide with slides[currentIndex] when index or slides change
   useEffect(() => {
     setCurrentSlide(slides[currentIndex] || { content: "", duration: 5, media: null });
   }, [currentIndex, slides]);
 
-  // Handle changes from React-Quill
   const handleContentChange = (value) => {
     const updatedSlides = [...slides];
     updatedSlides[currentIndex] = { ...currentSlide, content: value };
     setSlides(updatedSlides);
-    setCurrentSlide({ ...currentSlide, content: value }); // Keep local state in sync
+    setCurrentSlide({ ...currentSlide, content: value });
   };
 
-  // Handle duration input change
   const handleDurationChange = (e) => {
-    const value = parseInt(e.target.value, 10) || 5; // Default to 5 if invalid
+    const value = parseInt(e.target.value, 10) || 5;
     const updatedSlides = [...slides];
     updatedSlides[currentIndex] = { ...currentSlide, duration: value };
     setSlides(updatedSlides);
@@ -45,35 +42,29 @@ const WebStorySlideEditor = ({
     setIsOpen(false);
   };
 
-  const toggleMediaTab = () => {
-    setIsOpen((prev) => !prev);
-  };
+  const toggleMediaTab = () => setIsOpen((prev) => !prev);
 
   const addSlide = () => {
     const newSlide = { content: "", duration: 5, media: null };
     const updatedSlides = [...slides, newSlide];
     setSlides(updatedSlides);
-    setCurrentIndex(updatedSlides.length - 1); // Navigate to new slide
+    setCurrentIndex(updatedSlides.length - 1);
   };
 
   const removeSlide = () => {
     if (slides.length > 1) {
       const updatedSlides = slides.filter((_, index) => index !== currentIndex);
       setSlides(updatedSlides);
-      setCurrentIndex(Math.max(0, currentIndex - 1)); // Adjust index
+      setCurrentIndex(Math.max(0, currentIndex - 1));
     }
   };
 
   const goToNextSlide = () => {
-    if (currentIndex < slides.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-    }
+    if (currentIndex < slides.length - 1) setCurrentIndex((prev) => prev + 1);
   };
 
   const goToPreviousSlide = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-    }
+    if (currentIndex > 0) setCurrentIndex((prev) => prev - 1);
   };
 
   const modules = {
@@ -87,20 +78,20 @@ const WebStorySlideEditor = ({
   const formats = ["bold", "italic", "underline", "strike", "list", "bullet"];
 
   return (
-    <div className="p-4 bg-gray-100 h-full">
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-bold">Web Story Slide Editor</h2>
-        <p className="text-gray-700">
+    <div className="p-6 bg-gray-50 rounded-lg shadow-md h-full overflow-y-auto">
+      <div className="mb-6 flex justify-between items-center">
+        <h2 className="text-2xl font-semibold text-gray-800">Web Story Slide Editor</h2>
+        <p className="text-sm text-gray-600">
           Slide {currentIndex + 1} of {slides.length}
         </p>
       </div>
 
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between mb-6 gap-3">
         <button
-          className={`px-4 py-2 rounded ${
+          className={`flex-1 px-4 py-2 rounded-lg transition duration-200 shadow-md ${
             currentIndex === 0
-              ? "bg-gray-300 text-gray-500"
-              : "bg-blue-500 text-white hover:bg-blue-600"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-primary text-white hover:bg-primary/85"
           }`}
           onClick={goToPreviousSlide}
           disabled={currentIndex === 0}
@@ -108,10 +99,10 @@ const WebStorySlideEditor = ({
           Previous Slide
         </button>
         <button
-          className={`px-4 py-2 rounded ${
+          className={`flex-1 px-4 py-2 rounded-lg transition duration-200 shadow-md ${
             currentIndex === slides.length - 1
-              ? "bg-gray-300 text-gray-500"
-              : "bg-blue-500 text-white hover:bg-blue-600"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-primary text-white hover:bg-primary/85"
           }`}
           onClick={goToNextSlide}
           disabled={currentIndex === slides.length - 1}
@@ -120,46 +111,50 @@ const WebStorySlideEditor = ({
         </button>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Slide Content</label>
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Slide Content</label>
         <ReactQuill
           value={currentSlide.content || ""}
           onChange={handleContentChange}
           placeholder="Enter slide content"
           modules={modules}
           formats={formats}
-          className="bg-white border border-gray-300 rounded"
+          className="bg-white border border-gray-300 rounded-lg shadow-sm"
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Duration (seconds)</label>
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Duration (seconds)</label>
         <input
           type="number"
           name="duration"
           value={currentSlide.duration || 5}
           onChange={handleDurationChange}
           min="1"
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200"
         />
       </div>
 
-      <div className="flex space-x-2 mb-4">
+      <div className="flex gap-3">
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/85 transition duration-200 shadow-md flex items-center justify-center"
           onClick={toggleMediaTab}
         >
-          <TbImageInPicture className="inline-block mr-2" />
+          <TbImageInPicture className="mr-2" />
           Add Media
         </button>
         <button
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/85 transition duration-200 shadow-md"
           onClick={addSlide}
         >
           Add Slide
         </button>
         <button
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          className={`flex-1 px-4 py-2 rounded-lg transition duration-200 shadow-md ${
+            slides.length === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-primary text-white hover:bg-primary/85"
+          }`}
           onClick={removeSlide}
           disabled={slides.length === 1}
         >

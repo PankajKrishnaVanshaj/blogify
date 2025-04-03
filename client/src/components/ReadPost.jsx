@@ -25,7 +25,7 @@ const ReadPost = ({ params }) => {
       if (selected) {
         setSelectedText(selected);
       } else {
-        setSelectedText(""); 
+        setSelectedText("");
       }
     };
 
@@ -68,14 +68,13 @@ const ReadPost = ({ params }) => {
     );
   }
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   return (
     <div className="py-4 px-0 w-full">
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 w-full">
         <ScrollButtons />
-        <div className="col-span-3 p-4">
+        <div className="col-span-1 md:col-span-3 p-4">
           <h1 className="text-2xl md:text-5xl font-bold text-gray-800">
             {post.title.length > 85
               ? `${post.title.slice(0, 85)}...`
@@ -106,20 +105,14 @@ const ReadPost = ({ params }) => {
             </div>
           </div>
         </div>
-        <div className="col-span-2">
-          <figure className="h-72 w-full overflow-hidden rounded-lg mb-4 shadow-sm hover:shadow-primary">
+        <div className="col-span-1 md:col-span-2 flex justify-center items-center">
+          <figure className="h-72 w-full overflow-hidden rounded-lg shadow-sm hover:shadow-primary">
             <Image
               src={`${baseUrl}/${post.banner || "blogify.png"}`}
-              alt={post.title}
+              alt={post.title || "Blog Post Banner"}
               width={1200}
               height={675}
-              priority
-              srcSet={`
-                ${baseUrl}/${post.banner || "blogify.png"}?w=1200 1200w,
-                ${baseUrl}/${post.banner || "blogify.png"}?w=800 800w,
-                ${baseUrl}/${post.banner || "blogify.png"}?w=400 400w
-              `}
-              sizes="(max-width: 768px) 400px, (max-width: 1200px) 800px, 1200px"
+              priority={true} // Explicitly set to true for clarity
               className="object-cover w-full h-full"
             />
           </figure>
@@ -134,7 +127,7 @@ const ReadPost = ({ params }) => {
         <main className="col-span-3">
           <article
             className="text-black prose prose-lg"
-            dangerouslySetInnerHTML={{ __html: post.content}}
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </main>
         <aside className="flex flex-col justify-evenly">

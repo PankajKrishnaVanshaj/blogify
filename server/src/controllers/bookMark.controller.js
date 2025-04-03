@@ -37,7 +37,7 @@ const BookMarkStatus = async (req, res) => {
       isInBookMark,
     });
   } catch (error) {
-    console.error("Error fetching bookmark status:", error);
+    // console.error("Error fetching bookmark status:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -90,7 +90,7 @@ const toggleBookMark = async (req, res) => {
       isInBookMark: !isInBookMark,
     });
   } catch (error) {
-    console.error("Error toggling bookmark:", error);
+    // console.error("Error toggling bookmark:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -124,7 +124,7 @@ const getBookMark = async (req, res) => {
       bookMarks: user.bookMarks,
     });
   } catch (error) {
-    console.error("Error fetching bookmarks:", error.message || error);
+    // console.error("Error fetching bookmarks:", error.message || error);
     res.status(500).json({
       message: "Internal Server Error",
       error: error.message || error,

@@ -42,7 +42,7 @@ const EditProfile = () => {
       toast.error("Failed to update profile");
     }
   };
-
+console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/${selectedMedia}`)
   return (
     <div className="w-full mx-auto p-8 bg-white shadow-lg rounded-xl border border-gray-200">
       <div className="flex items-center space-x-8 mb-8">

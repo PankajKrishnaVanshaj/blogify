@@ -1,6 +1,8 @@
 "use client";
+import { logout } from "@/api/auth.api";
 import Logo from "@/components/Logo";
 import Link from "next/link";
+import { toast } from "sonner";
 import React, { useState } from "react";
 import { BiSolidMessageAltDetail } from "react-icons/bi";
 import {
@@ -15,8 +17,10 @@ import { FaUsers } from "react-icons/fa6";
 import { MdOutlineAddToPhotos, MdOutlineWebStories } from "react-icons/md";
 import { RiArticleFill } from "react-icons/ri";
 import { VscFileMedia } from "react-icons/vsc";
+import { useRouter } from "next/navigation";
 
 const Sidebar = () => {
+  const router = useRouter();
   const [openSections, setOpenSections] = useState({});
   const [selectedLink, setSelectedLink] = useState("dashboard");
 
@@ -96,9 +100,19 @@ const Sidebar = () => {
     setSelectedLink(link);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/sign-in";
+  const handleLogout = async () => {
+    try {
+      const { success, message } = await logout();
+      if (success) {
+        toast.success("Logged out successfully!");
+        router.push("/sign-in"); // Redirect to sign-in page after logout
+      } else {
+        toast.error(message || "Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("An error occurred during logout. Please try again.");
+    }
   };
   return (
     <aside className="w-60 h-screen shadow-lg bg-gradient-to-r from-pink-50 via-pink-100 to-pink-200 p-4 rounded-l-sm rounded-r-3xl my-2 flex flex-col">

@@ -5,52 +5,72 @@ import Divider from "@/components/Divider";
 import Inputbox from "@/components/Inputbox";
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { signIn, googleLogin } from "@/api/auth.api";
+import { signIn, googleLogin, isAuthenticated } from "@/api/auth.api";
+import { useRouter } from "next/navigation";
+import debounce from "lodash/debounce";
 
 const Signin = () => {
   const [data, setData] = useState({
     email: "",
     password: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setData({
-      ...data,
-      [name]: value,
-    });
+    setData({ ...data, [name]: value });
   };
 
-  const initiateGoogleLogin = async () => {
-    const result = await googleLogin();
+  const initiateGoogleLogin = () => {
+    googleLogin();
   };
+
+  const debouncedSignIn = useCallback(
+    debounce(async (email, password) => {
+      setIsSubmitting(true);
+      const { success, message } = await signIn(email, password);
+      if (success) {
+        toast.success(message || "Successfully signed in!");
+        router.push("/dashboard");
+      } else {
+        if (message.includes("Too many requests")) {
+          toast.error("Please wait a moment before trying again.");
+        } else {
+          toast.error(message || "Sign-in failed. Please try again.");
+        }
+      }
+      setIsSubmitting(false);
+    }, 1000),
+    [router]
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const { success, message } = await signIn(data.email, data.password);
-
-    if (success) {
-      toast.success(message || "Successfully signed in!");
-      window.location.replace("/dashboard");
-    } else {
-      toast.error(message || "Sign-in failed. Please try again.");
-    }
+    if (isSubmitting) return;
+    debouncedSignIn(data.email, data.password);
   };
 
+  const debouncedCheckAuth = useCallback(
+    debounce(async () => {
+      const authenticated = await isAuthenticated();
+      if (authenticated) {
+        router.push("/dashboard");
+      }
+    }, 1000),
+    [router]
+  );
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      window.location.replace("/");
-    }
-  }, []);
+    debouncedCheckAuth();
+  }, [debouncedCheckAuth]);
 
   return (
     <div className="flex w-full h-[100vh]">
       <div className="hidden md:flex flex-col gap-y-4 w-1/3 min-h-screen bg-black rounded-md items-center justify-center">
-        <Logo type="sigin" />
+        <Logo type="signin" />
         <span className="text-2xl font-semibold text-white">
           Welcome, <span className="text-rose-500">back!</span>
         </span>
@@ -73,6 +93,7 @@ const Signin = () => {
               label="Sign in with Google"
               icon={<FcGoogle />}
               styles="w-full flex flex-row-reverse gap-4 bg-white dark:bg-transparent text-black dark:text-white px-5 py-2.5 rounded-full border border-gray-300 dark:border-gray-700"
+              disabled={isSubmitting}
             />
 
             <Divider label="or sign in with email" />
@@ -87,6 +108,7 @@ const Signin = () => {
                   placeholder="email@example.com"
                   value={data.email}
                   onChange={handleChange}
+                  disabled={isSubmitting}
                 />
 
                 <Inputbox
@@ -97,13 +119,15 @@ const Signin = () => {
                   placeholder="Password"
                   value={data.password}
                   onChange={handleChange}
+                  disabled={isSubmitting}
                 />
               </div>
 
               <Button
-                label="Sign In"
+                label={isSubmitting ? "Signing In..." : "Sign In"}
                 type="submit"
                 styles="group relative w-full flex justify-center py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-black dark:bg-rose-800 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 mt-8"
+                disabled={isSubmitting}
               />
             </form>
 

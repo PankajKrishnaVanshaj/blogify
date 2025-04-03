@@ -1,61 +1,52 @@
-import axios from "axios";
+import { apiClient } from "./client";
 
-// Define the base API URL
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
 
 export const fetchPostsByCategory = async (category) => {
   if (!category) {
     throw new Error("Category is required");
   }
-
-  const response = await axios.get(
-    `${API_URL}/search/suggestion-posts-by-category?category=${encodeURIComponent(
-      category
-    )}`
-  );
-
-  const data = response.data;
-
-  // Check if data has 'posts' array
-  if (!Array.isArray(data.posts)) {
-    throw new Error("Received data is not in the expected format");
+  // console.log(`Fetching posts by category: ${category}`);
+  try {
+    const response = await apiClient.get(
+      `${API_URL}/search/suggestion-posts-by-category?category=${encodeURIComponent(category)}`
+    );
+    // console.log("Posts by category fetched:", response.data.posts);
+    if (!Array.isArray(response.data.posts)) {
+      throw new Error("Received data is not in the expected format");
+    }
+    return response.data.posts;
+  } catch (error) {
+    // console.error("Error fetching posts by category:", error.message);
+    throw new Error(error.response?.data?.message || "Failed to fetch posts");
   }
-
-  return data.posts;
 };
 
-// Function to fetch search suggestions
 export const fetchSearchSuggestions = async (query) => {
   if (!query.trim()) return [];
-
+  // console.log(`Fetching search suggestions for query: ${query}`);
   try {
-    const response = await axios.get(`${API_URL}/search/suggestion`, {
+    const response = await apiClient.get(`${API_URL}/search/suggestion`, {
       params: { q: query },
     });
-
-    const data = response.data;
-
-    // Ensure the data is an array
-    if (Array.isArray(data)) {
-      return data; // Return the suggestions
-    } else {
-      return []; // Return an empty array if data is not an array
-    }
+    // console.log("Search suggestions fetched:", response.data);
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
-    console.error("Error fetching suggestions:", error);
-    return []; // Return an empty array in case of an error
+    // console.error("Error fetching suggestions:", error.message);
+    return [];
   }
 };
 
-// Function to search posts
 export const searchPosts = async (query) => {
+  // console.log(`Searching posts with query: ${query}`);
   try {
-    const response = await axios.get(`${API_URL}/search`, {
+    const response = await apiClient.get(`${API_URL}/search`, {
       params: { q: query },
     });
-    return response.data.posts; // Return the posts from the response
+    // console.log("Search results:", response.data.posts);
+    return response.data.posts;
   } catch (error) {
-    console.error("Error fetching search results:", error);
-    throw error; // Re-throw the error for handling in the calling component
+    // console.error("Error fetching search results:", error.message);
+    throw new Error(error.response?.data?.message || "Failed to search posts");
   }
 };

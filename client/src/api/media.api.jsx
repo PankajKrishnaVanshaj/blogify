@@ -1,132 +1,107 @@
-import axios from "axios";
+import { apiClient, handleApiCall } from "./client";
 
-const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/medias";
-
-// Create an axios instance with default settings
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-});
-
-// Helper function to get the token
-const getToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
-  }
-  return null;
-};
 
 // Upload media
 export const uploadMediaAPI = async (formData) => {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("You must be logged in to upload media.");
-  }
-
+  // console.log("Uploading media with data:", formData);
   try {
-    const response = await axiosInstance.post("/upload-media", formData, {
+    const response = await apiClient.post("/medias/upload-media", formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
       },
     });
+    // console.log("Raw server response:", response); // Log full response
 
+    // Check status directly since handleApiCall might not fit here
     if (response.status === 201) {
-      return { success: true, message: "Media submitted successfully" };
+      // console.log("Media submitted successfully:", response.data);
+      return { success: true, message: "Media submitted successfully", data: response.data };
     } else {
-      return { success: false, message: "Error uploading media" };
+      // console.warn("Unexpected response status:", response.status);
+      return { success: false, message: "Unexpected response from server" };
     }
   } catch (error) {
-    const errorMessage = error.response
-      ? error.response.data.message
-      : error.message || "An unexpected error occurred";
-
-    console.error("Upload error:", error.response || error);
-
-    return {
-      success: false,
-      message: errorMessage,
-    };
+    const errorMessage =
+      error.response?.data?.message ||
+      error.message ||
+      "An unexpected error occurred during media upload";
+     console.error("Upload error:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+    return { success: false, message: errorMessage };
   }
 };
 
+// Fetch creator's media
 export const fetchCreatorMediaAPI = async (page = 1, limit = 10) => {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("No user found. Please log in.");
-  }
-
+  // console.log(`Fetching creator media, page: ${page}, limit: ${limit}`);
   try {
-    const { data } = await axiosInstance.get("/all-medias-of-creator", {
+    const response = await apiClient.get("/medias/all-medias-of-creator", {
       params: { page, limit },
-      headers: { Authorization: `Bearer ${token}` },
     });
-    return data;
+    // console.log("Creator media fetched:", response.data);
+    return response.data;
   } catch (error) {
+    // console.error("Error fetching creator media:", error.message);
     throw new Error("Failed to fetch medias.");
   }
 };
 
-
+// Fetch all medias
 export const fetchAllMedias = async () => {
+  // console.log("Fetching all medias");
   try {
-    const response = await axiosInstance.get("/get-all-medias");
+    const response = await apiClient.get("/medias/get-all-medias");
+    // console.log("All medias fetched:", response.data.posts);
     return response.data.posts || [];
   } catch (error) {
+    // console.error("Error fetching all medias:", error.message);
     throw new Error(error.response?.data?.message || "Failed to fetch posts");
   }
 };
 
+// Get media by ID
 export const getMediaById = async (mediaId) => {
+  // console.log(`Fetching media with ID: ${mediaId}`);
   try {
-    const response = await axiosInstance.get(`/media/${mediaId}`);
+    const response = await apiClient.get(`/medias/media/${mediaId}`);
+    // console.log("Media data:", response.data);
     return response.data;
   } catch (error) {
+    // console.error("Error fetching media:", error.message);
     throw new Error("Failed to fetch media data.");
   }
 };
 
+// Update media
 export const updateMedia = async (mediaId, formData) => {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("You must be logged in to update a media.");
-  }
-
+  // console.log(`Updating media with ID: ${mediaId}, data:`, formData);
   try {
-    const response = await axiosInstance.put(
-      `/edit-media/${mediaId}`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await apiClient.put(`/medias/edit-media/${mediaId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    // console.log("Media updated successfully:", response.data);
     return response.data;
   } catch (error) {
+    // console.error("Error updating media:", error.message);
     throw new Error(
-      error.response
-        ? error.response.data.message
-        : "An unexpected error occurred"
+      error.response?.data?.message || "An unexpected error occurred"
     );
   }
 };
 
+// Delete media
 export const deleteMedia = async (mediaId) => {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("You must be logged in to delete media.");
-  }
-
+  // console.log(`Deleting media with ID: ${mediaId}`);
   try {
-    await axiosInstance.delete(`/media/${mediaId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await apiClient.delete(`/medias/media/${mediaId}`);
+    // console.log("Media deleted successfully");
   } catch (error) {
+    // console.error("Error deleting media:", error.message);
     throw new Error("Failed to delete media.");
   }
 };

@@ -1,115 +1,103 @@
-import axios from "axios";
+import { apiClient } from "./client";
 
-const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1/web-stories";
 
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-});
-
-// Helper: Get token from localStorage
-const getToken = () => {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
-};
-
-// Helper: Set Authorization Header
-const setAuthHeader = () => {
-  const token = getToken();
-  if (!token) throw new Error("Authentication token is missing.");
-  return { Authorization: `Bearer ${token}` };
-};
-
-export const fetchSitemapWebStories =async ()=>{
+export const fetchSitemapWebStories = async () => {
+  // console.log("Fetching sitemap web stories");
   try {
-    const response = await axiosInstance.get("/web-stories");
-    return response.data
-  } catch (error) {
-    console.error("Error fetching sitemap web-stories:", error);
-    throw new Error(
-      error.response?.data?.message || "Failed to fetch web-stories"
-    );
-  }
-}
-
-// Fetch paginated web stories for creator
-export const fetchCreatorWebStories = async (page = 1, limit = 10) => {
-  try {
-    const response = await axiosInstance.get("/", {
-      headers: setAuthHeader(),
-      params: { page, limit },  // Add pagination params
-    });
+    const response = await apiClient.get("/web-stories/web-stories");
+    // console.log("Sitemap web stories fetched:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching creator web stories:", error.response?.data || error.message);
+    // console.error("Error fetching sitemap web-stories:", error.message);
+    throw new Error(error.response?.data?.message || "Failed to fetch web-stories");
+  }
+};
+
+export const fetchCreatorWebStories = async (page = 1, limit = 10) => {
+  // console.log(`Fetching creator web stories, page: ${page}, limit: ${limit}`);
+  try {
+    const response = await apiClient.get("/web-stories/", {
+      params: { page, limit },
+    });
+    // console.log("Creator web stories fetched:", response.data);
+    return response.data;
+  } catch (error) {
+    // console.error("Error fetching creator web stories:", error.message);
     throw new Error("Failed to fetch creator web stories.");
   }
 };
 
-// Delete a web story
 export const deleteWebStory = async (webStoryId) => {
+  // console.log(`Deleting web story: ${webStoryId}`);
   try {
-    await axiosInstance.delete(`/${webStoryId}`, {
-      headers: setAuthHeader(),
-    });
+    await apiClient.delete(`/web-stories/${webStoryId}`);
+    // console.log("Web story deleted successfully");
   } catch (error) {
-    console.error("Error deleting web story:", error.response?.data || error.message);
+    // console.error("Error deleting web story:", error.message);
     throw new Error("Failed to delete the web story.");
   }
 };
 
-// Fetch a web story by ID
 export const getWebStoryById = async (webStoryId) => {
+  // console.log(`Fetching web story with ID: ${webStoryId}`);
   try {
-    const response = await axiosInstance.get(`/${webStoryId}/stories`);
+    const response = await apiClient.get(`/web-stories/${webStoryId}/stories`);
+    // console.log("Web story data:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching web story by ID:", error.response?.data || error.message);
+    // console.error("Error fetching web story:", error.message);
     throw new Error("Failed to fetch web story.");
   }
 };
 
-// Update a web story
 export const updateWebStory = async (webStoryId, updatedData) => {
+  // console.log(`Updating web story with ID: ${webStoryId}, data:`, updatedData);
   try {
-    const response = await axiosInstance.put(`/${webStoryId}`, updatedData, {
-      headers: {
-        ...setAuthHeader(),
-        "Content-Type": "application/json",
-      },
+    const response = await apiClient.put(`/web-stories/${webStoryId}`, updatedData, {
+      headers: { "Content-Type": "application/json" },
     });
+    // console.log("Web story updated successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error updating web story:", error.response?.data || error.message);
+    // console.error("Error updating web story:", error.message);
     throw new Error("Failed to update the web story.");
   }
 };
 
-// Create a new web story
 export const createWebStory = async (webStoryData) => {
+  // console.log("Creating web story with data:", webStoryData);
   try {
-    const response = await axiosInstance.post("/", webStoryData, {
-      headers: {
-        ...setAuthHeader(),
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await apiClient.post("/web-stories/", webStoryData);
+    // console.log("Web story API response:", response.data);
+
+    // Check if response indicates success (adjust based on your API)
+    if (!response.data || (response.data.success !== undefined && !response.data.success)) {
+      throw new Error(response.data.message || "Web story creation failed on server.");
+    }
+
     return response.data;
   } catch (error) {
-    console.error("Error creating web story:", error.response?.data || error.message);
-    throw new Error("Failed to create the web story.");
+    // Include server response details in the error
+    const errorMessage = error.response?.data?.message || error.message || "Failed to create the web story.";
+    console.error("Error creating web story:", {
+      message: errorMessage,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    throw new Error(errorMessage);
   }
 };
 
-
-// Fetch paginated web stories
 export const fetchPaginatedWebStories = async (page, limit) => {
+  // console.log(`Fetching paginated web stories, page: ${page}, limit: ${limit}`);
   try {
-    const response = await axiosInstance.get("/all", {
+    const response = await apiClient.get("/web-stories/all", {
       params: { page, limit },
     });
+    // console.log("Paginated web stories fetched:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching paginated web stories:", error.response?.data || error.message);
+    // console.error("Error fetching paginated web stories:", error.message);
     throw new Error("Failed to fetch paginated web stories.");
   }
 };

@@ -14,10 +14,10 @@ const uploadDirectory = path.resolve(__dirname, "..", "..", "uploads");
 const ensureUploadDirectory = async () => {
   try {
     await fs.mkdir(uploadDirectory, { recursive: true });
-    console.log("Created base upload directory:", uploadDirectory);
+    // console.log("Created base upload directory:", uploadDirectory);
   } catch (error) {
     if (error.code !== "EEXIST") { // Ignore if directory already exists
-      console.error("Error creating base upload directory:", error.message);
+      // console.error("Error creating base upload directory:", error.message);
       throw error; // Rethrow to handle in the app
     }
   }

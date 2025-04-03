@@ -18,10 +18,15 @@ export const compareString = async (userPassword, password) => {
   }
 };
 
-//JSON WEBTOKEN
-export function createJWT(id) {
+export function createAccessToken(id) {
   return jwt.sign({ userId: id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: "1d",
+    expiresIn: '15m', // Shorter expiration for access token
+  });
+}
+
+export function createRefreshToken(id) {
+  return jwt.sign({ userId: id }, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: '7d', // Longer expiration for refresh token
   });
 }
 

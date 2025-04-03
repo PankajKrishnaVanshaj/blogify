@@ -31,7 +31,7 @@ export const getUserByIdOrUsername = async (req, res) => {
     // Return the user with user details and posts
     res.status(200).json({ ...user.toObject(), posts });
   } catch (err) {
-    console.error("Error fetching user by ID or username:", err);
+    // console.error("Error fetching user by ID or username:", err);
     res.status(500).json({ message: "Error fetching user." });
   }
 };
@@ -65,7 +65,7 @@ export const followersStatus = async (req, res) => {
       isFollowing,
     });
   } catch (error) {
-    console.error("Error checking follow status:", error);
+    // console.error("Error checking follow status:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -124,7 +124,7 @@ export const toggleFollowUnfollow = async (req, res) => {
       return res.status(200).json({ message: "User followed" });
     }
   } catch (error) {
-    console.error("Error in follow/unfollow operation:", error);
+    // console.error("Error in follow/unfollow operation:", error);
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
@@ -194,7 +194,7 @@ export const toggleBlockUnblock = async (req, res) => {
       return res.status(200).json({ message: "User blocked successfully." });
     }
   } catch (error) {
-    console.error("Error in block/unblock operation:", error);
+    // console.error("Error in block/unblock operation:", error);
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });

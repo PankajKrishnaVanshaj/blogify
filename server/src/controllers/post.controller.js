@@ -42,7 +42,7 @@ export const createPost = async (req, res) => {
     await notifyFollowers(createdBy, savedPost._id);
     res.status(201).json(savedPost);
   } catch (err) {
-    console.error("Post creation error:", err);
+    // console.error("Post creation error:", err);
 
     res.status(500).json({ message: "Error creating post." });
   }
@@ -78,7 +78,7 @@ export const updatePost = async (req, res) => {
     const updatedPost = await post.save();
     res.status(200).json(updatedPost);
   } catch (err) {
-    console.error("Post update error:", err);
+    // console.error("Post update error:", err);
     res
       .status(500)
       .json({ message: "Error updating post.", error: err.message });
@@ -111,7 +111,7 @@ export const getPostsByUser = async (req, res) => {
       currentPage: page,
     });
   } catch (err) {
-    console.error("Error fetching posts by user:", err);
+    // console.error("Error fetching posts by user:", err);
     res.status(500).json({ message: "Error fetching posts." });
   }
 };
@@ -146,7 +146,7 @@ export const getPostByIdOrSlug = async (req, res) => {
     // Return the post with user details
     res.status(200).json({ ...post.toObject(), user });
   } catch (err) {
-    console.error("Error fetching post by ID or slug:", err);
+    // console.error("Error fetching post by ID or slug:", err);
     res.status(500).json({ message: "Error fetching post." });
   }
 };
@@ -161,7 +161,7 @@ export const getSitemapPosts = async (req, res) => {
 
     return res.status(200).json(posts);
   } catch (error) {
-    console.error("Error fetching posts for sitemap:", error);
+    // console.error("Error fetching posts for sitemap:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error." });
@@ -203,7 +203,7 @@ export const getAllPosts = async (req, res) => {
       currentPage: page,
     });
   } catch (err) {
-    console.error("Error fetching all posts:", err);
+    // console.error("Error fetching all posts:", err);
     res.status(500).json({ message: "Error fetching posts." });
   }
 };
@@ -239,7 +239,7 @@ export const deletePost = async (req, res) => {
 
     res.status(200).json({ message: "Post deleted successfully." });
   } catch (err) {
-    console.error("Error deleting post:", err.message);
+    // console.error("Error deleting post:", err.message);
     res
       .status(500)
       .json({ message: "Error deleting post.", error: err.message });
@@ -276,7 +276,7 @@ export const toggleLikeDislike = async (req, res) => {
       return res.status(200).json({ message: "Post liked" });
     }
   } catch (error) {
-    console.error("Error in like/dislike operation:", error);
+    // console.error("Error in like/dislike operation:", error);
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
@@ -301,7 +301,7 @@ export const LikesStatus = async (req, res) => {
       isLiked,
     });
   } catch (error) {
-    console.error("Error fetching like status:", error);
+    // console.error("Error fetching like status:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -315,7 +315,7 @@ export const markNotification = async (req, res) => {
 
     res.status(200).json({ message: "Notification marked as read" });
   } catch (error) {
-    console.error("Error marking notification:", error);
+    // console.error("Error marking notification:", error);
     res.status(500).json({ error: "Error marking notification" });
   }
 };

@@ -9,6 +9,7 @@ import Bookmark from "./Bookmark";
 import MeInfo from "./MeInfo";
 import SearchBar from "./SearchBar";
 import AIChatBar from "./AIChatBar";
+import { isAuthenticated } from "@/api/auth.api";
 
 const MenuItems = [
   { name: "Home", href: "/" },
@@ -28,9 +29,9 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
         className="absolute top-4 right-4 text-3xl"
         onClick={() => setIsOpen(false)}
       >
-        &times;
+        ×
       </button>
-      <ul className="flex flex-col items-center justify-center h-full gap-8 text-2xl text-primary ">
+      <ul className="flex flex-col items-center justify-center h-full gap-8 text-2xl text-primary">
         {MenuItems.map((item, index) => (
           <li key={index} onClick={() => setIsOpen(false)}>
             <Link href={item.href}>{item.name}</Link>
@@ -46,10 +47,20 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [token, setToken] = useState(null);
+  const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    setToken(localStorage.getItem("token"));
+    const checkAuthStatus = async () => {
+      try {
+        const authenticated = await isAuthenticated();
+        setIsAuth(authenticated);
+      } catch (error) {
+        console.error("Failed to check auth status:", error);
+        setIsAuth(false);
+      }
+    };
+
+    checkAuthStatus();
   }, []);
 
   return (
@@ -62,7 +73,7 @@ const Navbar = () => {
         >
           <CiMenuFries />
         </button>
-        <div className="flex justify-center items-center flex-1 md:flex-none ">
+        <div className="flex justify-center items-center flex-1 md:flex-none">
           <Logo />
         </div>
         <div className="block md:hidden ml-auto">
@@ -87,14 +98,14 @@ const Navbar = () => {
       <div className="hidden md:flex gap-5 items-center">
         <div
           className="flex items-center gap-1 border border-primary text-primary rounded-full px-0.5 py-1 text-sm font-thin cursor-pointer"
-          style={{ minWidth: "100px" }} 
+          style={{ minWidth: "100px" }}
         >
           <SearchBar />
           <span>Search/Chat</span>
           <AIChatBar />
         </div>
         <div className="flex gap-2 items-center cursor-pointer">
-          {token ? (
+          {isAuth ? (
             <>
               <Bookmark />
               <Notifications />

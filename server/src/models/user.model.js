@@ -57,6 +57,14 @@ const userSchema = new Schema(
       required: true,
       default: false,
     },
+    isGoogleAuth: {
+      type: Boolean,
+      default: false
+    },
+    refreshToken: [{
+      type: String,
+      default: null
+    }],
     blockedUsers: [
       {
         _id: false,

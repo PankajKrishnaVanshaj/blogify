@@ -43,7 +43,7 @@ const uploadMedia = async (req, res) => {
     const savedMedia = await newMedia.save();
     res.status(201).json(savedMedia); // Ensure response with saved data
   } catch (error) {
-    console.error("media upload error:", error.message);
+    // console.error("media upload error:", error.message);
 
     if (mediaFilename) {
       deleteFile(mediaFilename, "uploads");
@@ -99,7 +99,7 @@ const updateMedia = async (req, res) => {
       data: updatedMedia,
     });
   } catch (err) {
-    console.error("Media update error:", err.message);
+    // console.error("Media update error:", err.message);
     res.status(500).json({
       status: "error",
       message: "Error updating media.",
@@ -140,7 +140,7 @@ const getMediasByCreator = async (req, res) => {
       totalMedias,
     });
   } catch (err) {
-    console.error("Error fetching medias by user:", err);
+    // console.error("Error fetching medias by user:", err);
     res.status(500).json({ message: "Error fetching medias." });
   }
 };
@@ -163,7 +163,7 @@ const getAllMedias = async (req, res) => {
     return res.status(200).json(medias);
   } catch (error) {
     // Handle any errors that might occur during the database query
-    console.error(error);
+    // console.error(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -180,7 +180,7 @@ const getMediaById = async (req, res) => {
 
     res.status(200).json(media);
   } catch (err) {
-    console.error("Error fetching media by ID:", err); // Updated error message for clarity
+    // console.error("Error fetching media by ID:", err); // Updated error message for clarity
     res.status(500).json({ message: "Error fetching media." });
   }
 };
@@ -212,7 +212,7 @@ const deleteMedia = async (req, res) => {
 
     res.status(200).json({ message: "media deleted successfully." });
   } catch (err) {
-    console.error("Error deleting media:", err.message);
+    // console.error("Error deleting media:", err.message);
     res
       .status(500)
       .json({ message: "Error deleting media.", error: err.message });

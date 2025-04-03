@@ -6,8 +6,7 @@ import { toggleBookmark as toggleBookmarkAPI } from "@/api/bookMarks.api";
 
 const BookMarkStatus = ({ post, size = 24 }) => {
   const { user } = useAuth();
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  
 
   const [isBookmarked, setIsBookmarked] = useState(false);
 

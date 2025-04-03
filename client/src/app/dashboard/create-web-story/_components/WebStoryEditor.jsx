@@ -17,11 +17,10 @@ const categories = [
 
 const WebStoryEditor = ({ story, setStory }) => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [tags, setTags] = useState(story.tags || []); // Ensure tags are initialized correctly
+  const [tags, setTags] = useState(story.tags || []);
   const [tagInput, setTagInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  // Update tags state whenever the story changes
   useEffect(() => {
     setTags(story.tags || []);
   }, [story]);
@@ -47,9 +46,7 @@ const WebStoryEditor = ({ story, setStory }) => {
     setStory((prev) => ({ ...prev, tags: updatedTags }));
   };
 
-  const toggleMediaTab = () => {
-    setIsOpen((prev) => !prev);
-  };
+  const toggleMediaTab = () => setIsOpen((prev) => !prev);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,35 +65,46 @@ const WebStoryEditor = ({ story, setStory }) => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 h-full">
-      <h2 className="text-xl font-bold mb-4">Web Story Editor</h2>
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Title</label>
+    <div className="p-6 bg-gray-50 rounded-lg shadow-md h-full overflow-y-auto">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        Web Story Editor
+      </h2>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Title
+        </label>
         <input
           type="text"
           name="title"
           placeholder="Enter story title"
           value={story.title || ""}
           onChange={handleInputChange}
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200"
         />
       </div>
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Description</label>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description
+        </label>
         <textarea
           name="description"
           placeholder="Enter story description"
           value={story.description || ""}
           onChange={handleInputChange}
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg h-32 focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 resize-none"
         />
       </div>
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Category</label>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Category
+        </label>
         <select
           value={selectedCategory}
           onChange={handleCategoryChange}
-          className="w-full p-2 border border-gray-300 rounded"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 bg-white"
         >
           {categories.map((category) => (
             <option key={category} value={category}>
@@ -105,43 +113,47 @@ const WebStoryEditor = ({ story, setStory }) => {
           ))}
         </select>
       </div>
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Tags</label>
-        <div className="flex justify-between gap-2">
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Tags
+        </label>
+        <div className="flex items-center gap-3">
           <input
             type="text"
             placeholder="Enter tags and press Enter"
             value={tagInput}
             onChange={handleTagInputChange}
             onKeyDown={handleAddTag}
-            className="w-full border border-gray-300 p-2 rounded"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200"
           />
           <button
-            className="bg-primary text-white px-4 py-2 rounded hover:bg-pink-600"
+            className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/85 transition duration-200"
             onClick={toggleMediaTab}
           >
-            <TbImageInPicture className="inline-block mr-2" />
+            <TbImageInPicture className="mr-2" />
+            Media
           </button>
         </div>
-        <div className="flex gap-2 flex-wrap mt-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {tags.length > 0 ? (
             tags.map((tag) => (
               <span
                 key={tag}
-                className="bg-blue-100 text-tertiary py-1 px-3 rounded-lg flex items-center"
+                className="inline-flex items-center px-3 py-1 bg-primary/10 text-primary text-sm rounded-full"
               >
                 {tag}
                 <button
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
-                  className="ml-2 text-red-500"
+                  className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
                 >
-                  &times;
+                  ×
                 </button>
               </span>
             ))
           ) : (
-            <p className="text-gray-500">No tags added yet.</p>
+            <p className="text-sm text-gray-500">No tags added yet.</p>
           )}
         </div>
       </div>

@@ -7,7 +7,7 @@ export const addComment = async (req, res) => {
     const { comment } = req.body;
     const userId = req.user._id;
 
-    console.log(postId, comment, userId);
+    // console.log(postId, comment, userId);
     const post = await Posts.findById(postId);
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
@@ -111,7 +111,7 @@ export const deleteComment = async (req, res) => {
 
     res.status(200).json(post);
   } catch (error) {
-    console.error("Error deleting comment:", error);
+    // console.error("Error deleting comment:", error);
     res.status(500).json({ message: error.message });
   }
 };

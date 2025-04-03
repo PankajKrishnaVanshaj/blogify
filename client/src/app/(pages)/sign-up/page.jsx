@@ -5,12 +5,14 @@ import Divider from "@/components/Divider";
 import Inputbox from "@/components/Inputbox";
 import Logo from "@/components/Logo";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { BiImages } from "react-icons/bi";
 import { FcGoogle } from "react-icons/fc";
 import { IoArrowBackCircleSharp } from "react-icons/io5";
 import { toast } from "sonner";
-import { googleLogin, signUp } from "@/api/auth.api";
+import { googleLogin, signUp, isAuthenticated } from "@/api/auth.api";
+import { useRouter } from "next/navigation";
+import debounce from "lodash/debounce";
 
 const Signup = () => {
   const [showForm, setShowForm] = useState(false);
@@ -22,13 +24,12 @@ const Signup = () => {
   });
   const [file, setFile] = useState(null);
   const [fileURL, setFileURL] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setData({
-      ...data,
-      [name]: value,
-    });
+    setData({ ...data, [name]: value });
   };
 
   const handleFileChange = (e) => {
@@ -37,33 +38,48 @@ const Signup = () => {
     setFileURL(URL.createObjectURL(selectedFile));
   };
 
-  const initiateGoogleLogin = async () => {
-    const result = await googleLogin();
+  const initiateGoogleLogin = () => {
+    googleLogin();
   };
+
+  const debouncedSignUp = useCallback(
+    debounce(async (firstName, lastName, email, password) => {
+      setIsSubmitting(true);
+      const { success, message } = await signUp(firstName, lastName, email, password);
+      if (success) {
+        toast.success("Account created successfully!");
+        router.push("/dashboard");
+      } else {
+        if (message.includes("Too many requests")) {
+          toast.error("Please wait a moment before trying again.");
+        } else {
+          toast.error(message || "Sign-up failed. Please try again.");
+        }
+      }
+      setIsSubmitting(false);
+    }, 1000),
+    [router]
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const { success, message } = await signUp(
-      data.firstName,
-      data.lastName,
-      data.email,
-      data.password
-    );
-
-    if (success) {
-      window.location.replace("/dashboard");
-    } else {
-      toast.error(message || "Sign-up failed. Please try again.");
-    }
+    if (isSubmitting) return;
+    debouncedSignUp(data.firstName, data.lastName, data.email, data.password);
   };
 
+  const debouncedCheckAuth = useCallback(
+    debounce(async () => {
+      const authenticated = await isAuthenticated();
+      if (authenticated) {
+        router.push("/dashboard");
+      }
+    }, 1000),
+    [router]
+  );
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      window.location.replace("/");
-    }
-  }, []);
+    debouncedCheckAuth();
+  }, [debouncedCheckAuth]);
 
   return (
     <div className="flex w-full h-[100vh]">
@@ -76,7 +92,7 @@ const Signup = () => {
             className="w-20 h-20 rounded-full"
           />
         )}
-        <Logo type="sigin" />
+        <Logo type="signin" />
         <span className="text-xl font-semibold text-white">Welcome!</span>
       </div>
 
@@ -101,7 +117,7 @@ const Signup = () => {
             </div>
             {showForm ? (
               <form
-                className="max-w-md w-full mt-8 space-y-6 "
+                className="max-w-md w-full mt-8 space-y-6"
                 onSubmit={handleSubmit}
               >
                 <div className="flex flex-col rounded-md shadow-sm -space-y-px gap-6 mb-8">
@@ -114,6 +130,7 @@ const Signup = () => {
                       placeholder="First Name"
                       value={data.firstName}
                       onChange={handleChange}
+                      disabled={isSubmitting}
                     />
                     <Inputbox
                       label="Last Name"
@@ -123,6 +140,7 @@ const Signup = () => {
                       placeholder="Last Name"
                       value={data.lastName}
                       onChange={handleChange}
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -134,6 +152,7 @@ const Signup = () => {
                     placeholder="email@example.com"
                     value={data.email}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                   />
                   <Inputbox
                     label="Password"
@@ -143,6 +162,7 @@ const Signup = () => {
                     placeholder="Password"
                     value={data.password}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                   />
 
                   <div className="flex items-center justify-between py-4">
@@ -157,6 +177,7 @@ const Signup = () => {
                         id="imgUpload"
                         data-max-size="5120"
                         accept=".jpg, .png, .jpeg"
+                        disabled={isSubmitting}
                       />
                       <BiImages />
                       <span>Picture</span>
@@ -165,19 +186,21 @@ const Signup = () => {
                 </div>
 
                 <Button
-                  label="Create Account"
+                  label={isSubmitting ? "Creating Account..." : "Create Account"}
                   type="submit"
-                  styles="group relative w-full flex justify-center py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-black dark:bg-rose-800 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 "
+                  styles="group relative w-full flex justify-center py-2.5 2xl:py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-black dark:bg-rose-800 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
+                  disabled={isSubmitting}
                 />
               </form>
             ) : (
               <>
                 <div className="max-w-md w-full space-y-8">
                   <Button
-                    onClick={() => initiateGoogleLogin()}
+                    onClick={initiateGoogleLogin}
                     label="Sign up with Google"
                     icon={<FcGoogle className="text-xl" />}
                     styles="w-full flex flex-row-reverse gap-4 bg-black dark:bg-transparent dark:border text-white px-5 py-2.5 rounded-full"
+                    disabled={isSubmitting}
                   />
                   <Divider label="OR" />
 
@@ -185,13 +208,14 @@ const Signup = () => {
                     onClick={() => setShowForm(true)}
                     label="Continue with email"
                     styles="w-full gap-4 bg-white text-black dark:bg-rose-800 dark:text-white px-5 py-2.5 rounded-full border dark:border-none border-gray-300"
+                    disabled={isSubmitting}
                   />
                 </div>
               </>
             )}
 
             <p className="max-w-md w-full text-center text-gray-600 dark:text-gray-300">
-              Already has an account?{" "}
+              Already have an account?{" "}
               <Link href="/sign-in" className="text-rose-800 font-medium">
                 Sign in
               </Link>
