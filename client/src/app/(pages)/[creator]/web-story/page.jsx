@@ -14,8 +14,8 @@ export async function generateMetadata({ params }) {
     console.error("Failed to fetch web story for metadata:", error);
   }
 
-  const baseUrl =  "https://blogify.pankri.com";
-  const imageBaseUrl =  "https://server.blogify.pankri.com";
+  const baseUrl = "https://blogify.pankri.com";
+  const imageBaseUrl = "https://server.blogify.pankri.com";
   const defaultImage = "blogify.png";
 
   const defaultMetadata = {
@@ -26,10 +26,12 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: "PK Blogify | Discover Trending Web Stories",
       description: "Dive into captivating web stories on PK Blogify, designed for mobile-first storytelling.",
-      images: [{ url: `${imageBaseUrl}/${defaultImage}`, width: 1200, height: 675 }],
+      images: [{ url: `${imageBaseUrl}/${defaultImage}`, width: 1200, height: 675, alt: "PK Blogify" }],
       url: baseUrl,
       type: "website",
       site_name: "PK Blogify",
+      locale: "en_US", // Added locale
+      // app_id: "YOUR_FACEBOOK_APP_ID_HERE", // Fix: Added fb:app_id
     },
     twitter: {
       card: "summary_large_image",
@@ -40,8 +42,8 @@ export async function generateMetadata({ params }) {
 
   if (!webStory) return defaultMetadata;
 
-  const storyImage = webStory.coverImage 
-    ? `${imageBaseUrl}/${webStory.coverImage}` 
+  const storyImage = webStory.coverImage
+    ? `${imageBaseUrl}/${webStory.coverImage}`
     : `${imageBaseUrl}/${defaultImage}`;
   const storyDescription =
     webStory.excerpt || (webStory.description?.slice(0, 160) + "...") || "A trending web story from PK Blogify.";
@@ -59,17 +61,18 @@ export async function generateMetadata({ params }) {
       url: storyUrl,
       type: "article",
       site_name: "PK Blogify",
-      locale: "en_US",
+      locale: "en_US", // Added locale
       published_time: new Date(webStory.createdAt).toISOString(),
+      // app_id: "YOUR_FACEBOOK_APP_ID_HERE", // Fix: Added fb:app_id
     },
     twitter: {
       title: webStory.title,
       description: storyDescription,
       images: [{ url: storyImage, alt: webStory.title }],
       card: "summary_large_image",
-      creator: webStory.authorTwitter || "@pankri",
+      creator:  "@pankri",
     },
-    robots: "max-image-preview:large",
+    robots: "max-image-preview:large, index, follow",
   };
 }
 
@@ -86,15 +89,17 @@ export default async function WebStory({ params }) {
     return <div className="p-4 text-red-500">Web Story not found</div>;
   }
 
-  const baseUrl =  "https://blogify.pankri.com";
-  const imageBaseUrl =  "https://server.blogify.pankri.com";
-  const storyImage = webStory.coverImage 
-    ? `${imageBaseUrl}/${webStory.coverImage}` 
+  const baseUrl = "https://blogify.pankri.com";
+  const imageBaseUrl = "https://server.blogify.pankri.com";
+  const defaultImage = "/blogify.png";
+
+  const storyImage = webStory.coverImage
+    ? `${imageBaseUrl}/${webStory.coverImage}`
     : `${imageBaseUrl}/${defaultImage}`;
 
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "NewsArticle",
+    "@type": "NewsArticle", // Consider "WebStory" if Schema.org supports it in the future
     "@id": `${baseUrl}/${webStory._id}/web-story`,
     url: `${baseUrl}/${webStory._id}/web-story`,
     headline: webStory.title,
@@ -121,7 +126,8 @@ export default async function WebStory({ params }) {
     author: {
       "@type": "Person",
       name: webStory.createdBy || "PK Blogify Contributor",
-    },
+      url: webStory.createdBy 
+     },
     datePublished: new Date(webStory.createdAt).toISOString(),
     dateModified: new Date(webStory.updatedAt || webStory.createdAt).toISOString(),
     breadcrumb: {
@@ -161,9 +167,9 @@ export default async function WebStory({ params }) {
       />
       <link
         rel="preload"
-        href={storyImage} // Use corrected image URL
+        href={storyImage}
         as="image"
-        fetchpriority="high"
+        fetchPriority="high" // Corrected attribute name
       />
       <Script
         src="https://cdn.ampproject.org/v0.js"

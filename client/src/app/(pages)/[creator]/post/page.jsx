@@ -10,8 +10,8 @@ export async function generateMetadata({ params }) {
     console.error("Error fetching post for metadata:", error);
   }
 
-  const baseUrl =  "https://blogify.pankri.com";
-  const imageBaseUrl =  "https://server.blogify.pankri.com";
+  const baseUrl = "https://blogify.pankri.com";
+  const imageBaseUrl = "https://server.blogify.pankri.com";
   const defaultImage = "/blogify.png";
 
   const defaultMetadata = {
@@ -37,6 +37,9 @@ export async function generateMetadata({ params }) {
       url: baseUrl,
       type: "website",
       site_name: "PK Blogify",
+      locale: "en_US", // Added locale
+      // Replace with your actual Facebook App ID
+      // app_id: "YOUR_FACEBOOK_APP_ID_HERE", // Fix: Added fb:app_id
     },
     twitter: {
       card: "summary_large_image",
@@ -81,8 +84,9 @@ export async function generateMetadata({ params }) {
       url: postUrl,
       type: "article",
       site_name: "PK Blogify",
-      locale: "en_US",
+      locale: "en_US", // Added locale
       published_time: new Date(post.createdAt).toISOString(),
+      // app_id: "YOUR_FACEBOOK_APP_ID_HERE", // Fix: Added fb:app_id
     },
     twitter: {
       title: post.title,
@@ -94,7 +98,7 @@ export async function generateMetadata({ params }) {
         },
       ],
       card: "summary_large_image",
-      creator: post.authorTwitter || "@pankri",
+      creator:  "@pankri",
     },
     robots: "max-image-preview:large, index, follow",
   };
@@ -114,8 +118,8 @@ export default async function PostPage({ params }) {
     return <div className="p-4 text-red-500">Post not found</div>;
   }
 
-  const baseUrl =  "https://blogify.pankri.com"; // Define here
-  const imageBaseUrl = "https://server.blogify.pankri.com"; // Define here
+  const baseUrl = "https://blogify.pankri.com";
+  const imageBaseUrl = "https://server.blogify.pankri.com";
   const postImage = post.banner ? `${imageBaseUrl}/${post.banner}` : `${imageBaseUrl}/blogify.png`;
 
   const jsonLd = {
@@ -133,7 +137,7 @@ export default async function PostPage({ params }) {
     author: {
       "@type": "Person",
       name: post.authorName || "PK Blogify Contributor",
-      url: post.authorId ? `${baseUrl}/author/${post.authorId}` : undefined,
+      url: post.createdBy , 
     },
     publisher: {
       "@type": "Organization",
@@ -182,12 +186,7 @@ export default async function PostPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <link
-        rel="preload"
-        href={postImage}
-        as="image"
-        fetchpriority="high"
-      />
+      <link rel="preload" href={postImage} as="image" fetchPriority="high" />
       <ReadPost params={params} />
     </section>
   );
