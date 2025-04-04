@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "sonner";
-import { refreshAccessToken } from "./auth.api"; 
+import { refreshAccessToken } from "./auth.api";
 
 const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
 
@@ -10,63 +10,78 @@ const apiClient = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true,
+  timeout: 10000,
 });
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error) => {
+  failedQueue.forEach((prom) => (error ? prom.reject(error) : prom.resolve()));
+  failedQueue = [];
+};
 
 const retryRequest = async (request, retries = 3, delay = 1000) => {
   try {
-   // console.log(`Attempting request, retries left: ${retries}`);
     return await request();
   } catch (error) {
-    if (error.response?.status === 429 && retries > 0) {
-     // console.log(`Rate limited (429), retrying after ${delay}ms`);
+    const status = error.response?.status;
+    if ((status === 429 || error.code === "ECONNABORTED") && retries > 0) {
       await new Promise((resolve) => setTimeout(resolve, delay));
       return retryRequest(request, retries - 1, delay * 2);
     }
-   // console.error("Request failed:", error.message);
     throw error;
   }
 };
 
-apiClient.interceptors.request.use((config) => {
- // console.log(`Making request to: ${config.url}`);
-  return config;
-});
-
 apiClient.interceptors.response.use(
-  (response) => {
-   // console.log(`Response received from ${response.config.url}: ${response.status}`);
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
 
     if (
-      error.response?.status === 401 &&
+      status === 401 &&
       !originalRequest._retry &&
       originalRequest.url !== "/auth/refresh-token"
     ) {
       originalRequest._retry = true;
-     // console.log("401 Unauthorized received");
 
-      try {
-       // console.log("Attempting token refresh");
-        const refreshResult = await refreshAccessToken();
-        if (refreshResult.success) {
-         // console.log("Token refresh successful, retrying original request");
-          return apiClient(originalRequest); // Retry with new cookie
+      if (!isRefreshing) {
+        isRefreshing = true;
+        try {
+          const refreshResult = await refreshAccessToken();
+          if (refreshResult.success) {
+            processQueue(null);
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          processQueue(refreshError);
+          // If no access token, don’t retry, just fail silently
+          if (refreshError.message === "NO_ACCESS_TOKEN") {
+            return Promise.reject(new Error("NO_ACCESS_TOKEN"));
+          }
+          return Promise.reject(new Error("SESSION_EXPIRED"));
+        } finally {
+          isRefreshing = false;
         }
-      } catch (refreshError) {
-       // console.error("Token refresh failed:", refreshError.message);
-        return Promise.reject(error); // Reject original error, not refreshError
       }
+
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then(() => apiClient(originalRequest))
+        .catch((err) => Promise.reject(err));
     }
 
-    if (error.response?.status === 429) {
-     // console.log("429 Too Many Requests received");
-      toast.error("Too many requests. Please wait a moment and try again.");
+    if (status === 429) {
+      toast.error("Too many requests. Please wait and try again.");
     }
 
-   // console.error("Request error:", error.message);
+    if (status === 401) {
+      return Promise.reject(error);
+    }
+
     return Promise.reject(error);
   }
 );
@@ -74,20 +89,26 @@ apiClient.interceptors.response.use(
 const handleApiCall = async (promise) => {
   try {
     const response = await retryRequest(() => promise);
-   // console.log("API call successful:", response.data);
     if (response.data.success !== undefined && !response.data.success) {
       throw new Error(response.data.message);
     }
-    return { success: true, data: response.data }; 
+    return { success: true, data: response.data };
   } catch (error) {
-   // console.error("API Error:", error.message);
+    const status = error.response?.status;
     const errorMessage =
       error.response?.data?.message ||
       error.message ||
       "An error occurred. Please try again.";
-    if (error.response?.status !== 429) {
+
+    if (status === 429) {
+      toast.error("Too many requests. Please wait and try again.");
+    } else if (
+      status !== 401 ||
+      (error.message !== "NO_ACCESS_TOKEN" && error.message === "SESSION_EXPIRED")
+    ) {
       toast.error(errorMessage);
     }
+
     return { success: false, message: errorMessage };
   }
 };

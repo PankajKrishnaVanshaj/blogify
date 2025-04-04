@@ -1,76 +1,122 @@
 import { apiClient, handleApiCall } from "./client";
 
-const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
+// Local flags to track authentication state
+let isAuthChecked = false;
+let isAuthValid = false;
 
-// Adjusted refreshAccessToken to not expect data in response
 export const refreshAccessToken = async () => {
- // console.log("Calling refreshAccessToken");
+  // Only attempt refresh if we believe there’s a session
+  if (!isAuthChecked || !isAuthValid) {
+    throw new Error("NO_ACCESS_TOKEN");
+  }
+
   const promise = apiClient.post("/auth/refresh-token");
   try {
     const response = await handleApiCall(promise);
     if (response.success) {
-     // console.log("Refresh token successful, new access token set in cookie");
-      return { success: true }; // No data expected since token is in cookie
+      isAuthChecked = true;
+      isAuthValid = true;
+      return { success: true };
     } else {
       throw new Error(response.message);
     }
   } catch (error) {
-   // console.error("Refresh token failed:", error.message);
-    throw error;
+    isAuthChecked = true;
+    isAuthValid = false;
+    throw new Error("SESSION_EXPIRED");
   }
 };
 
 export const getCurrentUser = async () => {
- // console.log("Fetching current user");
+  // Skip if we know there’s no valid session
+  if (isAuthChecked && !isAuthValid) {
+    throw new Error("NO_ACCESS_TOKEN");
+  }
+
   try {
     const response = await apiClient.get("/auth/me");
-   // console.log("Current user data:", response.data);
+    isAuthChecked = true;
+    isAuthValid = true;
     return response.data;
   } catch (error) {
-   // console.error("Error fetching user:", error.message);
+    isAuthChecked = true;
+    isAuthValid = false;
     throw error;
   }
 };
 
 export const signIn = async (email, password) => {
- // console.log("Attempting sign in for:", email);
   const payload = { email, password };
   const promise = apiClient.post("/auth/login", payload);
-  return await handleApiCall(promise);
+  try {
+    const response = await handleApiCall(promise);
+    if (response.success) {
+      isAuthChecked = true;
+      isAuthValid = true;
+    }
+    return response;
+  } catch (error) {
+    isAuthChecked = true;
+    isAuthValid = false;
+    throw error;
+  }
 };
 
 export const signUp = async (firstName, lastName, email, password) => {
- // console.log("Attempting sign up for:", email);
   const payload = { firstName, lastName, email, password };
   const promise = apiClient.post("/auth/register", payload);
-  return await handleApiCall(promise);
+  try {
+    const response = await handleApiCall(promise);
+    if (response.success) {
+      isAuthChecked = true;
+      isAuthValid = true;
+    }
+    return response;
+  } catch (error) {
+    isAuthChecked = true;
+    isAuthValid = false;
+    throw error;
+  }
 };
 
 export const googleLogin = () => {
- // console.log("Initiating Google login");
+  const API_URL = process.env.NEXT_PUBLIC_BASE_URL + "/api/v1";
   window.open(`${API_URL}/auth/google`, "_self");
 };
 
 export const logout = async () => {
- // console.log("Attempting logout");
   try {
     await apiClient.post("/auth/logout");
-   // console.log("Logout successful");
+    isAuthChecked = true;
+    isAuthValid = false;
     return { success: true };
   } catch (error) {
-   // console.error("Logout error:", error.message);
+    isAuthChecked = true;
+    isAuthValid = false;
     return { success: false, message: error.message };
   }
 };
 
 export const isAuthenticated = async () => {
- // console.log("Checking authentication status");
-  try {
-    await getCurrentUser();
-   // console.log("User is authenticated");
+  // If already checked and valid, return true without API call
+  if (isAuthChecked && isAuthValid) {
     return true;
-  } catch (error) {
-   // console.log("User is not authenticated:", error.message);
+  }
+  // If already checked and invalid, return false without API call
+  if (isAuthChecked && !isAuthValid) {
     return false;
   }
+  // Otherwise, check with the server
+  try {
+    await getCurrentUser();
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Reset auth state (e.g., on page refresh or manual trigger)
+export const resetAuthState = () => {
+  isAuthChecked = false;
+  isAuthValid = false;
 };

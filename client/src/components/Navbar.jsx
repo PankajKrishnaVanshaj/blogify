@@ -2,6 +2,7 @@
 import Logo from "./Logo";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; 
 import Button from "./Button";
 import { CiMenuFries } from "react-icons/ci";
 import Notifications from "./Notifications";
@@ -9,7 +10,8 @@ import Bookmark from "./Bookmark";
 import MeInfo from "./MeInfo";
 import SearchBar from "./SearchBar";
 import AIChatBar from "./AIChatBar";
-import { isAuthenticated } from "@/api/auth.api";
+import { isAuthenticated, logout } from "@/api/auth.api";
+import { toast } from "sonner";
 
 const MenuItems = [
   { name: "Home", href: "/" },
@@ -17,7 +19,7 @@ const MenuItems = [
   { name: "Contact", href: "/contact" },
 ];
 
-const MobileMenu = ({ isOpen, setIsOpen }) => {
+const MobileMenu = ({ isOpen, setIsOpen, isAuth, handleLogout }) => {
   return (
     <div
       className={`fixed top-0 left-0 w-full h-full bg-white cd z-50 transform ${
@@ -37,9 +39,13 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
             <Link href={item.href}>{item.name}</Link>
           </li>
         ))}
-        <li onClick={() => setIsOpen(false)}>
-          <Link href={"/sign-in"}>Sign in</Link>
-        </li>
+        {isAuth ? (
+          <li onClick={handleLogout}>Log out</li>
+        ) : (
+          <li onClick={() => setIsOpen(false)}>
+            <Link href={"/sign-in"}>Sign in</Link>
+          </li>
+        )}
       </ul>
     </div>
   );
@@ -48,20 +54,39 @@ const MobileMenu = ({ isOpen, setIsOpen }) => {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
+  const router = useRouter(); 
 
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
         const authenticated = await isAuthenticated();
         setIsAuth(authenticated);
+        console.log("[Navbar] Auth status:", authenticated);
       } catch (error) {
-        console.error("Failed to check auth status:", error);
+        console.error("[Navbar] Failed to check auth status:", error);
         setIsAuth(false);
       }
     };
 
     checkAuthStatus();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      const { success, message } = await logout();
+      if (success) {
+        toast.success("Logged out successfully!");
+        setIsAuth(false); // Update state immediately
+        router.push("/sign-in"); // Redirect to sign-in page
+        setIsOpen(false); // Close mobile menu
+      } else {
+        toast.error(message || "Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("[Navbar] Logout error:", error);
+      toast.error("An error occurred during logout. Please try again.");
+    }
+  };
 
   return (
     <nav className="relative flex flex-col md:flex-row w-full pt-3 items-center justify-between gap-4 md:gap-0 border-b-4 border-double px-0.5 rounded-xl">
@@ -122,7 +147,14 @@ const Navbar = () => {
         </div>
       </div>
 
-      {isOpen && <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} />}
+      {isOpen && (
+        <MobileMenu
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          isAuth={isAuth}
+          handleLogout={handleLogout}
+        />
+      )}
     </nav>
   );
 };

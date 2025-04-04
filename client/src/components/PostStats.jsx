@@ -1,5 +1,5 @@
 "use client";
-import { BiHeart, BiShowAlt, BiSolidChat, BiSolidHeart } from "react-icons/bi";
+import { BiHeart, BiShowAlt, BiSolidChat } from "react-icons/bi"; // Removed BiSolidHeart if not used
 import CommentForm from "./comment/CommentForm";
 import { useEffect, useState } from "react";
 import ShareButton from "./ShareButton";
@@ -20,7 +20,7 @@ const PostStats = ({ post, size = 21 }) => {
   };
 
   useEffect(() => {
-    if (post) {
+    if (post && user) {
       setIsLiked(
         post.likes.some((f) => f.user.toString() === user?._id.toString())
       );
@@ -56,7 +56,7 @@ const PostStats = ({ post, size = 21 }) => {
 
   const handleToggleLike = async () => {
     try {
-      await toggleLikeDislike(post._id); // Call API function
+      await toggleLikeDislike(post._id);
       setIsLiked(!isLiked);
       setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
       toast(`You ${isLiked ? "unliked" : "liked"} this post!`);
@@ -66,6 +66,11 @@ const PostStats = ({ post, size = 21 }) => {
     }
   };
 
+  // Construct share data
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+ 
+  const postTitle = post.title; // Post title
+  const postImage = post.banner ? `${baseUrl}/${post.banner}` : `/blogify.png`; 
   return (
     <div className="">
       <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-400">
@@ -74,8 +79,8 @@ const PostStats = ({ post, size = 21 }) => {
           {post.views}
         </span>
         <span
-          className={` flex items-center gap-1 cursor-pointer ${
-            isLiked ? "text-red-500 " : "text-black"
+          className={`flex items-center gap-1 cursor-pointer ${
+            isLiked ? "text-red-500" : "text-black"
           } transition-colors duration-200`}
           onClick={handleToggleLike}
         >
@@ -83,7 +88,12 @@ const PostStats = ({ post, size = 21 }) => {
           {likesCount}
         </span>
         <span className="flex items-center gap-1 cursor-pointer">
-          <ShareButton url={window.location.href} size={20} />
+          <ShareButton
+            url={window.location.href}
+            title={postTitle}
+            image={postImage}
+            size={20}
+          />
         </span>
         <span className="flex items-center gap-1 cursor-pointer">
           <BookMarkStatus post={post._id} size={17} />
