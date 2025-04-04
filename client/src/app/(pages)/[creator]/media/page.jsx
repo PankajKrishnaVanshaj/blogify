@@ -19,6 +19,9 @@ export async function generateMetadata({ params }) {
       ? media.tags.split(",")
       : [];
 
+    const baseUrl =  "https://blogify.pankri.com";
+    const imageBaseUrl =  "https://server.blogify.pankri.com";
+
     return {
       title: media.title || "Media",
       description: media.description || "Media content",
@@ -26,10 +29,10 @@ export async function generateMetadata({ params }) {
       openGraph: {
         title: media.title || "Media",
         description: media.description || "Media content",
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`,
+        url: `${baseUrl}/${media._id}/media`, // Assuming a URL structure
         images: [
           {
-            url: `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`,
+            url: `${imageBaseUrl}/${media.media}`,
             alt: media.title || "Media Image",
             width: 600,
             height: 400,
@@ -64,21 +67,24 @@ const Media = async ({ params }) => {
       ? media.tags.split(",")
       : [];
 
+    const baseUrl =  "https://blogify.pankri.com";
+    const imageBaseUrl =  "https://server.blogify.pankri.com";
+    const mediaUrl = `${imageBaseUrl}/${media.media}`;
+
     // JSON-LD structured data
     const jsonLd = {
       "@context": "http://schema.org",
       "@type": "MediaObject",
-      "name": media.title || "Media",
-      "description": media.description || "",
-      "contentUrl": `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`,
-      "uploadDate": media.uploadDate || new Date().toISOString(),
+      name: media.title || "Media",
+      description: media.description || "",
+      contentUrl: mediaUrl,
+      uploadDate: media.uploadDate || new Date().toISOString(),
       author: {
         "@type": "Person",
         name: media.createdBy || "PK Blogify Contributor",
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/${media.media || "blogify.png"}`,
-
+        url: media.authorId ? `${baseUrl}/author/${media.authorId}` : baseUrl, // Corrected to author profile or base URL
       },
-      "keywords": tags.join(", "),
+      keywords: tags.join(", "),
     };
 
     return (
@@ -93,7 +99,7 @@ const Media = async ({ params }) => {
         </Head>
         <div className="flex flex-col items-center p-4 space-y-4">
           <Image
-            src={`${process.env.NEXT_PUBLIC_BASE_URL}/${media.media}`}
+            src={mediaUrl}
             alt={media.title || "Media"}
             width={600}
             height={400}
