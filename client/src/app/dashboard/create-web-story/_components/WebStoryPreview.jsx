@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const WebStoryPreview = ({ story }) => {
@@ -8,9 +9,12 @@ const WebStoryPreview = ({ story }) => {
         <h3 className="text-xl font-bold text-gray-800 mb-4">{story.title || "No Title"}</h3>
         {story.coverImage && (
           <div className="relative w-[200px] h-[355.55px] mb-4 rounded-lg overflow-hidden shadow-md">
-            <img
+            <Image
               src={`${process.env.NEXT_PUBLIC_BASE_URL}/${story.coverImage}`}
               alt="Cover"
+              width={1200}
+              height={675}
+              priority={true}
               className="absolute top-0 left-0 w-full h-full object-cover"
             />
           </div>

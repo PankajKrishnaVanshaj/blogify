@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { updateProfile } from "@/api/user.api"; 
 import MediaTab from "../media/_components/MediaTab";
+import Image from "next/image";
 
 const EditProfile = () => {
   const { user, setUser } = useAuth();
@@ -48,9 +49,11 @@ console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/${selectedMedia}`)
       <div className="flex items-center space-x-8 mb-8">
         <div onClick={toggleMediaTab} className="relative w-40 h-40">
           {selectedMedia ? (
-            <img
+            <Image
               src={`${process.env.NEXT_PUBLIC_BASE_URL}/${selectedMedia}`}
-
+              width={1200}
+              height={675}
+              priority={true}
               alt="Profile"
               className="w-full h-full rounded-full object-cover border-4 border-primary"
             />

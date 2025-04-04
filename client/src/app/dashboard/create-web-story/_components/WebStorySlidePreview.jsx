@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const WebStorySlidePreview = ({ slides, currentIndex }) => {
@@ -10,9 +11,12 @@ const WebStorySlidePreview = ({ slides, currentIndex }) => {
         <h3 className="text-xl font-bold text-gray-800 mb-4">Slide Preview</h3>
         {currentSlide.media && (
           <div className="relative w-[200px] h-[355.55px] mb-4 rounded-lg overflow-hidden shadow-md">
-            <img
+            <Image
               src={`${process.env.NEXT_PUBLIC_BASE_URL}/${currentSlide.media}`}
               alt="Cover"
+              width={1200}
+              height={675}
+              priority={true}
               className="absolute top-0 left-0 w-full h-full object-cover"
             />
           </div>

@@ -1,12 +1,25 @@
 import Link from "next/link";
+import Image from "next/image"; 
 import React from "react";
 import UserInfo from "./UserInfo";
 
 const WebStoryCard = ({ webStory }) => {
   return (
     <div className="relative h-80 w-52 rounded-lg shadow-sm shadow-tertiary hover:shadow-primary overflow-hidden">
+      {/* Image component for the cover image */}
+      <Image
+        src={`${process.env.NEXT_PUBLIC_BASE_URL}/${webStory.coverImage}`} // Full URL
+        alt={webStory.title} // Provide an alt text for accessibility
+        width={1200}
+        height={675}
+        priority={true}
+        className="h-full w-full object-cover" // Maintain aspect ratio and cover behavior
+      />
+
+      {/* Overlay content */}
       <div className="absolute bottom-0 left-0 w-fit">
-        {/* <div className="bg-white opacity-70 w-fit rounded-full mx-0.5 overflow-auto ">
+        {/* Uncomment if you want to re-enable UserInfo */}
+        {/* <div className="bg-white opacity-70 w-fit rounded-full mx-0.5 overflow-auto">
           {webStory.createdBy && (
             <UserInfo user={webStory.createdBy} use="BlogCarousel" />
           )}
@@ -15,12 +28,6 @@ const WebStoryCard = ({ webStory }) => {
           <Link href={`/${webStory._id}/web-story`}>{webStory.title}</Link>
         </h1>
       </div>
-      <div
-        className="h-full w-full bg-center bg-no-repeat bg-cover"
-        style={{
-          backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_URL}/${webStory.coverImage})`,
-        }}
-      />
     </div>
   );
 };

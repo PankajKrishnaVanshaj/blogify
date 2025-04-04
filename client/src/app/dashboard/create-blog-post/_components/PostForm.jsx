@@ -7,6 +7,7 @@ import MediaTab from "../../media/_components/MediaTab";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
+import Image from "next/image";
 
 const categories = [
   "Technology & Innovation",
@@ -239,9 +240,12 @@ const PostForm = ({ initialData = {}, onSubmit, isEditMode = false }) => {
           className="relative w-44 h-44 border border-gray-300 bg-white rounded-lg overflow-hidden cursor-pointer"
         >
           {formData.banner && (
-            <img
+            <Image
               src={`${process.env.NEXT_PUBLIC_BASE_URL}/${formData.banner}`}
               alt="Selected banner"
+              width={1200}
+              height={675}
+              priority={true}
               className="object-cover w-full h-full"
             />
           )}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { getMediaById, updateMedia, uploadMediaAPI } from "@/api/media.api";
+import Image from "next/image";
 
 const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -100,15 +101,15 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
       toast.error("Description cannot be empty.");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("tags", JSON.stringify(tags));
     formData.append("description", description);
     formData.append("media", media);
-  
+
     try {
       let response;
       if (mediaId) {
@@ -116,10 +117,12 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
       } else {
         response = await uploadMediaAPI(formData);
       }
-  
+
       if (response.status === 201 || response.status === 200) {
-        toast.success(mediaId ? "Successfully updated." : "Successfully created.");
-        resetForm(); 
+        toast.success(
+          mediaId ? "Successfully updated." : "Successfully created."
+        );
+        resetForm();
         setIsLoading(false);
       } else {
         toast.error(response.message || "Something went wrong.");
@@ -130,8 +133,7 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
       setIsLoading(false);
     }
   };
-  
-  
+
   const resetForm = () => {
     setTitle("");
     setTags([]);
@@ -139,9 +141,6 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
     setMediaUrl(null);
     setDescription("");
   };
-  
-
- 
 
   return (
     <div className="relative rounded-lg w-full max-w-xl p-6 shadow-2xl transform transition-all duration-300 ease-in-out">
@@ -166,9 +165,12 @@ const MediaUpload = ({ toggleMediaUpload, mediaId }) => {
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
             {mediaUrl && (
-              <img
+              <Image
                 src={mediaUrl}
                 alt="Selected"
+                width={1200}
+                height={675}
+                priority={true}
                 className="object-contain w-full h-full"
               />
             )}

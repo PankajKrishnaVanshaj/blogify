@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
     console.error("Error fetching post for metadata:", error);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://blogify.pankri.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ;
   const defaultImage = "/blogify.png";
 
   const defaultMetadata = {

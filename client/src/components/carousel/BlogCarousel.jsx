@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { FcNext, FcPrevious } from "react-icons/fc";
 import Link from "next/link";
+import Image from "next/image";
 import UserInfo from "../UserInfo";
 import { fetchAllPosts } from "@/api/blogPost.api";
 
@@ -43,7 +44,7 @@ const BlogCarousel = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const postsArray = await fetchAllPosts(); // Fetch posts from PostService
+        const postsArray = await fetchAllPosts();
         const shuffledPosts = shuffleArray(postsArray);
         setPosts(shuffledPosts.slice(0, 5)); // Get 5 random posts
       } catch (err) {
@@ -59,14 +60,24 @@ const BlogCarousel = () => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
-  // Safeguard against undefined currentBlog
   const currentBlog = posts[currentIndex];
   if (!currentBlog) return <p>No posts available</p>;
 
   return (
     <div className="">
       <div className="relative h-96 rounded-lg overflow-hidden">
-        <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 rounded-b-2xl px-2 ">
+        {/* Replace div with Image component */}
+        <Image
+          src={`${process.env.NEXT_PUBLIC_BASE_URL}/${currentBlog.banner}`}
+          alt={currentBlog.title}
+          width={1200}
+          height={675}
+          className="h-full w-full object-cover"
+          priority={true} // Prioritize loading for carousel (above-the-fold content)
+        />
+
+        {/* Overlay content */}
+        <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 rounded-b-2xl px-2">
           <h1 className="font-semibold text-lg text-primary text-center hover:underline hover:scale-105 duration-300 cursor-pointer line-clamp-1">
             <Link href={`/${currentBlog._id}/post`}>
               {currentBlog.title.slice(0, 100) + "..."}
@@ -81,15 +92,11 @@ const BlogCarousel = () => {
             }}
           ></p>
         </div>
-        <div
-          className="h-full w-full bg-center bg-no-repeat bg-cover"
-          style={{
-            backgroundImage: `url(${process.env.NEXT_PUBLIC_BASE_URL}/${currentBlog.banner})`,
-          }}
-        />
+
+        {/* Navigation buttons */}
         <button
           className="absolute top-1/2 left-2 transform -translate-y-1/2 focus:outline-none"
-         aria-label="Previous"
+          aria-label="Previous"
           onClick={prevSlide}
         >
           <FcPrevious size={30} />
@@ -101,6 +108,8 @@ const BlogCarousel = () => {
         >
           <FcNext size={30} />
         </button>
+
+        {/* Date and UserInfo */}
         <div className="absolute top-2 right-2 hidden md:block bg-white px-2 py-1 rounded-full font-mono font-bold shadow-md shadow-primary bg-opacity-30 text-xs">
           {new Date(currentBlog.createdAt).toLocaleDateString()}
         </div>
