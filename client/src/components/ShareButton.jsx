@@ -2,20 +2,19 @@
 import { BiShareAlt } from "react-icons/bi";
 import { toast } from "sonner";
 
-const ShareButton = ({ url, title, image, size = 24 }) => {
+const ShareButton = ({ url, title, size = 24 }) => {
   const handleShare = async () => {
     try {
       if (navigator.share) {
         // Web Share API for supported browsers
         await navigator.share({
-          title: title || "Share this link",
-          url: url,
-          text: image ? `Check out this post with an image: ${image}` : undefined, // Optional text with image URL
+          title: title || "Check out this post!", // Title is explicitly set first
+          url: url, // URL comes after title
         });
         toast.success("Shared successfully!");
       } else {
         // Fallback: Copy to clipboard for unsupported browsers
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(`${title || "Check out this post!"}: ${url}`);
         toast.success("Link copied to clipboard!");
       }
     } catch (error) {

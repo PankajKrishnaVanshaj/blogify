@@ -1,13 +1,11 @@
 import { apiClient, handleApiCall } from "./client";
 
-// Local flags to track authentication state
 let isAuthChecked = false;
 let isAuthValid = false;
 
 export const refreshAccessToken = async () => {
-  // Only attempt refresh if we believe there’s a session
-  if (!isAuthChecked || !isAuthValid) {
-    throw new Error("NO_ACCESS_TOKEN");
+  if (isAuthChecked && !isAuthValid) {
+    return { success: false, message: "NO_ACCESS_TOKEN" };
   }
 
   const promise = apiClient.post("/auth/refresh-token");
@@ -17,18 +15,16 @@ export const refreshAccessToken = async () => {
       isAuthChecked = true;
       isAuthValid = true;
       return { success: true };
-    } else {
-      throw new Error(response.message);
     }
+    throw new Error(response.message || "Refresh failed");
   } catch (error) {
     isAuthChecked = true;
     isAuthValid = false;
-    throw new Error("SESSION_EXPIRED");
+    return { success: false, message: error.message === "NO_ACCESS_TOKEN" ? "NO_ACCESS_TOKEN" : "SESSION_EXPIRED" };
   }
 };
 
 export const getCurrentUser = async () => {
-  // Skip if we know there’s no valid session
   if (isAuthChecked && !isAuthValid) {
     throw new Error("NO_ACCESS_TOKEN");
   }
@@ -98,15 +94,9 @@ export const logout = async () => {
 };
 
 export const isAuthenticated = async () => {
-  // If already checked and valid, return true without API call
-  if (isAuthChecked && isAuthValid) {
-    return true;
-  }
-  // If already checked and invalid, return false without API call
-  if (isAuthChecked && !isAuthValid) {
-    return false;
-  }
-  // Otherwise, check with the server
+  if (isAuthChecked && isAuthValid) return true;
+  if (isAuthChecked && !isAuthValid) return false;
+
   try {
     await getCurrentUser();
     return true;
@@ -115,7 +105,6 @@ export const isAuthenticated = async () => {
   }
 };
 
-// Reset auth state (e.g., on page refresh or manual trigger)
 export const resetAuthState = () => {
   isAuthChecked = false;
   isAuthValid = false;

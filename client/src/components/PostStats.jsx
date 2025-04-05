@@ -1,5 +1,5 @@
 "use client";
-import { BiHeart, BiShowAlt, BiSolidChat } from "react-icons/bi"; // Removed BiSolidHeart if not used
+import { BiHeart, BiShowAlt, BiSolidChat } from "react-icons/bi"; 
 import CommentForm from "./comment/CommentForm";
 import { useEffect, useState } from "react";
 import ShareButton from "./ShareButton";
@@ -66,11 +66,8 @@ const PostStats = ({ post, size = 21 }) => {
     }
   };
 
-  // Construct share data
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
  
   const postTitle = post.title; // Post title
-  const postImage = post.banner ? `${baseUrl}/${post.banner}` : `/blogify.png`; 
   return (
     <div className="">
       <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-400">
@@ -91,7 +88,6 @@ const PostStats = ({ post, size = 21 }) => {
           <ShareButton
             url={window.location.href}
             title={postTitle}
-            image={postImage}
             size={20}
           />
         </span>

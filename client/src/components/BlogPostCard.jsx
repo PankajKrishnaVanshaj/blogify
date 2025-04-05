@@ -72,7 +72,8 @@ const BlogPostCard = ({ post }) => {
           <span>{formattedDate}</span>
           <span className="flex items-center space-x-1">
             <ShareButton
-              url={`https://blogify.pankri.com/${_id}/post`}
+              url={`https://blogify.pankri.com${postUrl}`}
+              title={title}
               size={18}
             />
           </span>

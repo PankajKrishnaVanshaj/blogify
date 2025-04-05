@@ -10,14 +10,14 @@ const WebStorySlidePreview = ({ slides, currentIndex }) => {
       <div className="border border-gray-200 p-6 rounded-lg shadow-sm bg-white">
         <h3 className="text-xl font-bold text-gray-800 mb-4">Slide Preview</h3>
         {currentSlide.media && (
-          <div className="relative w-[200px] h-[355.55px] mb-4 rounded-lg overflow-hidden shadow-md">
+          <div className="relative w-[200px] h-[355.55px] mb-4 rounded-lg overflow-hidden shadow-md flex justify-center items-center mx-auto">
             <Image
               src={`${process.env.NEXT_PUBLIC_BASE_URL}/${currentSlide.media}`}
               alt="Cover"
               width={1200}
               height={675}
               priority={true}
-              className="absolute top-0 left-0 w-full h-full object-cover"
+              className="w-full h-full object-cover"
             />
           </div>
         )}

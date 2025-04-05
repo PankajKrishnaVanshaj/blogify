@@ -53,15 +53,13 @@ apiClient.interceptors.response.use(
           const refreshResult = await refreshAccessToken();
           if (refreshResult.success) {
             processQueue(null);
-            return apiClient(originalRequest);
+            return apiClient(originalRequest); // Retry with new token
           }
+          processQueue(new Error(refreshResult.message));
+          return Promise.reject(new Error(refreshResult.message));
         } catch (refreshError) {
           processQueue(refreshError);
-          // If no access token, don’t retry, just fail silently
-          if (refreshError.message === "NO_ACCESS_TOKEN") {
-            return Promise.reject(new Error("NO_ACCESS_TOKEN"));
-          }
-          return Promise.reject(new Error("SESSION_EXPIRED"));
+          return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
         }
@@ -78,10 +76,6 @@ apiClient.interceptors.response.use(
       toast.error("Too many requests. Please wait and try again.");
     }
 
-    if (status === 401) {
-      return Promise.reject(error);
-    }
-
     return Promise.reject(error);
   }
 );
@@ -96,16 +90,11 @@ const handleApiCall = async (promise) => {
   } catch (error) {
     const status = error.response?.status;
     const errorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "An error occurred. Please try again.";
+      error.response?.data?.message || error.message || "An error occurred.";
 
     if (status === 429) {
       toast.error("Too many requests. Please wait and try again.");
-    } else if (
-      status !== 401 ||
-      (error.message !== "NO_ACCESS_TOKEN" && error.message === "SESSION_EXPIRED")
-    ) {
+    } else if (status !== 401) {
       toast.error(errorMessage);
     }
 
