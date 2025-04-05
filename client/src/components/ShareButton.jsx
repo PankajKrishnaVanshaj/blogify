@@ -7,6 +7,7 @@ import { IoMdClose } from "react-icons/io";
 import { IoCopyOutline } from 'react-icons/io5';
 import { FaTwitter, FaFacebookF, FaLinkedinIn, FaWhatsapp, FaPinterestP, FaEnvelope, FaRedditAlien, FaTelegramPlane } from "react-icons/fa";
 import { FaThreads } from "react-icons/fa6";
+import { SiMix, SiPocket } from "react-icons/si"; // Added icons for Mix and Pocket
 import { toast } from 'sonner';
 
 // Helper function to create share URLs
@@ -23,12 +24,14 @@ const createShareUrl = (platform, url, title = '') => {
     reddit: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
     telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
     pinterest: `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedTitle}`,
+    mix: `https://mix.com/add?url=${encodedUrl}&title=${encodedTitle}`,
+    pocket: `https://getpocket.com/save?url=${encodedUrl}&title=${encodedTitle}`,
   };
 
   return shareUrls[platform] || '#';
 };
 
-// Define platforms with icons (unchanged)
+// Define platforms with icons
 const platforms = [
   { name: "Pinterest", icon: FaPinterestP, key: "pinterest" },
   { name: "Twitter", icon: FaTwitter, key: "twitter" },
@@ -38,6 +41,8 @@ const platforms = [
   { name: "Telegram", icon: FaTelegramPlane, key: "telegram" },
   { name: "Reddit", icon: FaRedditAlien, key: "reddit" },
   { name: "WhatsApp", icon: FaWhatsapp, key: "whatsapp" },
+  { name: "Mix", icon: SiMix, key: "mix" },
+  { name: "Pocket", icon: SiPocket, key: "pocket" },
 ];
 
 // ShareModal Component
@@ -92,7 +97,7 @@ const ShareModal = ({ isOpen, onClose, url, title }) => {
         </button>
 
         <h2 id="share-dialog-title" className="text-xl font-semibold mb-5 text-center text-gray-800">
-          Share 
+          Share
         </h2>
 
         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
