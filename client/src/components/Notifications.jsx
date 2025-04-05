@@ -137,8 +137,8 @@ const Notifications = () => {
                           : "/default-image.png"
                       }
                       alt={post?.title || "Notification Image"}
-                      width={80}
-                      height={80}
+                      width={1200}
+                      height={675}
                       className="object-cover w-16 h-16 rounded-lg"
                     />
                     <div className="ml-4">

@@ -42,7 +42,7 @@ export default function RootLayout({ children }) {
             <Navbar />
             <Toaster position="top-center" richColors />
             <div className="flex-1">{children}</div>
-            {/* <Footer /> */}
+             <Footer /> 
           </div>
         </AuthProvider>
       )}

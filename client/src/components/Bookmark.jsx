@@ -75,8 +75,8 @@ const Bookmark = () => {
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BASE_URL}/${item.postId.banner}`}
                       alt={item.postId.title}
-                      width={48}
-                      height={48}
+                      width={1200}
+                      height={675}
                       className="w-12 h-12 object-cover rounded-md"
                     />
                   ) : (
