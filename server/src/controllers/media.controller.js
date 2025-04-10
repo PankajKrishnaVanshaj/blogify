@@ -112,27 +112,39 @@ const updateMedia = async (req, res) => {
 const getMediasByCreator = async (req, res) => {
   try {
     const createdBy = req.user._id;
-    const { page = 1, limit = 10 } = req.query; // Page and limit from query params
+    const { page = 1, limit = 10 } = req.query;
 
-    // Convert to integer
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
 
-    // Fetch medias with pagination and sorting
-    const medias = await Medias.find({ createdBy })
-      .sort({ createdAt: -1 })
-      .skip((pageNum - 1) * limitNum) // Skip based on page number and limit
-      .limit(limitNum); // Limit the number of results per page
-
-    const totalMedias = await Medias.countDocuments({ createdBy }); // Get total count for pagination
-
-    if (!medias.length) {
-      return res
-        .status(404)
-        .json({ message: "No medias found for this user." });
+    // Fetch total count first
+    const totalMedias = await Medias.countDocuments({ createdBy });
+    if (totalMedias === 0) {
+      return res.status(404).json({ message: "No medias found for this user." });
     }
 
-    // Send paginated response
+    // Fetch paginated medias
+    const medias = await Medias.find({ createdBy })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    // Debugging logs
+    console.log({
+      pageNum,
+      limitNum,
+      skip,
+      totalMedias,
+      mediasReturned: medias.length,
+      totalPages: Math.ceil(totalMedias / limitNum),
+    });
+
+    // If no medias are returned but skip < totalMedias, it’s a pagination issue
+    if (!medias.length && skip < totalMedias) {
+      return res.status(404).json({ message: "No more medias found for this page." });
+    }
+
     res.status(200).json({
       medias,
       totalPages: Math.ceil(totalMedias / limitNum),
@@ -140,7 +152,7 @@ const getMediasByCreator = async (req, res) => {
       totalMedias,
     });
   } catch (err) {
-    // console.error("Error fetching medias by user:", err);
+    console.error("Error fetching medias by user:", err);
     res.status(500).json({ message: "Error fetching medias." });
   }
 };

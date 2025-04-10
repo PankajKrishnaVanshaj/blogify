@@ -36,15 +36,20 @@ export const uploadMediaAPI = async (formData) => {
 
 // Fetch creator's media
 export const fetchCreatorMediaAPI = async (page = 1, limit = 10) => {
-  // console.log(`Fetching creator media, page: ${page}, limit: ${limit}`);
   try {
     const response = await apiClient.get("/medias/all-medias-of-creator", {
       params: { page, limit },
     });
-    // console.log("Creator media fetched:", response.data);
+    console.log("API Response:", {
+      page,
+      limit,
+      medias: response.data.medias.length,
+      totalMedias: response.data.totalMedias,
+      totalPages: response.data.totalPages,
+    });
     return response.data;
   } catch (error) {
-    // console.error("Error fetching creator media:", error.message);
+    console.error("Error fetching creator media:", error.message);
     throw new Error("Failed to fetch medias.");
   }
 };
