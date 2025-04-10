@@ -112,39 +112,27 @@ const updateMedia = async (req, res) => {
 const getMediasByCreator = async (req, res) => {
   try {
     const createdBy = req.user._id;
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10 } = req.query; // Page and limit from query params
 
+    // Convert to integer
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
 
-    // Fetch total count first
-    const totalMedias = await Medias.countDocuments({ createdBy });
-    if (totalMedias === 0) {
-      return res.status(404).json({ message: "No medias found for this user." });
-    }
-
-    // Fetch paginated medias
+    // Fetch medias with pagination and sorting
     const medias = await Medias.find({ createdBy })
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
+      .skip((pageNum - 1) * limitNum) // Skip based on page number and limit
+      .limit(limitNum); // Limit the number of results per page
 
-    // Debugging logs
-    console.log({
-      pageNum,
-      limitNum,
-      skip,
-      totalMedias,
-      mediasReturned: medias.length,
-      totalPages: Math.ceil(totalMedias / limitNum),
-    });
+    const totalMedias = await Medias.countDocuments({ createdBy }); // Get total count for pagination
 
-    // If no medias are returned but skip < totalMedias, it’s a pagination issue
-    if (!medias.length && skip < totalMedias) {
-      return res.status(404).json({ message: "No more medias found for this page." });
+    if (!medias.length) {
+      return res
+        .status(404)
+        .json({ message: "No medias found for this user." });
     }
 
+    // Send paginated response
     res.status(200).json({
       medias,
       totalPages: Math.ceil(totalMedias / limitNum),
@@ -152,7 +140,7 @@ const getMediasByCreator = async (req, res) => {
       totalMedias,
     });
   } catch (err) {
-    console.error("Error fetching medias by user:", err);
+    // console.error("Error fetching medias by user:", err);
     res.status(500).json({ message: "Error fetching medias." });
   }
 };

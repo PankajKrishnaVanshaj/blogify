@@ -4,80 +4,69 @@ import { fetchCreatorMediaAPI } from "@/api/media.api";
 
 const MediaView = ({ onSelectMedia }) => {
   const [media, setMedia] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
 
-  const loadMoreTriggerRef = useRef(null);
-  const isFetchingRef = useRef(false);
-
-  const fetchMedia = async () => {
-    if (isFetchingRef.current || page > totalPages) {
-      console.log("Fetch skipped:", { page, totalPages, isFetching: isFetchingRef.current });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      isFetchingRef.current = true;
-
-      const response = await fetchCreatorMediaAPI(page, limit);
-      console.log("FetchMedia:", {
-        page,
-        mediasFetched: response.medias.length,
-        totalPages: response.totalPages,
-        totalMedias: response.totalMedias,
-      });
-
-      if (response && response.medias) {
-        // Append new media without filtering (trust backend to avoid duplicates)
-        setMedia((prevMedia) => [...prevMedia, ...response.medias]);
-        setTotalPages(response.totalPages);
-      } else {
-        setError("No media found.");
-      }
-    } catch (err) {
-      setError("Failed to fetch medias.");
-      console.error("Fetch error:", err);
-    } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
-    }
-  };
+  const loadMoreTriggerRef = useRef(null); // Reference for the load-more trigger element
+  const isFetchingRef = useRef(false); // To prevent multiple fetch triggers
 
   useEffect(() => {
-    fetchMedia();
-  }, [page]);
+    const fetchMedia = async () => {
+      if (isFetchingRef.current || page > totalPages) return; // Prevent fetching if already fetching or reached the last page
 
+      try {
+        setIsLoading(true);
+        isFetchingRef.current = true; // Mark as fetching to avoid multiple triggers
+
+        const response = await fetchCreatorMediaAPI(page, limit);
+        if (response && response.medias) {
+          setMedia((prevMedia) => {
+            // Filter out already existing media to prevent duplicates
+            const newMedia = response.medias.filter(
+              (item) => !prevMedia.some((mediaItem) => mediaItem._id === item._id)
+            );
+            return [...prevMedia, ...newMedia];
+          });
+          setTotalPages(response.totalPages);
+        } else {
+          setError("No media found.");
+        }
+      } catch (err) {
+        setError("Failed to fetch medias.");
+      } finally {
+        setIsLoading(false);
+        isFetchingRef.current = false; // Reset fetching state
+      }
+    };
+
+    fetchMedia();
+  }, [page, limit, totalPages]);
+
+  // Handle the intersection observer to detect when to load more
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        console.log("Intersection:", {
-          isIntersecting: entry.isIntersecting,
-          page,
-          totalPages,
-          isFetching: isFetchingRef.current,
-        });
         if (entry.isIntersecting && !isFetchingRef.current && page < totalPages) {
-          setPage((prevPage) => {
-            console.log("Incrementing page to:", prevPage + 1);
-            return prevPage + 1;
-          });
+          setPage((prevPage) => prevPage + 1); // Increment page only when in view
         }
       },
-      { threshold: 0.5, rootMargin: "100px" }
+      { threshold: 1.0 }
     );
 
-    const trigger = loadMoreTriggerRef.current;
-    if (trigger) observer.observe(trigger);
+    if (loadMoreTriggerRef.current) {
+      observer.observe(loadMoreTriggerRef.current);
+    }
 
     return () => {
-      if (trigger) observer.unobserve(trigger);
+      if (loadMoreTriggerRef.current) {
+        observer.unobserve(loadMoreTriggerRef.current);
+      }
     };
-  }, [totalPages]);
+  }, [page, totalPages]);
 
   const handleDeleteMedia = (mediaId) => {
     setMedia((prevMedia) => prevMedia.filter((item) => item._id !== mediaId));
@@ -103,8 +92,8 @@ const MediaView = ({ onSelectMedia }) => {
       )}
 
       {page < totalPages && (
-        <div ref={loadMoreTriggerRef} className="w-full text-center mt-4 h-10">
-          {isLoading && page > 1 ? <div>Loading more...</div> : <span>Load more</span>}
+        <div ref={loadMoreTriggerRef} className="w-full text-center mt-4">
+          {isLoading && page > 1 ? <div>Loading more...</div> : null}
         </div>
       )}
     </div>
