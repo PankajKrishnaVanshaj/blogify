@@ -10,63 +10,58 @@ const MediaView = ({ onSelectMedia }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10);
 
-  const loadMoreTriggerRef = useRef(null); // Reference for the load-more trigger element
-  const isFetchingRef = useRef(false); // To prevent multiple fetch triggers
+  const loadMoreTriggerRef = useRef(null);
+  const isFetchingRef = useRef(false);
+
+  const fetchMedia = async () => {
+    if (isFetchingRef.current || page > totalPages) return;
+
+    try {
+      setIsLoading(true);
+      isFetchingRef.current = true;
+
+      const response = await fetchCreatorMediaAPI(page, limit);
+      if (response && response.medias) {
+        setMedia((prevMedia) => {
+          const newMedia = response.medias.filter(
+            (item) => !prevMedia.some((mediaItem) => mediaItem._id === item._id)
+          );
+          return [...prevMedia, ...newMedia];
+        });
+        setTotalPages(response.totalPages);
+      } else {
+        setError("No media found.");
+      }
+    } catch (err) {
+      setError("Failed to fetch medias.");
+    } finally {
+      setIsLoading(false);
+      isFetchingRef.current = false;
+    }
+  };
 
   useEffect(() => {
-    const fetchMedia = async () => {
-      if (isFetchingRef.current || page > totalPages) return; // Prevent fetching if already fetching or reached the last page
-
-      try {
-        setIsLoading(true);
-        isFetchingRef.current = true; // Mark as fetching to avoid multiple triggers
-
-        const response = await fetchCreatorMediaAPI(page, limit);
-        if (response && response.medias) {
-          setMedia((prevMedia) => {
-            // Filter out already existing media to prevent duplicates
-            const newMedia = response.medias.filter(
-              (item) => !prevMedia.some((mediaItem) => mediaItem._id === item._id)
-            );
-            return [...prevMedia, ...newMedia];
-          });
-          setTotalPages(response.totalPages);
-        } else {
-          setError("No media found.");
-        }
-      } catch (err) {
-        setError("Failed to fetch medias.");
-      } finally {
-        setIsLoading(false);
-        isFetchingRef.current = false; // Reset fetching state
-      }
-    };
-
     fetchMedia();
-  }, [page, limit, totalPages]);
+  }, [page]);
 
-  // Handle the intersection observer to detect when to load more
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (entry.isIntersecting && !isFetchingRef.current && page < totalPages) {
-          setPage((prevPage) => prevPage + 1); // Increment page only when in view
+          setPage((prevPage) => prevPage + 1);
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.5 } // Trigger when 50% of the trigger element is visible
     );
 
-    if (loadMoreTriggerRef.current) {
-      observer.observe(loadMoreTriggerRef.current);
-    }
+    const trigger = loadMoreTriggerRef.current;
+    if (trigger) observer.observe(trigger);
 
     return () => {
-      if (loadMoreTriggerRef.current) {
-        observer.unobserve(loadMoreTriggerRef.current);
-      }
+      if (trigger) observer.unobserve(trigger);
     };
-  }, [page, totalPages]);
+  }, [totalPages]); // Re-run if totalPages changes
 
   const handleDeleteMedia = (mediaId) => {
     setMedia((prevMedia) => prevMedia.filter((item) => item._id !== mediaId));

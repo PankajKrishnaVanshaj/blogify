@@ -112,27 +112,33 @@ const updateMedia = async (req, res) => {
 const getMediasByCreator = async (req, res) => {
   try {
     const createdBy = req.user._id;
-    const { page = 1, limit = 10 } = req.query; // Page and limit from query params
+    const { page = 1, limit = 10 } = req.query;
 
-    // Convert to integer
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
 
-    // Fetch medias with pagination and sorting
     const medias = await Medias.find({ createdBy })
       .sort({ createdAt: -1 })
-      .skip((pageNum - 1) * limitNum) // Skip based on page number and limit
-      .limit(limitNum); // Limit the number of results per page
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum);
 
-    const totalMedias = await Medias.countDocuments({ createdBy }); // Get total count for pagination
+    const totalMedias = await Medias.countDocuments({ createdBy });
 
-    if (!medias.length) {
+    // console.log({
+    //   pageNum,
+    //   limitNum,
+    //   skip: (pageNum - 1) * limitNum,
+    //   totalMedias,
+    //   mediasReturned: medias.length,
+    //   totalPages: Math.ceil(totalMedias / limitNum),
+    // });
+
+    if (!medias.length && totalMedias > 0) {
       return res
         .status(404)
-        .json({ message: "No medias found for this user." });
+        .json({ message: "No more medias found for this page." });
     }
 
-    // Send paginated response
     res.status(200).json({
       medias,
       totalPages: Math.ceil(totalMedias / limitNum),
@@ -140,7 +146,7 @@ const getMediasByCreator = async (req, res) => {
       totalMedias,
     });
   } catch (err) {
-    // console.error("Error fetching medias by user:", err);
+    console.error("Error fetching medias by user:", err);
     res.status(500).json({ message: "Error fetching medias." });
   }
 };
