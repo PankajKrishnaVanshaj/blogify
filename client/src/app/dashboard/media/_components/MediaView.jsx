@@ -4,7 +4,7 @@ import { fetchCreatorMediaAPI } from "@/api/media.api";
 
 const MediaView = ({ onSelectMedia }) => {
   const [media, setMedia] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -14,13 +14,18 @@ const MediaView = ({ onSelectMedia }) => {
   const isFetchingRef = useRef(false);
 
   const fetchMedia = async () => {
-    if (isFetchingRef.current || page > totalPages) return;
+    if (isFetchingRef.current || page > totalPages) {
+      console.log("Fetch skipped:", { page, totalPages, isFetching: isFetchingRef.current });
+      return;
+    }
 
     try {
       setIsLoading(true);
       isFetchingRef.current = true;
 
       const response = await fetchCreatorMediaAPI(page, limit);
+      console.log("FetchMedia:", { page, mediasFetched: response.medias.length, totalPages: response.totalPages });
+
       if (response && response.medias) {
         setMedia((prevMedia) => {
           const newMedia = response.medias.filter(
@@ -34,25 +39,34 @@ const MediaView = ({ onSelectMedia }) => {
       }
     } catch (err) {
       setError("Failed to fetch medias.");
+      console.error("Fetch error:", err);
     } finally {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
   };
 
+  // Fetch media when page changes
   useEffect(() => {
     fetchMedia();
   }, [page]);
 
+  // Set up intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
+        console.log("Intersection:", {
+          isIntersecting: entry.isIntersecting,
+          page,
+          totalPages,
+          isFetching: isFetchingRef.current,
+        });
         if (entry.isIntersecting && !isFetchingRef.current && page < totalPages) {
           setPage((prevPage) => prevPage + 1);
         }
       },
-      { threshold: 0.5 } // Trigger when 50% of the trigger element is visible
+      { threshold: 0.1 } // Trigger when 10% of the element is visible
     );
 
     const trigger = loadMoreTriggerRef.current;
@@ -61,7 +75,7 @@ const MediaView = ({ onSelectMedia }) => {
     return () => {
       if (trigger) observer.unobserve(trigger);
     };
-  }, [totalPages]); // Re-run if totalPages changes
+  }, [totalPages]);
 
   const handleDeleteMedia = (mediaId) => {
     setMedia((prevMedia) => prevMedia.filter((item) => item._id !== mediaId));
@@ -87,8 +101,8 @@ const MediaView = ({ onSelectMedia }) => {
       )}
 
       {page < totalPages && (
-        <div ref={loadMoreTriggerRef} className="w-full text-center mt-4">
-          {isLoading && page > 1 ? <div>Loading more...</div> : null}
+        <div ref={loadMoreTriggerRef} className="w-full text-center mt-4 h-10">
+          {isLoading && page > 1 ? <div>Loading more...</div> : <span>&nbsp;</span>}
         </div>
       )}
     </div>

@@ -117,26 +117,34 @@ const getMediasByCreator = async (req, res) => {
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
 
+    // Calculate skip value
+    const skip = (pageNum - 1) * limitNum;
+
+    // Fetch medias
     const medias = await Medias.find({ createdBy })
       .sort({ createdAt: -1 })
-      .skip((pageNum - 1) * limitNum)
+      .skip(skip)
       .limit(limitNum);
 
+    // Get total count
     const totalMedias = await Medias.countDocuments({ createdBy });
 
-    // console.log({
-    //   pageNum,
-    //   limitNum,
-    //   skip: (pageNum - 1) * limitNum,
-    //   totalMedias,
-    //   mediasReturned: medias.length,
-    //   totalPages: Math.ceil(totalMedias / limitNum),
-    // });
+    // Debugging logs
+    console.log({
+      pageNum,
+      limitNum,
+      skip,
+      totalMedias,
+      mediasReturned: medias.length,
+      totalPages: Math.ceil(totalMedias / limitNum),
+    });
 
-    if (!medias.length && totalMedias > 0) {
-      return res
-        .status(404)
-        .json({ message: "No more medias found for this page." });
+    if (!medias.length && totalMedias > 0 && skip < totalMedias) {
+      return res.status(404).json({ message: "No more medias found for this page." });
+    }
+
+    if (!medias.length && totalMedias === 0) {
+      return res.status(404).json({ message: "No medias found for this user." });
     }
 
     res.status(200).json({
