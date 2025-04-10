@@ -24,15 +24,16 @@ const MediaView = ({ onSelectMedia }) => {
       isFetchingRef.current = true;
 
       const response = await fetchCreatorMediaAPI(page, limit);
-      console.log("FetchMedia:", { page, mediasFetched: response.medias.length, totalPages: response.totalPages });
+      console.log("FetchMedia:", {
+        page,
+        mediasFetched: response.medias.length,
+        totalPages: response.totalPages,
+        totalMedias: response.totalMedias,
+      });
 
       if (response && response.medias) {
-        setMedia((prevMedia) => {
-          const newMedia = response.medias.filter(
-            (item) => !prevMedia.some((mediaItem) => mediaItem._id === item._id)
-          );
-          return [...prevMedia, ...newMedia];
-        });
+        // Append new media without filtering (trust backend to avoid duplicates)
+        setMedia((prevMedia) => [...prevMedia, ...response.medias]);
         setTotalPages(response.totalPages);
       } else {
         setError("No media found.");
@@ -46,12 +47,10 @@ const MediaView = ({ onSelectMedia }) => {
     }
   };
 
-  // Fetch media when page changes
   useEffect(() => {
     fetchMedia();
   }, [page]);
 
-  // Set up intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -63,10 +62,13 @@ const MediaView = ({ onSelectMedia }) => {
           isFetching: isFetchingRef.current,
         });
         if (entry.isIntersecting && !isFetchingRef.current && page < totalPages) {
-          setPage((prevPage) => prevPage + 1);
+          setPage((prevPage) => {
+            console.log("Incrementing page to:", prevPage + 1);
+            return prevPage + 1;
+          });
         }
       },
-      { threshold: 0.1 } // Trigger when 10% of the element is visible
+      { threshold: 0.5, rootMargin: "100px" }
     );
 
     const trigger = loadMoreTriggerRef.current;
@@ -102,7 +104,7 @@ const MediaView = ({ onSelectMedia }) => {
 
       {page < totalPages && (
         <div ref={loadMoreTriggerRef} className="w-full text-center mt-4 h-10">
-          {isLoading && page > 1 ? <div>Loading more...</div> : <span>&nbsp;</span>}
+          {isLoading && page > 1 ? <div>Loading more...</div> : <span>Load more</span>}
         </div>
       )}
     </div>

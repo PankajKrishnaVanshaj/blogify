@@ -44,8 +44,8 @@ export const fetchCreatorMediaAPI = async (page = 1, limit = 10) => {
       page,
       limit,
       medias: response.data.medias.length,
-      totalPages: response.data.totalPages,
       totalMedias: response.data.totalMedias,
+      totalPages: response.data.totalPages,
     });
     return response.data;
   } catch (error) {

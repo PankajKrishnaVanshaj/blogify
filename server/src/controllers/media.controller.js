@@ -116,18 +116,19 @@ const getMediasByCreator = async (req, res) => {
 
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
-
-    // Calculate skip value
     const skip = (pageNum - 1) * limitNum;
 
-    // Fetch medias
+    // Fetch total count first
+    const totalMedias = await Medias.countDocuments({ createdBy });
+    if (totalMedias === 0) {
+      return res.status(404).json({ message: "No medias found for this user." });
+    }
+
+    // Fetch paginated medias
     const medias = await Medias.find({ createdBy })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limitNum);
-
-    // Get total count
-    const totalMedias = await Medias.countDocuments({ createdBy });
 
     // Debugging logs
     console.log({
@@ -139,12 +140,9 @@ const getMediasByCreator = async (req, res) => {
       totalPages: Math.ceil(totalMedias / limitNum),
     });
 
-    if (!medias.length && totalMedias > 0 && skip < totalMedias) {
+    // If no medias are returned but skip < totalMedias, it’s a pagination issue
+    if (!medias.length && skip < totalMedias) {
       return res.status(404).json({ message: "No more medias found for this page." });
-    }
-
-    if (!medias.length && totalMedias === 0) {
-      return res.status(404).json({ message: "No medias found for this user." });
     }
 
     res.status(200).json({
